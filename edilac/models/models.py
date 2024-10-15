@@ -1,10 +1,19 @@
 from odoo.exceptions import UserError
+
 from odoo import models, fields, api,_, tools
+
+
+from odoo import models, fields, api,_
+
 
 class H_Purchase(models.Model):
     _name = 'purchase.order'
     _inherit = 'purchase.order'
     _description = 'Description'
+
+
+
+
     state = fields.Selection([
         ('draft', 'Demande de prix'),
         ('sent', 'Envoyé'),
@@ -16,9 +25,11 @@ class H_Purchase(models.Model):
         ('cancel', 'Annulé')
     ], string='Status', readonly=True, index=True, copy=False, default='draft', tracking=True)
     vat = fields.Html(string='Vat', required=False)
+
     number_palet = fields.Integer(string='Nombre Totale de Palet',compute='_compute_total_palet',required=False, store= True)
     qte_palet = fields.Integer(string='Total Palet',required=False, store= True,related='order_line.qte_palet')
     product_qty = fields.Float(string='Total Carton',required=False, store= True, related='order_line.product_qty')
+
     type = fields.Selection(
         string=_('type'),
         selection=[
@@ -27,12 +38,18 @@ class H_Purchase(models.Model):
         ], default='local'
     )
 
+
     @api.depends('order_line.qte_palet')
     def _compute_total_palet(self):
         for order in self:
             total_palet = sum(line.qte_palet for line in order.order_line)
             order.number_palet = total_palet
     # mail_dg = fields.Char(string='mail', required=False, default='alexandre@gmail.com')
+
+
+    # mail_dg = fields.Char(string='mail', required=False, default='alexandre@gmail.com')
+
+
     @api.model_create_multi
     def create(self, vals_list):
         orders = self.browse()
@@ -41,6 +58,9 @@ class H_Purchase(models.Model):
             # Vérifiez si la commande a des lignes
             if 'order_line' not in vals or not vals['order_line']:
                 raise UserError("Vous ne pouvez pas créer une commande d'achat sans lignes de commande.")
+
+
+
             company_id = vals.get('company_id', self.default_get(['company_id'])['company_id'])
             # Assurez-vous que le type de prélèvement et la devise par défaut sont pris dans la bonne entreprise.
             self_comp = self.with_company(company_id)
@@ -58,9 +78,16 @@ class H_Purchase(models.Model):
                 order.sudo().write(
                     partner_vals)  # Parce que l'utilisateur d'achat n'a pas le droit d'écriture sur `res.partner`
         return orders
+
     def button_action_submit(self):
         for rec in self:
             rec.state = 'submit'
+
+    def button_action_submit(self):
+        for rec in self:
+            rec.state = 'submit'
+
+
     def button_confirm(self):
         for order in self:
             if order.state not in ['draft', 'sent', 'submit']:
@@ -80,6 +107,7 @@ class H_Purchase(models.Model):
         check_config = self.env['res.config.settings'].search([], limit=1)
         print(check_config)
 
+
         for rec in self:
             # Vérifiez le type de l'enregistrement
             if rec.type == 'local':
@@ -92,6 +120,15 @@ class H_Purchase(models.Model):
 
     def action_submit(self):
         return self.send_email()
+
+        self.write({'state': 'approved'})
+        for rec in self:
+            rec.button_confirm()
+
+    def action_submit(self):
+        return self.send_email()
+
+
     def button_confirm_test(self):
         for order in self:
             if order.state != 'approved':
@@ -105,6 +142,7 @@ class H_Purchase(models.Model):
             if order.partner_id not in order.message_partner_ids:
                 order.message_subscribe([order.partner_id.id])
         return True
+
 
     @api.model_create_multi
     def create(self, vals_list):

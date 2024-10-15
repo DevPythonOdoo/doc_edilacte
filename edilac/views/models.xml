@@ -126,13 +126,13 @@
             <field name="context">{'quotation_only': True}</field>
             <field name="help" type="html">
                 <p class="o_view_nocontent_smiling_face">
-                    No request for quotation found. Let's create one!
+                    Aucune demande de devis local n'a été trouvée. Créons-en une !
                 </p>
                 <p>
-                    Requests for quotation are documents that will be sent to your suppliers to request
-                    prices for different products you consider buying.
-                    Once an agreement has been found with the supplier, they will be confirmed and turned
-                    into purchase orders.
+                    Les demandes de devis sont des documents qui seront envoyés à vos
+                    fournisseurs pour demander des prix pour différents produits que vous envisagez d'acheter.
+                    Une fois un accord trouvé avec le fournisseur,
+                    ils seront confirmés et transformés en bons de commande.
                 </p>
             </field>
         </record>
@@ -146,13 +146,13 @@
             <field name="context">{'default_quotation_only': True,'default_type':'import'}</field>
             <field name="help" type="html">
                 <p class="o_view_nocontent_smiling_face">
-                    No request for quotation found. Let's create one!
+                    Aucune demande de devis international n'a été trouvée. Créons-en une !
                 </p>
                 <p>
-                    Requests for quotation are documents that will be sent to your suppliers to request
-                    prices for different products you consider buying.
-                    Once an agreement has been found with the supplier, they will be confirmed and turned
-                    into purchase orders.
+                    Les demandes de devis sont des documents qui seront envoyés à vos
+                    fournisseurs pour demander des prix pour différents produits que vous envisagez d'acheter.
+                    Une fois un accord trouvé avec le fournisseur,
+                    ils seront confirmés et transformés en bons de commande.
                 </p>
             </field>
         </record>
@@ -164,16 +164,15 @@
                 (0, 0, {'view_mode': 'tree', 'view_id': ref('purchase.purchase_order_view_tree')}),
                 (0, 0, {'view_mode': 'kanban', 'view_id': ref('purchase.purchase_order_view_kanban_without_dashboard')}),
             ]"/>
-            <field name="domain">[('state','in',('purchase', 'done') or ('type','=','local'))]</field>
+            <field name="domain">[('state','in',('purchase', 'done')) and ('type','=','local')]</field>
             <field name="search_view_id" ref="purchase.purchase_order_view_search"/>
-            <field name="context">{'quotation_onlys': True}</field>
+            <field name="context">{'default_quotation_only': True}</field>
             <field name="help" type="html">
                 <p class="o_view_nocontent_smiling_face">
-                    No purchase order found. Let's create one!
+                     Aucun bon de commande Local trouvé. Créons-en un !
                 </p>
                 <p>
-                    Once you ordered your products to your supplier, confirm your request for quotation and it will turn
-                    into a purchase order.
+                    Une fois que vous avez commandé vos produits auprès de vos fournisseurs locaux, confirmez votre demande de devis et elle se transformera en bon de commande.
                 </p>
             </field>
         </record>
@@ -187,37 +186,32 @@
                 (0, 0, {'view_mode': 'tree', 'view_id': ref('purchase.purchase_order_view_tree')}),
                 (0, 0, {'view_mode': 'kanban', 'view_id': ref('purchase.purchase_order_view_kanban_without_dashboard')}),
             ]"/>
-            <field name="domain">[('state','in',('purchase', 'done') or ('type','=','import'))]</field>
+            <field name="domain">[('state','in',('purchase', 'done')) and ('type','=','import')]</field>
             <field name="search_view_id" ref="purchase.purchase_order_view_search"/>
-            <field name="context">{'default_quotation_onlys': True, 'default_type':'import'}</field>
+            <field name="context">{'default_quotation_only': True, 'default_type':'import'}</field>
             <field name="help" type="html">
                 <p class="o_view_nocontent_smiling_face">
-                    No purchase order found. Let's create one!
+                    Aucun bon de commande International trouvé. Créons-en un !
                 </p>
                 <p>
-                    Once you ordered your products to your supplier, confirm your request for quotation and it will turn
-                    into a purchase order.
+                    Une fois que vous avez commandé vos produits auprès de vos fournisseurs internationaux, confirmez votre demande de devis et elle se transformera en bon de commande.
                 </p>
             </field>
         </record>
 
 
         <!-- This Menu Item Must have a parent -->
-        <menuitem id="menu_purchase_local" name="Achat Local" parent="purchase.menu_procurement_management"
-                  sequence="0"/>
-        <menuitem action="purchase_rfq_local" id="purchase.menu_purchase_rfq" parent="menu_purchase_local"
-                  sequence="1"/>
+        <menuitem id="menu_purchase_local" name="Achat Local" parent="purchase.menu_procurement_management" sequence="0"/>
+        <menuitem action="purchase_rfq_local" id="purchase.menu_purchase_rfq" parent="menu_purchase_local" sequence="1"/>
 
-        <menuitem id="menu_oders_import" name="Achat International" parent="purchase.menu_procurement_management"
-                  sequence="1"/>
-        <menuitem id="menu_purchase_import" name="Demande de prix internationale" parent="menu_oders_import"
-                  action="action_purchase_rfq_customs" sequence="1"/>
+        <menuitem id="menu_oders_import" name="Achat International" parent="purchase.menu_procurement_management" sequence="1"/>
+        <menuitem id="menu_purchase_import" name="Demande de prix internationale" parent="menu_oders_import" action="action_purchase_rfq_customs" sequence="1"/>
         <!-- This Menu Item must have a parent and an action -->
         <!-- This Menu Item Must have a parent -->
-        <menuitem id="menu_purchase_orders" name="Bon de Commande Local" parent="purchase.menu_procurement_management" sequence="2"/>
-        <menuitem id="purchase.menu_purchase_form_action" name="Commandes Locale" parent="menu_purchase_orders" action="action_purchase_local" sequence="1"/>
+        <menuitem id="menu_purchase_orders" name="Bons de Commande Local" parent="purchase.menu_procurement_management" sequence="2"/>
+        <menuitem id="purchase.menu_purchase_form_action" parent="menu_purchase_orders" action="action_purchase_local" sequence="1"/>
 
-         <menuitem id="menu_purchase_orderss" name="Bon de Commande international" parent="purchase.menu_procurement_management" sequence="3"/>
-        <menuitem id="menu_purchase_order" name="Commandes international" parent="menu_purchase_orderss" action="action_purchase_form" sequence="1"/>
+         <menuitem id="menu_purchase_orderss" name="Bons de Commande international" parent="purchase.menu_procurement_management" sequence="3"/>
+        <menuitem id="menu_purchase_order" name="Commandes internationales" parent="menu_purchase_orderss" action="action_purchase_form" sequence="1"/>
     </data>
 </odoo>
