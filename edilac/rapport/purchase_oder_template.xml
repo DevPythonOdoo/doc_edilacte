@@ -1,20 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <data>
-        
-        <record id="$ModelName$_form_inherit" model="ir.ui.view">
-            <field name="name">$ProjectName$.$ModelName$.form</field>
-            <field name="model">$ProjectName$.$ModelName$</field>
-            <field name="inherit_id" ref="$ProjectName$.$ViewExternalID$"/>
-            <field name="priority" eval="8"/>
-            <field name="arch" type="xml">
-                <xpath expr="//field[@name='$END$example_field']" position="replace">
-                    <field name="example_field2"/>
-                </xpath>
-                <xpath expr="//field[@name='example_field']" position="attributes">
-                    <attribute name="invisible">True</attribute>
-                </xpath>
-            </field>
-        </record>
-    </data>
+
+    <template id="report_purchasequotation_document_inherit" inherit_id="purchase.report_purchasequotation_document">
+        <!-- Modifier les en-têtes du tableau -->
+        <xpath expr="//table[@class='table table-sm mt-4']/thead/tr" position="replace">
+            <tr>
+                <th name="th_description">
+                    <strong>Description</strong>
+                </th>
+                <th name="th_qte_palet" class="text-center">
+                    <strong>Nombre de Palet</strong>
+                </th>
+                <th name="th_quantity" class="text-end">
+                    <strong>Cartons commandes</strong>
+                </th>
+            </tr>
+        </xpath>
+
+    </template>
+
+    <template id="report_purchaseorder_document_custom" inherit_id="purchase.report_purchaseorder_document">
+        <xpath expr="//table" position="replace">
+            <table class="table table-sm o_main_table table-borderless mt-4">
+                <thead style="display: table-row-group">
+                    <tr>
+                        <th name="th_description">
+                            <strong>Description</strong>
+                        </th>
+                        <th name="th_qte_palet">
+                            <strong>Quantité Palet</strong>
+                        </th>
+<!--                        <th name="th_quantity" class="text-end" invisible="1">-->
+<!--                            <strong>Cartons Commandés</strong>-->
+<!--                        </th>-->
+<!--                        <th name="th_price_unit" class="text-end" invisible="1">-->
+<!--                            <strong>New Unit Price</strong>-->
+<!--                        </th>-->
+                        <th name="th_subtotal" class="text-end">
+                            <strong>Montant</strong>
+                        </th>
+                    </tr>
+                </thead>
+            </table>
+        </xpath>
+    </template>
 </odoo>
