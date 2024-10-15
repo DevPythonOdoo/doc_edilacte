@@ -1,0 +1,25 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+
+        {
+            "name": "Python Debugger",
+            "type": "python",
+            "request": "launch",
+            "stopOnEntry": false,
+            "python": "C:\\Users\\HP\\odoo-17.0\\Scripts\\python.exe", // Chemin vers Python de Odoo
+            "console": "integratedTerminal",
+            "program": "D:\\Odoo17\\odoo-17.0\\setup\\odoo-bin", // Chemin vers odoo-bin
+            "args": [
+                "--config=D:\\Odoo17\\odoo-17.0\\odoo\\config\\odoo17E.conf", // Utilisation du fichier de configuration d'Odoo
+                "-u",
+                "edilac", // Remplacez "module_name" par le nom du module à mettre à jour
+                "-d",
+                "Base_gestion_Btp" // Remplacez "database_name" par le nom de votre base de données
+            ],
+            "cwd": "${workspaceRoot}",
+            "env": {},
+            "envFile": "${workspaceRoot}/.env"
+        }
+    ]
+}
