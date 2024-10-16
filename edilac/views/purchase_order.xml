@@ -1,5 +1,17 @@
 <odoo>
     <data>
+
+    <!-- <record id="purchases_view_list_inherit" model="ir.ui.view">
+        <field name="name">purchases.view.form.inherit</field>
+        <field name="model">purchase.order</field>
+        <field name="priority">8</field>
+        <field name="inherit_id" ref=""/>
+        <field name="arch" type="xml">
+            <field name="" position="inside">
+                
+            </field>
+        </field>
+    </record> -->
         <record id="purchases_view_form_inherit" model="ir.ui.view">
             <field name="name">h_purchase.form</field>
             <field name="model">purchase.order</field>
@@ -157,7 +169,7 @@
             </field>
         </record>
         <record id="action_purchase_local" model="ir.actions.act_window">
-            <field name="name">Bon de Commande Local</field>
+            <field name="name">Bon de Commande</field>
             <field name="res_model">purchase.order</field>
             <field name="view_mode">tree,kanban,form,pivot,graph,calendar,activity</field>
             <field name="view_ids" eval="[(5, 0, 0),
@@ -178,8 +190,29 @@
         </record>
 
 
+        <record id="action_purchase_order_import" model="ir.actions.act_window">
+            <field name="name">Bon de Commande </field>
+            <field name="res_model">purchase.order</field>
+            <field name="view_mode">tree,kanban,form,pivot,graph,calendar,activity</field>
+            <field name="view_ids" eval="[(5, 0, 0),
+                (0, 0, {'view_mode': 'tree', 'view_id': ref('purchase.purchase_order_view_tree')}),
+                (0, 0, {'view_mode': 'kanban', 'view_id': ref('purchase.purchase_order_view_kanban_without_dashboard')}),
+            ]"/>
+            <field name="domain">[('state','in',('purchase', 'done')) and ('type','=','local')]</field>
+            <field name="search_view_id" ref="purchase.purchase_order_view_search"/>
+            <field name="context">{'default_quotation_only': True, 'default_type':'local'}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Aucun bon de commande International trouvé. Créons-en un !
+                </p>
+                <p>
+                    Une fois que vous avez commandé vos produits auprès de vos fournisseurs internationaux, confirmez votre demande de devis et elle se transformera en bon de commande.
+                </p>
+            </field>
+        </record>
+
         <record id="action_purchase_form" model="ir.actions.act_window">
-            <field name="name">Bon de Commande international</field>
+            <field name="name">Bon de Commande </field>
             <field name="res_model">purchase.order</field>
             <field name="view_mode">tree,kanban,form,pivot,graph,calendar,activity</field>
             <field name="view_ids" eval="[(5, 0, 0),
@@ -202,16 +235,13 @@
 
         <!-- This Menu Item Must have a parent -->
         <menuitem id="menu_purchase_local" name="Achat Local" parent="purchase.menu_procurement_management" sequence="0"/>
-        <menuitem action="purchase_rfq_local" id="purchase.menu_purchase_rfq" parent="menu_purchase_local" sequence="1"/>
+            <menuitem id="purchase.menu_purchase_rfq" parent="menu_purchase_local" sequence="1" action="purchase_rfq_local" />
+            <menuitem id="menu_purchase_form_actions" name="Bons de Commande" parent="menu_purchase_local" sequence="2" action="action_purchase_order_import" />
 
         <menuitem id="menu_oders_import" name="Achat International" parent="purchase.menu_procurement_management" sequence="1"/>
-        <menuitem id="menu_purchase_import" name="Demande de prix internationale" parent="menu_oders_import" action="action_purchase_rfq_customs" sequence="1"/>
-        <!-- This Menu Item must have a parent and an action -->
-        <!-- This Menu Item Must have a parent -->
-        <menuitem id="menu_purchase_orders" name="Bons de Commande Local" parent="purchase.menu_procurement_management" sequence="2"/>
-        <menuitem id="purchase.menu_purchase_form_action" parent="menu_purchase_orders" action="action_purchase_local" sequence="1"/>
+            <menuitem id="menu_purchase_import" name="Demande de prix" parent="menu_oders_import" action="action_purchase_rfq_customs" sequence="1"/>
+            <menuitem id="menu_purchase_order_import" name="Bon de Commande" parent="menu_oders_import" action="action_purchase_form" sequence="2"/>
 
-         <menuitem id="menu_purchase_orderss" name="Bons de Commande international" parent="purchase.menu_procurement_management" sequence="3"/>
-        <menuitem id="menu_purchase_order" name="Commandes internationales" parent="menu_purchase_orderss" action="action_purchase_form" sequence="1"/>
+     
     </data>
 </odoo>

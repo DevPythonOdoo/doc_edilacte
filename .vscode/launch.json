@@ -14,8 +14,7 @@
                 "--config=D:\\Odoo17\\odoo-17.0\\odoo\\config\\odoo17E.conf", // Utilisation du fichier de configuration d'Odoo
                 "-u",
                 "edilac", // Remplacez "module_name" par le nom du module à mettre à jour
-                "-d",
-                "Base_gestion_Btp" // Remplacez "database_name" par le nom de votre base de données
+                
             ],
             "cwd": "${workspaceRoot}",
             "env": {},
