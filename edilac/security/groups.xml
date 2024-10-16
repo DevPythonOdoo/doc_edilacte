@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record model="ir.module.category" id="edilac_category">
+            <field name="name">Edilac</field>
+            <field name="sequence">10</field>
+        </record>
+
+        <record id="group_edilac_user" model="res.groups">
+            <field name="name">Utilisateur</field>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+            <field name="category_id" ref="edilac.edilac_category"/>
+        </record>
+
+        <record id="group_edilac_respo" model="res.groups">
+            <field name="name">Responsable</field>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+            <field name="category_id" ref="edilac.edilac_category"/>
+        </record>
+
+        <record id="group_edilac_manager" model="res.groups">
+            <field name="name">Manager</field>
+            <field name="category_id" ref="edilac.edilac_category"/>
+            <field name="implied_ids" eval="[(4, ref('edilac.group_edilac_respo'))]"/>
+            <field name="users" eval="[(4, ref('base.user_root'))]"/>
+        </record>
+
+         <record id="base.default_user" model="res.users">
+            <field name="groups_id" eval="[(4, ref('edilac.group_edilac_manager'))]"/>
+        </record>
+    </data>
+</odoo>

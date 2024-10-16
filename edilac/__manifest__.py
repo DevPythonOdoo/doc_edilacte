@@ -29,7 +29,8 @@
 
     # always loaded
     'data': [
-        # 'security/ir.model.access.csv',
+        'security/groups.xml',
+        'security/ir.model.access.csv',
         'views/models.xml',
 
         'rapport/purchase_oder_template.xml',
