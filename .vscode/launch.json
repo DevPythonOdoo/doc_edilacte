@@ -7,14 +7,19 @@
             "type": "python",
             "request": "launch",
             "stopOnEntry": false,
-            "python": "C:\\Users\\HP\\odoo-17.0\\Scripts\\python.exe", // Chemin vers Python de Odoo
+            "python": "C:\\Program Files\\Python310\\python.exe", // Chemin vers Python de Odoo
             "console": "integratedTerminal",
-            "program": "D:\\Odoo17\\odoo-17.0\\setup\\odoo-bin", // Chemin vers odoo-bin
+            "program": "C:\\Program Files\\OdooProject\\Odoo17\\server\\odoo-bin", // Chemin vers odoo-bin
             "args": [
-                "--config=D:\\Odoo17\\odoo-17.0\\odoo\\config\\odoo17E.conf", // Utilisation du fichier de configuration d'Odoo
+                "--config=C:\\Program Files\\OdooProject\\Odoo17\\server\\Odoo_conf17\\odoo_entr.conf", // Utilisation du fichier de configuration d'Odoo
                 "-u",
                 "edilac", // Remplacez "module_name" par le nom du module à mettre à jour
+<<<<<<< HEAD
                 
+=======
+                "-d",
+                "base17_ent_01" // Remplacez "database_name" par le nom de votre base de données
+>>>>>>> 463a10589005e7aa087aab54d76943835311826e
             ],
             "cwd": "${workspaceRoot}",
             "env": {},
