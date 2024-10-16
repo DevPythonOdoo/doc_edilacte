@@ -17,7 +17,7 @@ class Partner(models.Model):
     area_id = fields.Many2one(comodel_name='area.area',string='Zone')
     common_id = fields.Many2one(comodel_name='common.common',string='Commune')
     num_registre = fields.Integer(string='N° Registre du commerce')
-    day_visit = fields.Integer(string='Jours visite')
+    day_visit = fields.Integer(string='Jour visite')
 
     supplier_type = fields.Selection(string='Catégorie Fournisseur',
                                      selection=[('national', 'National'), ('international', 'International'), ])
