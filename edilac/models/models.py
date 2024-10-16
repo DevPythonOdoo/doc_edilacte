@@ -83,9 +83,6 @@ class H_Purchase(models.Model):
         for rec in self:
             rec.state = 'submit'
 
-    def button_action_submit(self):
-        for rec in self:
-            rec.state = 'submit'
 
 
     def button_confirm(self):
@@ -118,15 +115,8 @@ class H_Purchase(models.Model):
                 rec.write({'state': 'approved'})
                 rec.button_confirm()
 
-    def action_submit(self):
-        return self.send_email()
 
-        self.write({'state': 'approved'})
-        for rec in self:
-            rec.button_confirm()
 
-    def action_submit(self):
-        return self.send_email()
 
 
     def button_confirm_test(self):
@@ -189,23 +179,36 @@ class H_Purchase(models.Model):
 
         return orders
 class PurchaseOrderLine(models.Model):
-    _name = 'purchase.order.line'
     _inherit = 'purchase.order.line'
 
-    qte_palet = fields.Integer(string='Palet/Qte',required=False, store= True)
+    qte_palet = fields.Integer(string='Palet/Qte', required=False, readonly=False, store=True)
+    product_id = fields.Many2one(comodel_name='product.product', string='Product', required=False)
+
+    @api.onchange('product_id', 'product_qty')
+    def _onchange_product_qty(self):
+        for line in self:
+            product = line.product_id.product_tmpl_id
+            if line.product_qty:  # Vérifier si la quantité est renseignée
+                if product.uom_palet_id:
+                    # Utiliser uom_palet_id pour le calcul si disponible
+                    line.qte_palet = line.product_qty / product.uom_palet_id
+                elif product.uom_conteneur_id:
+                    # Sinon, utiliser uom_conteneur_id s'il est renseigné
+                    line.qte_palet = line.product_qty / product.uom_conteneur_id
+                else:
+                    # Aucun des deux n'est renseigné, mettre qte_palet à 0
+                    line.qte_palet = 0
+            else:
+                # Si la quantité n'est pas renseignée, mettre qte_palet à 0
+                line.qte_palet = 0
 
 
 class ProductTemplate(models.Model):
-    _name = 'product.template'
     _inherit = 'product.template'
 
-    uom_Palet_id = fields.Many2one(
-        'uom.uom', 'Mesure en Palet',required=False,
-        help="Default unit of measure used for purchase orders. It must be in the same category as the default unit of measure.")
-
-    uom_conteneur_id = fields.Many2one(
-        'uom.uom', 'Mesure en Conteneur', required=False,
-        help="Default unit of measure used for purchase orders. It must be in the same category as the default unit of measure.")
+    uom_palet_id = fields.Integer('Mesure en Palet', required=False, help="Default unit of measure used for purchase orders.",store=True)
+    uom_conteneur_id = fields.Integer('Mesure en Conteneur', required=False, help="Default unit of measure used for purchase orders.",store=True)
+    purchase_id = fields.One2many(comodel_name='purchase.order.line', inverse_name='product_id', string='Purchase Orders', required=False)
 
 
 
