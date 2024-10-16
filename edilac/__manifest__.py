@@ -12,8 +12,8 @@
     """,
 
 
-    'author': "My Company",
-    'website': "https://www.yourcompany.com",
+    'author': "ADG",
+    'website': "https://www.adg.ci",
 
     # Categories can be used to filter modules in modules listing
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
@@ -29,14 +29,23 @@
 
     # always loaded
     'data': [
+<<<<<<< HEAD
+        # 'security/ir.model.access.csv',
+        'views/purchase_order.xml',
+=======
         'security/groups.xml',
         'security/ir.model.access.csv',
         'views/models.xml',
+>>>>>>> 463a10589005e7aa087aab54d76943835311826e
 
-        'rapport/purchase_oder_template.xml',
+        'report/purchase_oder_template.xml',
 
+<<<<<<< HEAD
+        #'views/templates.xml',
+=======
         'views/templates.xml',
         'views/partner.xml',
+>>>>>>> 463a10589005e7aa087aab54d76943835311826e
     ],
     # only loaded in demonstration mode
     'demo': [

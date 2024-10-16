@@ -14,8 +14,12 @@
                 "--config=C:\\Program Files\\OdooProject\\Odoo17\\server\\Odoo_conf17\\odoo_entr.conf", // Utilisation du fichier de configuration d'Odoo
                 "-u",
                 "edilac", // Remplacez "module_name" par le nom du module à mettre à jour
+<<<<<<< HEAD
+                
+=======
                 "-d",
                 "base17_ent_01" // Remplacez "database_name" par le nom de votre base de données
+>>>>>>> 463a10589005e7aa087aab54d76943835311826e
             ],
             "cwd": "${workspaceRoot}",
             "env": {},
