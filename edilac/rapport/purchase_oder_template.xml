@@ -2,7 +2,7 @@
 <odoo>
 
     <template id="report_purchasequotation_document_inherit" inherit_id="purchase.report_purchasequotation_document">
-        
+
         <xpath expr="//div[contains(@class, 'col-3')]" position="after">
             <div t-if="o.date_planned" class="col-3 bm-2">
                 <strong>Date de Commande:</strong>
