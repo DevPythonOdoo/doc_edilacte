@@ -55,10 +55,10 @@ class Region(models.Model):
     _name = 'region.region'
     _description = 'Region'
 
-    name = fields.Char(string='Famille client')
+    name = fields.Char(string='Région')
     city_ids = fields.One2many(comodel_name='city.city', inverse_name='region_id',string="Ville", required=True)  
-    area_ids = fields.One2many(comodel_name='area.area', inverse_name='region_id',string='Zone')
-    common_ids = fields.One2many(comodel_name='common.common', inverse_name='region_id',string='Commune') 
+    # area_ids = fields.One2many(comodel_name='area.area', inverse_name='region_id',string='Zone')
+    # common_ids = fields.One2many(comodel_name='common.common', inverse_name='region_id',string='Commune') 
 
 class City(models.Model):
     _name = 'city.city'
@@ -73,7 +73,7 @@ class Area(models.Model):
     _description = 'Zone'
 
     name = fields.Char(string='Zone',required=True)
-    region_id = fields.Many2one(comodel_name='region.region',string='Region')
+    # region_id = fields.Many2one(comodel_name='region.region',string='Region')
     city_id = fields.Many2one(comodel_name='city.city',string='Ville')
     common_ids = fields.One2many(comodel_name='common.common', inverse_name='area_id',string="Commune", required=True) 
 
@@ -84,5 +84,5 @@ class Common(models.Model):
     _description = 'Commune'
 
     name = fields.Char(string='Commune',required=True)
-    region_id = fields.Many2one(comodel_name='region.region',string='Region')
+    # region_id = fields.Many2one(comodel_name='region.region',string='Region')
     area_id = fields.Many2one(comodel_name='area.area',string='Zone')

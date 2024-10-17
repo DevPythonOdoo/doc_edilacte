@@ -25,27 +25,17 @@
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base', 'purchase', 'stock', 'sale', 'account', 'crm'],
+    'depends': ['base', 'purchase', 'stock', 'sale', 'account', 'crm','contacts'],
 
     # always loaded
     'data': [
-<<<<<<< HEAD
-        # 'security/ir.model.access.csv',
-        'views/purchase_order.xml',
-=======
         'security/groups.xml',
         'security/ir.model.access.csv',
-        'views/models.xml',
->>>>>>> 463a10589005e7aa087aab54d76943835311826e
-
-        'report/purchase_oder_template.xml',
-
-<<<<<<< HEAD
-        #'views/templates.xml',
-=======
+        'views/purchase_order.xml',
         'views/templates.xml',
         'views/partner.xml',
->>>>>>> 463a10589005e7aa087aab54d76943835311826e
+        'report/purchase_oder_template.xml',
+
     ],
     # only loaded in demonstration mode
     'demo': [
