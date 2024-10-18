@@ -8,8 +8,8 @@ class Partner(models.Model):
 
     date_create_customer =fields.Datetime(string='Date Création client', default=fields.Datetime.now)
     family_cust = fields.Many2one(comodel_name='family.custom',string='Famille client')
-    customer_type = fields.Selection(string='Type de client',selection=[('tva', 'TVA OU TOTAL'),('normal', 'Normal'), ])
-    custom_profil = fields.Char(string='Profil client')
+    customer_type = fields.Selection(string='Type de client',selection=[('tva', 'TVA OU TOTAL'),('normal', 'Normal'), ('normal_d', 'Normal déclaré') ])
+    customer_profil = fields.Selection(string='Profil client',selection=[('on', 'ON-US'),('off', 'OFF-US'), ])
     #payment_mode = fields.Selection(string='Mode de paiement', selection=[('espece', 'Espèce'), ('check', 'Chèque/Virement'), ])
     airsi = fields.Char(string='AIRSI')
     region_id = fields.Many2one(comodel_name='region.region', string='Region')
@@ -18,7 +18,7 @@ class Partner(models.Model):
     common_id = fields.Many2one(comodel_name='common.common',string='Commune')
     num_registre = fields.Integer(string='N° Registre du commerce')
     day_visit = fields.Integer(string='Jour visite')
-
+    neighborhood_id = fields.Many2one(comodel_name='neighborhood.neighborhood',string='Quartier')
     supplier_type = fields.Selection(string='Catégorie Fournisseur',
                                      selection=[('national', 'National'), ('international', 'International'), ])
 
@@ -73,7 +73,6 @@ class Area(models.Model):
     _description = 'Zone'
 
     name = fields.Char(string='Zone',required=True)
-    # region_id = fields.Many2one(comodel_name='region.region',string='Region')
     city_id = fields.Many2one(comodel_name='city.city',string='Ville')
     common_ids = fields.One2many(comodel_name='common.common', inverse_name='area_id',string="Commune", required=True) 
 
@@ -84,5 +83,13 @@ class Common(models.Model):
     _description = 'Commune'
 
     name = fields.Char(string='Commune',required=True)
-    # region_id = fields.Many2one(comodel_name='region.region',string='Region')
     area_id = fields.Many2one(comodel_name='area.area',string='Zone')
+    neighborhood_ids = fields.One2many(comodel_name='neighborhood.neighborhood', inverse_name='common_id',string="Quartier", required=True) 
+
+
+class Neighborhood(models.Model):
+    _name = 'neighborhood.neighborhood'
+    _description = 'Quartier'
+
+    name = fields.Char(string='Quartier',required=True)
+    common_id = fields.Many2one(comodel_name='common.common',string='Commune')
