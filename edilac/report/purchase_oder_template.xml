@@ -9,6 +9,7 @@
                 <p t-esc="o.date_planned" class="m-0"/>
             </div>
         </xpath>
+
         <!-- Modifier les en-têtes du tableau -->
         <xpath expr="//table[@class='table table-sm mt-4']/thead/tr" position="replace">
             <tr>
@@ -86,8 +87,12 @@
                 </thead>
                 <tbody>
                     <t t-set="current_subtotal" t-value="0"/>
+                    <t t-set="total_qte_palet" t-value="0"/>
+                    <t t-set="total_product_qty" t-value="0"/>
                     <t t-foreach="o.order_line" t-as="line">
                         <t t-set="current_subtotal" t-value="current_subtotal + line.price_subtotal"/>
+                        <t t-set="total_qte_palet" t-value="total_qte_palet + line.qte_palet"/>
+                        <t t-set="total_product_qty" t-value="total_product_qty + line.product_qty"/>
 
                         <tr t-att-class="'bg-200 fw-bold o_line_section' if line.display_type == 'line_section' else 'fst-italic o_line_note' if line.display_type == 'line_note' else ''">
                             <t t-if="not line.display_type">
@@ -106,18 +111,7 @@
                                         <span t-field="line.product_packaging_id"/>)
                                     </span>
                                 </td>
-                                <!--                                <td class="text-end">-->
-                                <!--                                    <span t-field="line.product_qty"/>-->
-                                <!--                                    <span t-field="line.product_uom.name" groups="uom.group_uom"/>-->
-                                <!--                                    <span t-if="line.product_packaging_id">-->
-                                <!--                                        (-->
-                                <!--                                        <span t-field="line.product_packaging_qty" t-options='{"widget": "integer"}'/>-->
-                                <!--                                        <span t-field="line.product_packaging_id"/>)-->
-                                <!--                                    </span>-->
-                                <!--                                </td>-->
-                                <!--                                <td class="text-end">-->
-                                <!--                                    <span t-field="line.price_unit"/>-->
-                                <!--                                </td>-->
+
                                 <td class="text-end">
                                     <span t-field="line.price_subtotal"
                                           t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
@@ -150,6 +144,28 @@
                     </t>
                 </tbody>
             </table>
+            <div class="d-flex justify-content-center">
+            <table class="table table-sm table-borderless text-left">
+                <tr>
+                    <td>
+                        <strong>Total Quantité Palet:</strong>
+                    </td>
+                    <td>
+                        <span t-esc="total_qte_palet"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <strong>Total Cartons Commandés:</strong>
+                    </td>
+                    <td>
+                        <span t-esc="total_product_qty"/>
+                    </td>
+                </tr>
+            </table>
+        </div>
         </xpath>
+
+
     </template>
 </odoo>

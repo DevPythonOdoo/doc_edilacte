@@ -8,7 +8,7 @@
         <field name="inherit_id" ref=""/>
         <field name="arch" type="xml">
             <field name="" position="inside">
-                
+
             </field>
         </field>
     </record> -->
@@ -88,6 +88,16 @@
 
                 </xpath>
 
+                <xpath expr="//field[@name='tax_totals']" position="after">
+                    <field name="total_amount_devise"/>
+
+                </xpath>
+
+                <xpath expr="//field[@name='currency_id']" position="replace">
+                    <field name="currency_id" invisible="1"/>
+
+                </xpath>
+
             </field>
         </record>
 
@@ -105,6 +115,11 @@
 
                 <xpath expr="//field[@name='qte_palet']" position="before">
                     <field name="product_qty" string="Total Carton" sum="Total Carton" optional="show"/>
+                </xpath>
+
+                <xpath expr="//field[@name='qte_palet']" position="after">
+                    <field name="total_amount_devise"/>
+
                 </xpath>
 
             </field>
@@ -127,6 +142,8 @@
                 </xpath>
             </field>
         </record>
+
+
 
         <record id="purchase_rfq_local" model="ir.actions.act_window">
             <field name="name">Demande de prix local</field>
@@ -236,19 +253,17 @@
         <!-- This Menu Item Must have a parent -->
         <menuitem id="menu_purchase_local" name="Achat Local" parent="purchase.menu_procurement_management" sequence="0"/>
             <menuitem id="purchase.menu_purchase_rfq" parent="menu_purchase_local" sequence="1" action="purchase_rfq_local" />
-            <menuitem id="menu_purchase_form_actions" name="Bons de Commande" parent="menu_purchase_local" sequence="2" action="action_purchase_order_import" />
+<!--            <menuitem id="menu_purchase_form_actions" name="Bons de Commande" parent="menu_purchase_local" sequence="2" action="action_purchase_order_import" />-->
 
-        <menuitem id="menu_oders_import" name="Achat International" parent="purchase.menu_procurement_management" sequence="1"/>
-<<<<<<< HEAD:edilac/views/purchase_order.xml
+            <menuitem id="menu_oders_import" name="Achat International" parent="purchase.menu_procurement_management" sequence="1"/>
             <menuitem id="menu_purchase_import" name="Demande de prix" parent="menu_oders_import" action="action_purchase_rfq_customs" sequence="1"/>
             <menuitem id="menu_purchase_order_import" name="Bon de Commande" parent="menu_oders_import" action="action_purchase_form" sequence="2"/>
 
-     
-=======
-        <menuitem id="menu_purchase_import" name="Demande de prix internationale" parent="menu_oders_import" action="action_purchase_rfq_customs" sequence="1"/>
 
-        <menuitem id="purchase.menu_purchase_form_action" parent="menu_purchase_local" action="action_purchase_local" sequence="2"/>
-        <menuitem id="menu_purchase_order" name="Commandes internationales" parent="menu_oders_import" action="action_purchase_form" sequence="2"/>
->>>>>>> 463a10589005e7aa087aab54d76943835311826e:edilac/views/models.xml
+
+<!--        <menuitem id="menu_purchase_import" name="Demande de prix internationale" parent="menu_oders_import" action="action_purchase_rfq_customs" sequence="1"/>-->
+
+<!--        <menuitem id="purchase.menu_purchase_form_action" parent="menu_purchase_local" action="action_purchase_local" sequence="2"/>-->
+<!--        <menuitem id="menu_purchase_order" name="Commandes internationales" parent="menu_oders_import" action="action_purchase_form" sequence="2"/>-->
     </data>
 </odoo>
