@@ -45,10 +45,12 @@
                 <xpath expr="//field[@name='vat']" position="before">
                     <field name="supplier_rank" invisible="1"/>
 
-                    <field name="region_id" string="Région" readonly="type == 'contact' and parent_id" invisible="supplier_rank > 0"/>
-                    <field name="city_id" string="Ville" readonly="type == 'contact' and parent_id" invisible="supplier_rank > 0" domain="[('region_id' ,'=', region_id)]"/>
-                    <field name="area_id" string="Zone de livraison" readonly="type == 'contact' and parent_id" invisible="supplier_rank > 0" domain="[('city_id' ,'=', city_id)]"/>
-                    <field name="common_id" invisible="supplier_rank > 0" domain="[('area_id' ,'=', area_id)]"/>
+                    <field name="region_id" string="Région" readonly="type == 'contact' and parent_id" invisible="supplier_rank > 0" options="{'no_create': True, 'no_edit': True}" required="1"/>
+                    <field name="city_id" string="Ville" readonly="type == 'contact' and parent_id" invisible="supplier_rank > 0" domain="[('region_id' ,'=', region_id)]" options="{'no_create': True, 'no_edit': True}" required="1"/>
+                    <field name="area_id" string="Zone de livraison" readonly="type == 'contact' and parent_id" invisible="supplier_rank > 0" domain="[('city_id' ,'=', city_id)]" options="{'no_create': True, 'no_edit': True}" required="1"/>
+                    <field name="common_id" invisible="supplier_rank > 0" domain="[('area_id' ,'=', area_id)]" options="{'no_create': True, 'no_edit': True}" required="1"/>
+                    <field name="neighborhood_id" invisible="supplier_rank > 0" domain="[('common_id' ,'=', common_id)]" options="{'no_create': True, 'no_edit': True}" required="1"/>
+                    
                     <field name="zip" string="Adresse Postal" class="o_address_zip" readonly="type == 'contact' and parent_id" invisible="supplier_rank > 0"/>
                     <field name="country_id" string="Pays" class="o_address_country" options="{&quot;no_open&quot;: True, &quot;no_create&quot;: True}" readonly="type == 'contact' and parent_id" invisible="supplier_rank > 0"/>
                     <field name="property_product_pricelist" invisible="supplier_rank > 0"/>
@@ -61,19 +63,19 @@
                 <xpath expr="//field[@name='phone']" position="before">
                     <field name="customer_rank" invisible="1"/>
                     <field name="supplier_type" widget="radio" options="{'horizontal': True}"
-                           invisible="customer_rank > 0"/>
+                           invisible="customer_rank > 0" required="1"/>
                 </xpath>
                 <xpath expr="//field[@name='vat']" position="replace">
-                    <field name="vat" placeholder="e.g. BE0477472701" readonly="parent_id" string="N° Registre du commerce"/>
+                    <field name="vat" placeholder="e.g. BE0477472701" readonly="parent_id" string="NCC"/>
                 </xpath>
 
                <xpath expr="//field[@name='lang']" position="after">
-                    <field name="day_visit" invisible="supplier_rank > 0"/>
-                    <field name="family_cust" invisible="supplier_rank > 0"/>
-                    <field name="customer_type" invisible="supplier_rank > 0"/>
-                    <field name="custom_profil" invisible="supplier_rank > 0"/>
+                    <!--field name="day_visit" invisible="supplier_rank > 0"/>
+                    <field name="family_cust" invisible="supplier_rank > 0"/-->
+                    <field name="customer_type" invisible="supplier_rank > 0" required="1"/>
+                    <field name="customer_profil" invisible="supplier_rank > 0" required="1"/>
                     <!--field name="payment_mode" widget="radio" options="{'horizontal': True}" invisible="supplier_rank > 0"/-->
-                    <field name="airsi" invisible="supplier_rank > 0"/>
+                    <!-- <field name="airsi" invisible="supplier_rank > 0"/> -->
                     
                </xpath>
                <xpath expr="//group" position="after">
@@ -81,13 +83,28 @@
                         <field name="user_id" widget="many2one_avatar_user" domain="[('share', '=', False)]" invisible="supplier_rank > 0"/>
                         <field name="property_account_position_id" invisible="supplier_rank > 0"/>
                         <field name="company_id" invisible="supplier_rank > 0"/>
-                        <field name="industry_id" invisible="supplier_rank > 0"/>
+                        <field name="industry_id" required="1"/>
 
                     </group>
                     
                </xpath>
-               <xpath expr="//page[@name='sales_purchases']" position="attributes">
-                    <attribute name="invisible">1</attribute>
+               <xpath expr="//page[@name='sales_purchases']" position="replace">
+                    <!--attribute name="invisible">1</attribute-->
+                    <page name="sales_purchases" string="Sales &amp; Purchase" invisible="customer_rank > 0">
+                            <group name="container_row_2">
+                                <group string="Sales" name="sale" priority="1">
+                                    <field name="user_id" widget="many2one_avatar_user" domain="[('share', '=', False)]"/>
+                                </group>
+                                <group string="Purchase" name="purchase" priority="2">
+                                </group>
+                                <group name="misc" string="Misc">
+                                    <field name="company_registry" invisible="parent_id"/>
+                                    <field name="ref" string="Reference"/>
+                                    <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}" readonly="parent_id" force_save="1"/>
+                                    <field name="industry_id" invisible="not is_company" options="{'no_create': True}"/>
+                                </group>
+                            </group>
+                    </page>
                     
                </xpath>
 
@@ -100,9 +117,7 @@
             <field name="inherit_id" ref="base.view_partner_tree"/>
             <field name="priority" eval="1"/>
             <field name="arch" type="xml">
-                <xpath expr="//field[@name='vat']" position="replace">
-                    <field name="vat" placeholder="e.g. BE0477472701" readonly="parent_id" string="N° Registre du commerce"/>
-                </xpath>
+                
     
 
                 <xpath expr="//tree" position="replace">
@@ -118,7 +133,7 @@
                         <field name="city_id" string="Ville"/>
                         <field name="customer_type" invisible="supplier_rank > 0"/>
                         <field name="phone" class="o_force_ltr" optional="show"/>
-                        <field name="custom_profil" invisible="supplier_rank > 0"/>
+                        <field name="customer_profil" invisible="supplier_rank > 0"/>
                         <field name="day_visit" invisible="supplier_rank > 0"/>
                         <field name="function" column_invisible="True"/>
                         <field name="mobile" optional="hide"/>
@@ -154,6 +169,8 @@
                         <field name="parent_id" domain="[('is_company', '=', True)]" operator="child_of"/>
                         <field name="region_id" filter_domain="[('region_id', 'ilike', self)]" string="Région"/>
                         <field name="area_id" filter_domain="[('area_id', 'ilike', self)]" string="Zone de livraison"/>
+                        <field name="common_id" filter_domain="[('common_id', 'ilike', self)]" string="Commune"/>
+                        <field name="neighborhood_id" filter_domain="[('neighborhood_id', 'ilike', self)]" string="Quartier"/>
                         <field name="property_account_position_id" filter_domain="[('property_account_position_id', 'ilike', self)]" string="Position fiscale"/>
                         <field name="vat" filter_domain="[('vat', 'ilike', self)]" string="NCC"/>
                         <field name="email" filter_domain="[('email', 'ilike', self)]" string="Courriel"/>
@@ -169,15 +186,19 @@
                         <group expand="0" name="group_by" string="Group By">
                             <filter name="salesperson" string="Commercial" domain="[]"
                                     context="{'group_by' : 'user_id'}"/>
-                            <filter name="group_area_id" string="Zone de livraison" context="{'group_by': 'area_id'}"
-                                    domain="[('customer_rank', '>', 0)]"/>
                             <filter name="group_region_id" string="Région" context="{'group_by': 'region_id'}"
                                     domain="[('customer_rank', '>', 0)]"/>
+                            <filter name="group_area_id" string="Zone de livraison" context="{'group_by': 'area_id'}"
+                                    domain="[('customer_rank', '>', 0)]"/> 
+                            <filter name="group_common_id" string="Commune" context="{'group_by': 'common_id'}"
+                                    domain="[('customer_rank', '>', 0)]"/>
+                            <filter name="group_neighborhood_id" string="Quartier" context="{'group_by': 'neighborhood_id'}"
+                                    domain="[('customer_rank', '>', 0)]"/>                
                             <filter name="customer_type" string="Type de client" context="{'group_by': 'customer_type'}"
                                     domain="[('customer_rank', '>', 0)]"/>
                             <filter name="family_cust" string="Famille de client" context="{'group_by': 'family_cust'}"
                                     domain="[('customer_rank', '>', 0)]"/>
-                            <filter name="custom_profil" string="Profil client" context="{'group_by': 'custom_profil'}"
+                            <filter name="customer_profil" string="Profil client" context="{'group_by': 'customer_profil'}"
                                     domain="[('customer_rank', '>', 0)]"/>
                                     
                             <filter name="group_company" string="Société" context="{'group_by': 'parent_id'}"/>
@@ -235,7 +256,6 @@
                                 <field name="city_ids">
                                     <tree>
                                         <field name="name" force_save="1"/>
-
                                     </tree>
                                     <form>
                                         <div class="oe_title">
@@ -257,7 +277,6 @@
                                             <page string="Zone">
                                                 <field name="area_ids">
                                                     <form>
-                                                
                                                         <div class="oe_title">
                                                             <h1>
                                                                 <field name="name"
@@ -270,10 +289,8 @@
                                                         <notebook>
                                                             <page string="Commune">
                                                                 <field name="common_ids">
-                                                                    
                                                                     <tree editable="bottom">
                                                                         <field name="name"/>
-                                                                        
                                                                     </tree>
                                                                 </field>
                                                             </page>
@@ -281,8 +298,6 @@
                                                     </form>
                                                     <tree>
                                                         <field name="name"/>
-                                                        
-                                                    
                                                     </tree>
                                                 </field>
                                             </page>
@@ -291,18 +306,17 @@
                                 </field>
                             </page>
                         </notebook>
-
                     </sheet>
                 </form>
             </field>
         </record>
+
          <record id="region_view_tree" model="ir.ui.view">
             <field name="name">region.region.tree</field>
             <field name="model">region.region</field>
             <field name="arch" type="xml">
                 <tree>
                     <field name="name"/>
-                    
                 </tree>
             </field>
         </record>
@@ -312,7 +326,158 @@
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">region.region</field>
             <field name="view_mode">tree,form</field>
-            
+        </record>
+
+
+        <record id="city_view_tree" model="ir.ui.view">
+            <field name="name">city.city.tree</field>
+            <field name="model">city.city</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                    <field name="area_ids" widget="many2many_tags"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_city_form" model="ir.ui.view">
+            <field name="name">view.city.form</field>
+            <field name="model">city.city</field>
+            <field name="arch" type="xml">
+                <form string="model_name">
+                    <sheet>
+                        <div class="oe_title">
+                            <label for="name"/>
+                            <h1>
+                                <field name="name"/>
+                            </h1>
+                        </div>
+                        <notebook>
+                            <page string="Zones">
+                                <field name="area_ids">
+                                    <tree editable="bottom">
+                                        <field name="name"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        
+
+        <record id="city_view_action" model="ir.actions.act_window">
+            <field name="name">Ville</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">city.city</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+        <record id="area_view_tree" model="ir.ui.view">
+            <field name="name">area.area.tree</field>
+            <field name="model">area.area</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                    <field name="common_ids" widget="many2many_tags"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_area_form" model="ir.ui.view">
+            <field name="name">view.area.form</field>
+            <field name="model">area.area</field>
+            <field name="arch" type="xml">
+                <form string="model_name">
+                    <sheet>
+                        <div class="oe_title">
+                            <label for="name"/>
+                            <h1>
+                                <field name="name"/>
+                            </h1>
+                        </div>
+                        <notebook>
+                            <page string="Communes">
+                                <field name="common_ids">
+                                    <tree editable="bottom">
+                                        <field name="name"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        
+
+        <record id="area_view_action" model="ir.actions.act_window">
+            <field name="name">Zone</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">area.area</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <record id="view_common_form" model="ir.ui.view">
+            <field name="name">view.common.common.form</field>
+            <field name="model">common.common</field>
+            <field name="arch" type="xml">
+                <form string="model_name">
+                    <sheet>
+                        <div class="oe_title">
+                            <label for="name"/>
+                            <h1>
+                                <field name="name"/>
+                            </h1>
+                        </div>
+                        <notebook>
+                            <page string="Quartiers">
+                                <field name="neighborhood_ids">
+                                    <tree editable="bottom">
+                                        <field name="name"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="common_view_tree" model="ir.ui.view">
+            <field name="name">common.common.tree</field>
+            <field name="model">common.common</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                    <field name="area_id"/>
+                </tree>
+            </field>
+        </record>
+        <record id="common_common_view_action" model="ir.actions.act_window">
+            <field name="name">Communes</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">common.common</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <record id="neighborhood_view_tree" model="ir.ui.view">
+            <field name="name">neighborhood.neighborhood.tree</field>
+            <field name="model">neighborhood.neighborhood</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom">
+                    <field name="name"/>
+                    <field name="common_id"/>
+                </tree>
+            </field>
+        </record>
+        <record id="neighborhood_view_action" model="ir.actions.act_window">
+            <field name="name">Quartier</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">neighborhood.neighborhood</field>
+            <field name="view_mode">tree</field>
         </record>
 
         <!-- VUE Fournisseurs  PERSONALISÉE-->
@@ -352,16 +517,16 @@
                     <field name="category_id" string="Tag" operator="child_of"/>
                     <field name="user_id"/>
                     <separator/>
-                    <filter string="Individuals" name="type_person" domain="[('is_company', '=', False)]"/>
-                    <filter string="Companies" name="type_company" domain="[('is_company', '=', True)]"/>
+                    <filter string="Particuliers" name="type_person" domain="[('is_company', '=', False)]"/>
+                    <filter string="Sociétés" name="type_company" domain="[('is_company', '=', True)]"/>
                     <separator/>
-                    <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+                    <filter string="Archivé" name="inactive" domain="[('active', '=', False)]"/>
                     <separator/>
                     <group expand="0" name="group_by" string="Group By">
                         <filter name="supplier_type" string="Catégorie Fournisseur" context="{'group_by': 'supplier_type'}"/>
-                        <filter name="salesperson" string="Salesperson" domain="[]" context="{'group_by' : 'user_id'}"/>
-                        <filter name="group_company" string="Company" context="{'group_by': 'parent_id'}"/>
-                        <filter name="group_country" string="Country" context="{'group_by': 'country_id'}"/>
+                        <filter name="salesperson" string="Vendeur" domain="[]" context="{'group_by' : 'user_id'}"/>
+                        <filter name="group_company" string="Société" context="{'group_by': 'parent_id'}"/>
+                        <filter name="group_country" string="Pays" context="{'group_by': 'country_id'}"/>
                     </group>
                 </search>
                 
@@ -385,10 +550,18 @@
                 </p>
             </field>
         </record>	
-        <menuitem name="Région" id="region_menu" parent="account.menu_account_config" action="region_view_action" sequence="1" groups="edilac.group_edilac_manager"/>
+        <menuitem name="Région" id="region_menu" parent="contacts.res_partner_menu_config" action="region_view_action" sequence="1" groups="edilac.group_edilac_manager"/>
+        <menuitem name="Ville" id="city_menu" parent="contacts.res_partner_menu_config" action="city_view_action" sequence="2" groups="edilac.group_edilac_manager"/>
+        <menuitem name="Zone" id="area_menu" parent="contacts.res_partner_menu_config" action="area_view_action" sequence="3" groups="edilac.group_edilac_manager"/>
+        <menuitem name="Commune" id="common_menu" parent="contacts.res_partner_menu_config" action="common_common_view_action" sequence="4" groups="edilac.group_edilac_manager"/>
+        <menuitem name="Quartier" id="neighborhood_menu" parent="contacts.res_partner_menu_config" action="neighborhood_view_action" sequence="5" groups="edilac.group_edilac_manager"/>
+        
         <menuitem name="Fournisseurs" id="account.menu_account_supplier" parent="account.menu_finance_payables" active="False"/>
         <menuitem name="Fournisseur" id="vendor_menu" parent="account.menu_finance_payables" action="action_vendor" sequence="200"/>
-
+        <menuitem name="Fournisseurs" id="purchase.menu_procurement_management_supplier_name" parent="purchase.menu_procurement_management" active="False"/>
+        <menuitem name="Fournisseur" id="vendor2_menu" parent="purchase.menu_procurement_management" action="action_vendor" sequence="15"/>
+        
+    
 
     </data>
 </odoo>

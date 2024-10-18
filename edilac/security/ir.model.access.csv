@@ -23,3 +23,7 @@ access_common_common_users,user.common.common,model_common_common,edilac.group_e
 access_common_common_respo,respo.common.common,model_common_common,edilac.group_edilac_respo,1,1,1,0
 access_common_common_manager,manager.common.common,model_common_common,edilac.group_edilac_manager,1,1,1,1
 
+access_neighborhood_neighborhood_users,user.neighborhood.neighborhood,model_neighborhood_neighborhood,edilac.group_edilac_user,1,1,1,0
+access_neighborhood_neighborhood_respo,respo.neighborhood.neighborhood,model_neighborhood_neighborhood,edilac.group_edilac_respo,1,1,1,0
+access_neighborhood_neighborhood_manager,manager.neighborhood.neighborhood,model_neighborhood_neighborhood,edilac.group_edilac_manager,1,1,1,1
+
