@@ -19,6 +19,7 @@ access_area_area_users,user.area.area,model_area_area,edilac.group_edilac_user,1
 access_area_area_respo,respo.area.area,model_area_area,edilac.group_edilac_respo,1,1,1,0
 access_area_area_manager,manager.area.area,model_area_area,edilac.group_edilac_manager,1,1,1,1
 
+
 access_common_common_users,user.common.common,model_common_common,edilac.group_edilac_user,1,1,1,0
 access_common_common_respo,respo.common.common,model_common_common,edilac.group_edilac_respo,1,1,1,0
 access_common_common_manager,manager.common.common,model_common_common,edilac.group_edilac_manager,1,1,1,1
