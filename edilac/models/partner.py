@@ -6,43 +6,46 @@ class Partner(models.Model):
     _inherit = 'res.partner'
 
 
-    date_create_customer =fields.Datetime(string='Date Création client', default=fields.Datetime.now)
-    family_cust = fields.Many2one(comodel_name='family.custom',string='Famille client')
-    customer_type = fields.Selection(string='Type de client',selection=[('tva', 'TVA OU TOTAL'),('normal', 'Normal'), ('normal_d', 'Normal déclaré') ])
-    customer_profil = fields.Selection(string='Profil client',selection=[('on', 'ON-US'),('off', 'OFF-US'), ])
-    #payment_mode = fields.Selection(string='Mode de paiement', selection=[('espece', 'Espèce'), ('check', 'Chèque/Virement'), ])
-    airsi = fields.Char(string='AIRSI')
-    region_id = fields.Many2one(comodel_name='region.region', string='Region')
-    city_id = fields.Many2one(comodel_name='city.city',string='Ville')
-    area_id = fields.Many2one(comodel_name='area.area',string='Zone')
-    common_id = fields.Many2one(comodel_name='common.common',string='Commune')
-    num_registre = fields.Integer(string='N° Registre du commerce')
-    day_visit = fields.Integer(string='Jour visite')
-    neighborhood_id = fields.Many2one(comodel_name='neighborhood.neighborhood',string='Quartier')
-    supplier_type = fields.Selection(string='Catégorie Fournisseur',
-                                     selection=[('national', 'National'), ('international', 'International'), ])
+    # date_create_customer =fields.Datetime(string='Date Création client', default=fields.Datetime.now)
+    # family_cust = fields.Many2one(comodel_name='family.custom',string='Famille client')
+    # customer_type = fields.Selection(string='Type de client',selection=[('tva', 'TVA OU TOTAL'),('normal', 'Normal'), ('normal_d', 'Normal déclaré') ])
+    # customer_profil = fields.Selection(string='Profil client',selection=[('on', 'ON-US'),('off', 'OFF-US'), ])
+    # payment_mode = fields.Selection(string='Mode de paiement', selection=[('espece', 'Espèce'), ('check', 'Chèque/Virement'), ])
+    # airsi = fields.Char(string='AIRSI')
+    # region_id = fields.Many2one(comodel_name='region.region', string='Region')
+    # city_id = fields.Many2one(comodel_name='city.city',string='Ville')
+    # area_id = fields.Many2one(comodel_name='area.area',string='Zone')
+    # common_id = fields.Many2one(comodel_name='common.common',string='Commune')
+    # num_registre = fields.Integer(string='N° Registre du commerce')
+    # day_visit = fields.Integer(string='Jour visite')
+    # neighborhood_id = fields.Many2one(comodel_name='neighborhood.neighborhood',string='Quartier')
+    # supplier_type = fields.Selection(string='Catégorie Fournisseur',
+    #                                  selection=[('national', 'National'), ('international', 'International'), ])
 
 
     @api.onchange('region_id')
     def _onchange_region_id(self):
-    
+
     #Filtrer les villes en fonction de la région sélectionnée
-        
+
         for record in self:
             if record.region_id:
                 # Filtrer les villes dont la région correspond à la région sélectionnée
                 #record.city_id = record.region_id.mapped('city_ids').id
                 return {'domain': {'city_id': [('region_id', '=', record.region_id.id)]}}
-            
+
 
     @api.onchange('city_id')
     def _onchange_field4_id(self):
         for record in self:
             if record.region_id:
-                
+
                 return {'domain': {'area_id': [('city_id', '=', record.city_id.id)]}}
-                      
-                    
+
+
+
+
+
     
 
 class Family(models.Model):

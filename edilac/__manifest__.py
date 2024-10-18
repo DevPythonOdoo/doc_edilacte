@@ -40,7 +40,7 @@
         'security/ir.model.access.csv',
         'views/purchase_order.xml',
         'views/templates.xml',
-        'views/partner.xml',
+        #'views/partner.xml',
         'report/purchase_oder_template.xml',
 
 
