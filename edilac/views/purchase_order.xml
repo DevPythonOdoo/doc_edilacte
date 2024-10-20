@@ -10,11 +10,15 @@
                 <!-- Remplacement du bouton de confirmation -->
                 <xpath expr="//header/button[@name='button_confirm']" position="replace">
                     <button name="button_action_submit" string="Soumettre" type="object"
-                            invisible="state not in ('sent','draft')"/>
+                            invisible="state not in ('draft')"/>
                 </xpath>
                 <!-- Modification de l'attribut invisible -->
                 <xpath expr="//header/button[@name='button_confirm']" position="attributes">
                     <attribute name="invisible">True</attribute>
+                </xpath>
+                <xpath expr="//header/button[@name='action_rfq_send']" position="replace">
+                     <button name="action_rfq_send" string="Envoyer un mail" type="object"
+                            invisible="state not in ('sent','submit','approved')"/>
                 </xpath>
                 <!-- Ajout de nouveaux boutons après le bouton de confirmation -->
                 <xpath expr="//button[@name='button_confirm']" position="after">
@@ -68,7 +72,8 @@
                 </xpath>
 
                 <xpath expr="//field[@name='product_qty']" position="after">
-                    <field name="qte_palet" sum="Total des Palet/Qte" string="Total Palet/Qte"/>
+                    <field name="type" optional="hide" invisible="1"/>
+                    <field name="qte_palet" required="type=='import'" sum="Total des Palet/Qte" string="Palet/Qte"/>
 
                 </xpath>
 
@@ -84,6 +89,7 @@
 
                 <xpath expr="//field[@name='currency_id']" position="replace">
                     <field name="currency_id" invisible="1"/>
+                     <field name="company_currency_id" invisible="1"/>
 
                 </xpath>
 
@@ -107,7 +113,8 @@
                 </xpath>
 
                 <xpath expr="//field[@name='qte_palet']" position="after">
-                    <field name="total_amount_devise"/>
+                    <field name="company_currency_id" optional="hide"/>
+                    <field name="total_amount_devise" widget="monetary"/>
 
                 </xpath>
 
@@ -120,15 +127,14 @@
             <field name="priority" eval="8"/>
             <field name="inherit_id" ref="product.product_template_only_form_view"/>
             <field name="arch" type="xml">
-                <xpath expr="//group/field[@name='product_tooltip']" position="before">
-                    <field name="uom_palet_id"/>
-
+                <xpath expr="//group/field[@name='invoice_policy']" position="after">
+                    <field name="palet"/>
                 </xpath>
 
-                <xpath expr="//group/field[@name='uom_palet_id']" position="after">
+                <!-- <xpath expr="//group/field[@name='uom_palet_id']" position="after">
                     <field name="uom_conteneur_id"/>
 
-                </xpath>
+                </xpath> -->
             </field>
         </record>
 

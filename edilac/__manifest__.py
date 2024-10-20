@@ -28,22 +28,15 @@
     'depends': ['base', 'purchase', 'stock', 'sale', 'account', 'crm','contacts'],
 
     # always loaded
-    'data': [
-
-
-        # 'security/ir.model.access.csv',
-        'views/purchase_order.xml',
-        'report/purchase_oder_template.xml',
-        #'views/partner.xml',
-
-        'security/groups.xml',
-        'security/ir.model.access.csv',
-        'views/purchase_order.xml',
-        'views/templates.xml',
-        #'views/partner.xml',
-        'report/purchase_oder_template.xml',
-
-
+    "data": [
+        "security/groups.xml",
+        "security/ir.model.access.csv",
+        "views/purchase_order.xml",
+        "views/sequence_views.xml",      
+        #"views/templates.xml",
+        "views/partner.xml",
+        "report/purchase_oder_template.xml",
+        
     ],
     # only loaded in demonstration mode
     'demo': [

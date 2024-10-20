@@ -469,7 +469,7 @@
             <field name="arch" type="xml">
                 <tree editable="bottom">
                     <field name="name"/>
-                    <field name="common_id"/>
+                    <field name="common_id" widget="many2many_tags"/>
                 </tree>
             </field>
         </record>
@@ -554,14 +554,14 @@
         <menuitem name="Ville" id="city_menu" parent="contacts.res_partner_menu_config" action="city_view_action" sequence="2" groups="edilac.group_edilac_manager"/>
         <menuitem name="Zone" id="area_menu" parent="contacts.res_partner_menu_config" action="area_view_action" sequence="3" groups="edilac.group_edilac_manager"/>
         <menuitem name="Commune" id="common_menu" parent="contacts.res_partner_menu_config" action="common_common_view_action" sequence="4" groups="edilac.group_edilac_manager"/>
-        <menuitem name="Quartier" id="neighborhood_menu" parent="contacts.res_partner_menu_config" action="neighborhood_view_action" sequence="5" groups="edilac.group_edilac_manager"/>
+        <menuitem name="Quartier" id="neighborhood_menu" parent="contacts.res_partner_menu_config" action="neighborhood_view_action" sequence="4" groups="edilac.group_edilac_manager"/>
         
-        <menuitem name="Fournisseurs" id="account.menu_account_supplier" parent="account.menu_finance_payables" active="False"/>
+        <!-- <menuitem name="Fournisseurs" id="account.menu_account_supplier" parent="account.menu_finance_payables" active="False"/>
         <menuitem name="Fournisseur" id="vendor_menu" parent="account.menu_finance_payables" action="action_vendor" sequence="200"/>
         <menuitem name="Fournisseurs" id="purchase.menu_procurement_management_supplier_name" parent="purchase.menu_procurement_management" active="False"/>
         <menuitem name="Fournisseur" id="vendor2_menu" parent="purchase.menu_procurement_management" action="action_vendor" sequence="15"/>
         
-    
+     -->
 
     </data>
 </odoo>
