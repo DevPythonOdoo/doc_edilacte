@@ -55,6 +55,7 @@
                     <field name="country_id" string="Pays" class="o_address_country" options="{&quot;no_open&quot;: True, &quot;no_create&quot;: True}" readonly="type == 'contact' and parent_id" invisible="supplier_rank > 0"/>
                     <field name="property_product_pricelist" invisible="supplier_rank > 0"/>
                     <field name="num_registre" invisible="supplier_rank > 0"/>
+                    <field name="delivery_person" widget="boolean_toggle" invisible="1"/>
                 </xpath>
                 <xpath expr="//field[@name='vat']" position="after">
                     <field name="supplier_rank" invisible="1"/>
@@ -70,13 +71,8 @@
                 </xpath>
 
                <xpath expr="//field[@name='lang']" position="after">
-                    <!--field name="day_visit" invisible="supplier_rank > 0"/>
-                    <field name="family_cust" invisible="supplier_rank > 0"/-->
                     <field name="customer_type" invisible="supplier_rank > 0" required="1"/>
                     <field name="customer_profil" invisible="supplier_rank > 0" required="1"/>
-                    <!--field name="payment_mode" widget="radio" options="{'horizontal': True}" invisible="supplier_rank > 0"/-->
-                    <!-- <field name="airsi" invisible="supplier_rank > 0"/> -->
-                    
                </xpath>
                <xpath expr="//group" position="after">
                     <group string="Information fiscale et Vente" invisible="supplier_rank > 0">
@@ -118,8 +114,6 @@
             <field name="priority" eval="1"/>
             <field name="arch" type="xml">
                 
-    
-
                 <xpath expr="//tree" position="replace">
                     <!-- Add new fields here -->
                     <tree string="Contacts" sample="1" multi_edit="1">

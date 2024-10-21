@@ -27,3 +27,12 @@ access_neighborhood_neighborhood_users,user.neighborhood.neighborhood,model_neig
 access_neighborhood_neighborhood_respo,respo.neighborhood.neighborhood,model_neighborhood_neighborhood,edilac.group_edilac_respo,1,1,1,0
 access_neighborhood_neighborhood_manager,manager.neighborhood.neighborhood,model_neighborhood_neighborhood,edilac.group_edilac_manager,1,1,1,1
 
+access_stock_move_users,user.stock.move,model_stock_move,edilac.group_edilac_user,1,1,1,0
+access_stock_moved_respo,respo.stock.move,model_stock_move,edilac.group_edilac_respo,1,1,1,0
+access_stock_move_manager,manager.stock.move,model_stock_move,edilac.group_edilac_manager,1,1,1,1
+
+access_stock_picking_users,user.stock.picking,model_stock_picking,edilac.group_edilac_user,1,1,1,0
+access_stock_picking_respo,respo.stock.picking,model_stock_picking,edilac.group_edilac_respo,1,1,1,0
+access_stock_picking_manager,manager.stock.picking,model_stock_picking,edilac.group_edilac_manager,1,1,1,1
+
+

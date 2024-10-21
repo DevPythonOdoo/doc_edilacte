@@ -21,7 +21,7 @@ class Partner(models.Model):
     neighborhood_id = fields.Many2one(comodel_name='neighborhood.neighborhood',string='Quartier')
     supplier_type = fields.Selection(string='Catégorie Fournisseur',
                                      selection=[('national', 'National'), ('international', 'International'), ])
-
+    delivery_person = fields.Boolean(string='Livreur', default=False)
 
     @api.onchange('region_id')
     def _onchange_region_id(self):

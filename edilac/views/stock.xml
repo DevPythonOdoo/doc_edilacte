@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="stock_views_form_inherit" model="ir.ui.view">
+            <field name="name">stock.picking.form</field>
+            <field name="model">stock.picking</field>
+            <field name="inherit_id" ref="stock.view_picking_form"/>
+            <field name="priority" eval="1"/>
+            <field name="arch" type="xml">
+                <xpath expr="//page//tree//field[@name='product_uom_qty']" position="replace">
+                    <field name="product_uom_qty" string="Quantités commandées" readonly="not is_initial_demand_editable"/>
+                </xpath>
+                <xpath expr="//page//tree//field[@name='quantity']" position="replace">
+                    <field name="quantity" string="Quantités reçues/livrées" readonly="not is_quantity_done_editable" column_invisible="parent.state=='draft'" decoration-danger="product_uom_qty and quantity &gt; product_uom_qty and parent.state not in ['done', 'cancel']"/>
+                </xpath>
+                <xpath expr="//page//tree//field[@name='quantity']" position="after">
+                    <field name="gaps" string="Ecart" readonly="not is_quantity_done_editable"/>
+                </xpath>
+                <xpath expr="//field[@name='origin']" position="after">
+                    <field name="total_ordered" string="Total commandés" readonly="state in ['cancel', 'done']"/>
+                    <field name="total_received" string="Total reçus/livrés" readonly="state in ['cancel', 'done']"/>
+                    <field name="total_ecart" string="Total ecart" readonly="state in ['cancel', 'done']"/>
+                </xpath>
+            </field>
+        </record>
+        <record id="stocks_move_view_form_inherit" model="ir.ui.view">
+            <field name="name">stock.move.form.inherit</field>
+            <field name="model">stock.move</field>
+            <field name="inherit_id" ref="stock.view_move_form"/>
+            <field name="arch" type="xml">
+                <!-- Insérer le champ "gap" après le champ "product_uom_qty" par exemple -->
+                <xpath expr="//field[@name='company_id']" position="after">
+                    <field name="gaps" string="Ecart" invisible="1"/>
+                </xpath>
+            </field>
+        </record>
+
+
+        <record id="Livreur_view_action" model="ir.actions.act_window">
+            <field name="name">Livreurs</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">res.partner</field>
+            <field name="domain">[('delivery_person', '!=', False)]</field>
+            <field name="context">{'default_delivery_person':True,'search_default_customer': 1,'res_partner_search_mode': 'customer', 'default_is_company': True, 'default_customer_rank': 1}</field>
+            <field name="view_mode">kanban,tree,form</field>
+        </record>
+
+        <menuitem name="Livreur" id="delivery_person_menu" parent="stock.menu_delivery" action="Livreur_view_action" sequence="11"/>
+
+
+    </data>
+</odoo>

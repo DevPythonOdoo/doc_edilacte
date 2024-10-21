@@ -34,7 +34,9 @@
         'views/purchase_order.xml',
         'views/templates.xml',
         'views/partner.xml',
+        'views/stock.xml',
         'report/purchase_oder_template.xml',
+        'report/stock_template.xml',
 
     ],
     # only loaded in demonstration mode
