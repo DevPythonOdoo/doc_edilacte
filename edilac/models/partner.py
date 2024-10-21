@@ -23,26 +23,7 @@ class Partner(models.Model):
                                      selection=[('national', 'National'), ('international', 'International'), ])
     delivery_person = fields.Boolean(string='Livreur', default=False)
 
-    @api.onchange('region_id')
-    def _onchange_region_id(self):
-    
-    #Filtrer les villes en fonction de la région sélectionnée
-        
-        for record in self:
-            if record.region_id:
-                # Filtrer les villes dont la région correspond à la région sélectionnée
-                #record.city_id = record.region_id.mapped('city_ids').id
-                return {'domain': {'city_id': [('region_id', '=', record.region_id.id)]}}
-            
 
-    @api.onchange('city_id')
-    def _onchange_field4_id(self):
-        for record in self:
-            if record.region_id:
-                
-                return {'domain': {'area_id': [('city_id', '=', record.city_id.id)]}}
-                      
-                    
     
 
 class Family(models.Model):
@@ -55,26 +36,24 @@ class Region(models.Model):
     _name = 'region.region'
     _description = 'Region'
 
-    name = fields.Char(string='Région')
-    city_ids = fields.One2many(comodel_name='city.city', inverse_name='region_id',string="Ville", required=True)  
-    # area_ids = fields.One2many(comodel_name='area.area', inverse_name='region_id',string='Zone')
-    # common_ids = fields.One2many(comodel_name='common.common', inverse_name='region_id',string='Commune') 
-
+    name = fields.Char(string='Région',required=True)
+    city_ids = fields.One2many(comodel_name='city.city', inverse_name='region_id',string="Ville")  
+    
 class City(models.Model):
     _name = 'city.city'
     _description = 'Ville'
 
     name = fields.Char(string='Ville',required=True)
-    region_id = fields.Many2one(comodel_name='region.region',string='Region')
-    area_ids = fields.One2many(comodel_name='area.area', inverse_name='city_id',string="Zone", required=True) 
+    region_id = fields.Many2one(comodel_name='region.region',required=True,string='Region')
+    area_ids = fields.One2many(comodel_name='area.area', inverse_name='city_id',string="Zone") 
 
 class Area(models.Model):
     _name = 'area.area'
     _description = 'Zone'
 
     name = fields.Char(string='Zone',required=True)
-    city_id = fields.Many2one(comodel_name='city.city',string='Ville')
-    common_ids = fields.One2many(comodel_name='common.common', inverse_name='area_id',string="Commune", required=True) 
+    city_id = fields.Many2one(comodel_name='city.city',string='Ville',required=True)
+    common_ids = fields.One2many(comodel_name='common.common', inverse_name='area_id',string="Commune",) 
 
     
 
@@ -83,8 +62,8 @@ class Common(models.Model):
     _description = 'Commune'
 
     name = fields.Char(string='Commune',required=True)
-    area_id = fields.Many2one(comodel_name='area.area',string='Zone')
-    neighborhood_ids = fields.One2many(comodel_name='neighborhood.neighborhood', inverse_name='common_id',string="Quartier", required=True) 
+    area_id = fields.Many2one(comodel_name='area.area',string='Zone',required=True,)
+    neighborhood_ids = fields.One2many(comodel_name='neighborhood.neighborhood', inverse_name='common_id',string="Quartier") 
 
 
 class Neighborhood(models.Model):
@@ -92,4 +71,4 @@ class Neighborhood(models.Model):
     _description = 'Quartier'
 
     name = fields.Char(string='Quartier',required=True)
-    common_id = fields.Many2one(comodel_name='common.common',string='Commune')
+    common_id = fields.Many2one(comodel_name='common.common',string='Commune',required=True,)

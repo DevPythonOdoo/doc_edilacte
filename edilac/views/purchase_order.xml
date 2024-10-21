@@ -1,7 +1,6 @@
 <odoo>
     <data>
 
-   
         <record id="purchases_view_form_inherit" model="ir.ui.view">
             <field name="name">h_purchase.form</field>
             <field name="model">purchase.order</field>
@@ -11,11 +10,15 @@
                 <!-- Remplacement du bouton de confirmation -->
                 <xpath expr="//header/button[@name='button_confirm']" position="replace">
                     <button name="button_action_submit" string="Soumettre" type="object"
-                            invisible="state not in ('sent','draft')"/>
+                            invisible="state not in ('draft')"/>
                 </xpath>
                 <!-- Modification de l'attribut invisible -->
                 <xpath expr="//header/button[@name='button_confirm']" position="attributes">
                     <attribute name="invisible">True</attribute>
+                </xpath>
+                <xpath expr="//header/button[@name='action_rfq_send']" position="replace">
+                     <button name="action_rfq_send" string="Envoyer un mail" type="object"
+                            invisible="state not in ('sent','submit','approved')"/>
                 </xpath>
                 <!-- Ajout de nouveaux boutons après le bouton de confirmation -->
                 <xpath expr="//button[@name='button_confirm']" position="after">
@@ -69,12 +72,24 @@
                 </xpath>
 
                 <xpath expr="//field[@name='product_qty']" position="after">
-                    <field name="qte_palet" sum="Total des Palet/Qte" string="Total Palet/Qte"/>
+                    <field name="type" optional="hide" invisible="1"/>
+                    <field name="qte_palet" required="type=='import'" sum="Total des Palet/Qte" string="Palet/Qte"/>
 
                 </xpath>
 
                 <xpath expr="//field[@name='partner_ref']" position="after">
                     <field name="number_palet"/>
+
+                </xpath>
+
+                <xpath expr="//field[@name='tax_totals']" position="after">
+                    <field name="total_amount_devise"/>
+
+                </xpath>
+
+                <xpath expr="//field[@name='currency_id']" position="replace">
+                    <field name="currency_id" invisible="1"/>
+                     <field name="company_currency_id" invisible="1"/>
 
                 </xpath>
 
@@ -97,6 +112,12 @@
                     <field name="product_qty" string="Total Carton" sum="Total Carton" optional="show"/>
                 </xpath>
 
+                <xpath expr="//field[@name='qte_palet']" position="after">
+                    <field name="company_currency_id" optional="hide"/>
+                    <field name="total_amount_devise" widget="monetary"/>
+
+                </xpath>
+
             </field>
         </record>
 
@@ -106,17 +127,17 @@
             <field name="priority" eval="8"/>
             <field name="inherit_id" ref="product.product_template_only_form_view"/>
             <field name="arch" type="xml">
-                <xpath expr="//group/field[@name='product_tooltip']" position="before">
-                    <field name="uom_palet_id"/>
-
+                <xpath expr="//group/field[@name='invoice_policy']" position="after">
+                    <field name="palet"/>
                 </xpath>
 
-                <xpath expr="//group/field[@name='uom_palet_id']" position="after">
+                <!-- <xpath expr="//group/field[@name='uom_palet_id']" position="after">
                     <field name="uom_conteneur_id"/>
 
-                </xpath>
+                </xpath> -->
             </field>
         </record>
+
 
         <record id="purchase_rfq_local" model="ir.actions.act_window">
             <field name="name">Demande de prix local</field>
@@ -171,17 +192,18 @@
             <field name="context">{'default_quotation_only': True}</field>
             <field name="help" type="html">
                 <p class="o_view_nocontent_smiling_face">
-                     Aucun bon de commande Local trouvé. Créons-en un !
+                    Aucun bon de commande Local trouvé. Créons-en un !
                 </p>
                 <p>
-                    Une fois que vous avez commandé vos produits auprès de vos fournisseurs locaux, confirmez votre demande de devis et elle se transformera en bon de commande.
+                    Une fois que vous avez commandé vos produits auprès de vos fournisseurs locaux, confirmez votre
+                    demande de devis et elle se transformera en bon de commande.
                 </p>
             </field>
         </record>
 
 
         <record id="action_purchase_order_import" model="ir.actions.act_window">
-            <field name="name">Bon de Commande </field>
+            <field name="name">Bon de Commande</field>
             <field name="res_model">purchase.order</field>
             <field name="view_mode">tree,kanban,form,pivot,graph,calendar,activity</field>
             <field name="view_ids" eval="[(5, 0, 0),
@@ -196,13 +218,14 @@
                     Aucun bon de commande International trouvé. Créons-en un !
                 </p>
                 <p>
-                    Une fois que vous avez commandé vos produits auprès de vos fournisseurs internationaux, confirmez votre demande de devis et elle se transformera en bon de commande.
+                    Une fois que vous avez commandé vos produits auprès de vos fournisseurs internationaux, confirmez
+                    votre demande de devis et elle se transformera en bon de commande.
                 </p>
             </field>
         </record>
 
         <record id="action_purchase_form" model="ir.actions.act_window">
-            <field name="name">Bon de Commande </field>
+            <field name="name">Bon de Commande</field>
             <field name="res_model">purchase.order</field>
             <field name="view_mode">tree,kanban,form,pivot,graph,calendar,activity</field>
             <field name="view_ids" eval="[(5, 0, 0),
@@ -217,21 +240,27 @@
                     Aucun bon de commande International trouvé. Créons-en un !
                 </p>
                 <p>
-                    Une fois que vous avez commandé vos produits auprès de vos fournisseurs internationaux, confirmez votre demande de devis et elle se transformera en bon de commande.
+                    Une fois que vous avez commandé vos produits auprès de vos fournisseurs internationaux, confirmez
+                    votre demande de devis et elle se transformera en bon de commande.
                 </p>
             </field>
         </record>
 
 
         <!-- This Menu Item Must have a parent -->
-        <menuitem id="menu_purchase_local" name="Achat Local" parent="purchase.menu_procurement_management" sequence="0"/>
-            <menuitem id="purchase.menu_purchase_rfq" parent="menu_purchase_local" sequence="1" action="purchase_rfq_local" />
-            <!-- <menuitem id="menu_purchase_form_actions" name="Bons de Commande" parent="menu_purchase_local" sequence="2" action="action_purchase_order_import" /> -->
+        <menuitem id="menu_purchase_local" name="Achat Local" parent="purchase.menu_procurement_management"
+                  sequence="0"/>
+        <menuitem id="purchase.menu_purchase_rfq" parent="menu_purchase_local" sequence="1" action="purchase_rfq_local"/>
+<!--        <menuitem id="menu_purchase_form_actions" name="Bons de Commande" parent="menu_purchase_local" sequence="2"-->
+<!--                  action="action_purchase_order_import"/>-->
 
-        <menuitem id="menu_oders_import" name="Achat International" parent="purchase.menu_procurement_management" sequence="1"/>
-        <menuitem id="menu_purchase_import" name="Demande de prix" parent="menu_oders_import" action="action_purchase_rfq_customs" sequence="1"/>
+        <menuitem id="menu_oders_import" name="Achat International" parent="purchase.menu_procurement_management"
+                  sequence="1"/>
+        <menuitem id="menu_purchase_import" name="Demande de prix" parent="menu_oders_import"
+                  action="action_purchase_rfq_customs" sequence="1"/>
+        <menuitem id="menu_purchase_order_import" name="Bon de Commande" parent="menu_oders_import"
+                  action="action_purchase_form" sequence="2"/>
 
-        <!-- <menuitem id="purchase.menu_purchase_form_action" parent="menu_purchase_local" action="action_purchase_local" sequence="2"/> -->
-        <menuitem id="menu_purchase_order" name="Bon de Commande" parent="menu_oders_import" action="action_purchase_form" sequence="2"/>
+
     </data>
 </odoo>

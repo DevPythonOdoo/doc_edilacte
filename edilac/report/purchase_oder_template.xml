@@ -6,9 +6,14 @@
         <xpath expr="//div[contains(@class, 'col-3')]" position="after">
             <div t-if="o.date_planned" class="col-3 bm-2">
                 <strong>Date de Commande:</strong>
-                <p t-esc="o.date_planned" class="m-0"/>
+                <p t-field="o.date_order" class="m-0"/>
+            </div>
+            <div t-if="o.date_planned" class="col-6 bm-2">
+                <strong>Date de livraison prevue/souhaitée:</strong>
+                <p t-field="o.date_planned" class="m-0"/>
             </div>
         </xpath>
+
         <!-- Modifier les en-têtes du tableau -->
         <xpath expr="//table[@class='table table-sm mt-4']/thead/tr" position="replace">
             <tr>
@@ -23,34 +28,50 @@
                 </th>
             </tr>
         </xpath>
-        <tbody>
-            <t t-foreach="o.order_line" t-as="order_line">
-                <tr t-att-class="'bg-200 fw-bold o_line_section' if order_line.display_type == 'line_section' else 'fst-italic o_line_note' if order_line.display_type == 'line_note' else ''">
-                    <t t-if="not order_line.display_type">
-                        <td id="product">
-                            <span t-field="order_line.name"/>
-                        </td>
-                        <td class="text-center">
-                            <span t-field="order_line.qte_palet"/>
-                        </td>
-                        <td class="text-end">
-                            <span t-field="order_line.product_qty"/>
-                            <span t-field="order_line.product_uom" groups="uom.group_uom"/>
-                            <span t-if="order_line.product_packaging_id">
-                                (
-                                <span t-field="order_line.product_packaging_qty" t-options='{"widget": "integer"}'/>
-                                <span t-field="order_line.product_packaging_id"/>)
-                            </span>
-                        </td>
-                    </t>
-                    <t t-else="">
-                        <td colspan="99" id="section">
-                            <span t-field="order_line.name"/>
-                        </td>
-                    </t>
+        <xpath expr="//table[@class='table table-sm mt-4']/tbody" position="replace">
+            <tbody>
+                <t t-foreach="o.order_line" t-as="order_line">
+                    <tr t-att-class="'bg-200 fw-bold o_line_section' if order_line.display_type == 'line_section' else 'fst-italic o_line_note' if order_line.display_type == 'line_note' else ''">
+                        <t t-if="not order_line.display_type">
+                            <td id="product">
+                                <span t-field="order_line.name"/>
+                            </td>
+                            <td class="text-center">
+                                <span t-field="order_line.qte_palet"/>
+                            </td>
+                            <td class="text-end">
+                                <span t-field="order_line.product_qty"/>
+                                <span t-field="order_line.product_uom" groups="uom.group_uom"/>
+                                <span t-if="order_line.product_packaging_id">
+                                    (
+                                    <span t-field="order_line.product_packaging_qty" t-options='{"widget": "integer"}'/>
+                                    <span t-field="order_line.product_packaging_id"/>)
+                                </span>
+                            </td>
+                        </t>
+                        <t t-else="">
+                            <td colspan="99" id="section">
+                                <span t-field="order_line.name"/>
+                            </td>
+                        </t>
+                    </tr>
+                </t>
+            </tbody>
+            <tfoot>
+                <tr class='bg-200 fw-bold o_line_section'>
+                    <td name="total">
+                        <strong>Total</strong>
+                    </td>
+                    <td>
+                        <span t-esc="o.qte_palet"/>
+                    </td>
+                    <td>
+                        <span t-esc="o.product_qty"/>
+                    </td>
                 </tr>
-            </t>
-        </tbody>
+            </tfoot>
+        </xpath>
+        
 
     </template>
 
@@ -59,7 +80,7 @@
         <xpath expr="//div[contains(@class, 'col-3')]" position="after">
             <div t-if="o.date_planned" class="col-3 bm-2">
                 <strong>Date de Commande:</strong>
-                <p t-esc="o.date_planned" class="m-0"/>
+                <p t-field="o.date_planned" class="m-0"/>
             </div>
         </xpath>
 
@@ -76,9 +97,7 @@
                         <th name="th_quantity" class="text-end" invisible="1">
                             <strong>Cartons Commandés</strong>
                         </th>
-                        <!--                        <th name="th_price_unit" class="text-end" invisible="1">-->
-                        <!--                            <strong>New Unit Price</strong>-->
-                        <!--                        </th>-->
+                       
                         <th name="th_subtotal" class="text-end">
                             <strong>Montant en Devise</strong>
                         </th>
@@ -86,8 +105,12 @@
                 </thead>
                 <tbody>
                     <t t-set="current_subtotal" t-value="0"/>
+                    <t t-set="total_qte_palet" t-value="0"/>
+                    <t t-set="total_product_qty" t-value="0"/>
                     <t t-foreach="o.order_line" t-as="line">
                         <t t-set="current_subtotal" t-value="current_subtotal + line.price_subtotal"/>
+                        <t t-set="total_qte_palet" t-value="total_qte_palet + line.qte_palet"/>
+                        <t t-set="total_product_qty" t-value="total_product_qty + line.product_qty"/>
 
                         <tr t-att-class="'bg-200 fw-bold o_line_section' if line.display_type == 'line_section' else 'fst-italic o_line_note' if line.display_type == 'line_note' else ''">
                             <t t-if="not line.display_type">
@@ -106,18 +129,7 @@
                                         <span t-field="line.product_packaging_id"/>)
                                     </span>
                                 </td>
-                                <!--                                <td class="text-end">-->
-                                <!--                                    <span t-field="line.product_qty"/>-->
-                                <!--                                    <span t-field="line.product_uom.name" groups="uom.group_uom"/>-->
-                                <!--                                    <span t-if="line.product_packaging_id">-->
-                                <!--                                        (-->
-                                <!--                                        <span t-field="line.product_packaging_qty" t-options='{"widget": "integer"}'/>-->
-                                <!--                                        <span t-field="line.product_packaging_id"/>)-->
-                                <!--                                    </span>-->
-                                <!--                                </td>-->
-                                <!--                                <td class="text-end">-->
-                                <!--                                    <span t-field="line.price_unit"/>-->
-                                <!--                                </td>-->
+
                                 <td class="text-end">
                                     <span t-field="line.price_subtotal"
                                           t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
@@ -149,7 +161,23 @@
                         </t>
                     </t>
                 </tbody>
+                <tfoot>
+                    <tr>
+                        <td name="total">
+                            <strong>Total</strong>
+                        </td>
+                        <td>
+                            <span t-esc="total_qte_palet"/>
+                        </td>
+                        <td>
+                            <span t-esc="total_product_qty"/>
+                        </td>
+                        <td/>
+                    </tr>
+                </tfoot>
             </table>
+    
         </xpath>
+
     </template>
 </odoo>
