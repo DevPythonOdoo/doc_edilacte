@@ -33,7 +33,7 @@
         "security/ir.model.access.csv",
         "views/purchase_order.xml",
         "views/sequence_views.xml",      
-        #"views/templates.xml",
+        "views/salesperson.xml",
         "views/partner.xml",
         "report/purchase_oder_template.xml",
         
