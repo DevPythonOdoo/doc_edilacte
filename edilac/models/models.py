@@ -44,7 +44,6 @@ class Purchase(models.Model):
         for order in self:
             # Initialisation du montant à zéro
             order.total_amount_devise = 0.0
-
             # Vérification que le partenaire a une liste de prix
             if order.partner_id and order.currency_id:
                 order.total_amount_devise = order.amount_total * order.currency_id.rate
