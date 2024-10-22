@@ -247,6 +247,21 @@
         </record>
 
 
+        <record id="res_partner_view_form_simple_form" model="ir.ui.view">
+            <field name="name">res.partner.view.form.simple.form.crm</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_simple_form"/>
+            <field name="arch" type="xml">
+                <data>
+                    <xpath expr="//field[@name='team_id']" position="replace">
+                        <field name="team_id"/>
+                    </xpath>
+                </data>
+            </field>
+        </record>
+
+
+
         <!-- This Menu Item Must have a parent -->
         <menuitem id="menu_purchase_local" name="Achat Local" parent="purchase.menu_procurement_management"
                   sequence="0"/>
@@ -260,6 +275,10 @@
                   action="action_purchase_rfq_customs" sequence="1"/>
         <menuitem id="menu_purchase_order_import" name="Bon de Commande" parent="menu_oders_import"
                   action="action_purchase_form" sequence="2"/>
+
+        <!-- This Menu Item must have a parent and an action -->
+        <menuitem id="menu_Creance" name="Suivi des Créances" parent="crm.crm_menu_sales" action="account.action_move_out_invoice_type" sequence="6"/>
+        <menuitem id="menu_Relance" name="Rélances Clients" parent="crm.crm_menu_sales" action="account_followup.action_view_list_customer_statements" sequence="7"/>
 
 
     </data>

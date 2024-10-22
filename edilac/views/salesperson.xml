@@ -1,0 +1,111 @@
+<odoo>
+    <data>
+        <record id="res_users_form_inherit" model="ir.ui.view">
+            <field name="name">res.users.form.inherit</field>
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="base.view_users_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//div/group/field[@name='partner_id']" position="after">
+                    <field name="as_a_salesperson" groups="base.group_user"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="commercial_view_form" model="ir.ui.view">
+            <field name="name">commercial form</field>
+            <field name="model">res.users</field>
+            <field name="arch" type="xml">
+                <form string="_form">
+                    <sheet>
+                        <group>
+                            <group string="Information personnel">
+                                <field name="name"/>
+                                <field name="login"/>
+                                <field name="partner_id"/>
+                                <field name="company_id"/>
+                                <field name="phone"/>
+                                <field name="mobile"/>
+                                <field name="invoiced_target"/>
+                            </group>
+                            <group>
+                                <group>
+                                    <field name="image_1920" widget="image" options="{'size': (68, 68)}"/>
+                                </group>
+                            </group>
+
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="commercial_view_tree" model="ir.ui.view">
+            <field name="name">commercial_view_tree</field>
+            <field name="model">res.users</field>
+            <field name="arch" type="xml">
+                <tree string="commercial_tree">
+                    <field name="name"/>
+                    <field name="login"/>
+                    <field name="partner_id"/>
+                    <field name="company_id"/>
+                    <field name="phone"/>
+                    <field name="mobile"/>
+                    <field name="invoiced_target"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_commercial">
+            <field name="name">Les Commerciaux</field>
+            <field name="res_model">res.users</field>
+            <field name="view_mode">tree,form</field>
+            <!-- <field name="search_view_id" ref="view_res_partner_insurance_filter"/> -->
+            <field name="domain">[('as_a_salesperson', '=', True)]</field>
+            <!-- <field name="domain">[('bene_statut', '=', 'adherent')]</field> -->
+            <field name="context">{}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Créer votre premier commercial
+                </p>
+                <p>Les commerciaux</p>
+            </field>
+        </record>
+
+        <record id="action_member_insurance_form" model="ir.actions.act_window.view">
+            <field name="sequence" eval="2"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="commercial_view_form"/>
+            <field name="act_window_id" ref="action_commercial"/>
+        </record>
+
+        <record id="action_members_insurances_tree" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="commercial_view_tree"/>
+            <field name="act_window_id" ref="action_commercial"/>
+        </record>
+        <menuitem id="menu_commercial" name="Les Commerciaux" parent="crm.crm_menu_sales" action="action_commercial"
+                  sequence="8"/>
+
+        <!--        &lt;!&ndash; Inherit Form View to Modify it &ndash;&gt;-->
+        <!--        <record id="crm_team_form_inherit" model="ir.ui.view">-->
+        <!--            <field name="name">crm.team.form.inherit</field>-->
+        <!--            <field name="model">crm.team</field>-->
+        <!--            <field name="inherit_id" ref="sales_team.crm_team_view_form"/>-->
+        <!--            <field name="arch" type="xml">-->
+
+        <!--                <xpath expr="//page[@name='members_users']" position="after">-->
+        <!--                    &lt;!&ndash; Add your fields or attributes here &ndash;&gt;-->
+        <!--                    <page string="Information" name="crm_teams_id">-->
+        <!--                        <field name="crm_object_id">-->
+
+        <!--                        </field>-->
+
+        <!--                    </page>-->
+        <!--                </xpath>-->
+
+        <!--            </field>-->
+        <!--        </record>-->
+
+    </data>
+</odoo>
