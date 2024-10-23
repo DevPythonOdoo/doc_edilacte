@@ -216,7 +216,6 @@ class ResPartner(models.Model):
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
-    sequence_id = fields.Integer(string='Sequence', compute='_compute_sequence_id', store=True)
 
     @api.model
     def create(self, vals):
