@@ -6,7 +6,7 @@ class Partner(models.Model):
     _inherit = 'res.partner'
 
 
-    date_create_customer =fields.Datetime(string='Date Création client', default=fields.Datetime.now)
+    # date_create_customer =fields.Datetime(string='Date Création client', default=fields.Datetime.now)
     family_cust = fields.Many2one(comodel_name='family.custom',string='Famille client')
     customer_type = fields.Selection(string='Type de client',selection=[('tva', 'TVA OU TOTAL'),('normal', 'Normal'), ('normal_d', 'Normal déclaré') ])
     customer_profil = fields.Selection(string='Profil client',selection=[('on', 'ON-US'),('off', 'OFF-US'), ])
@@ -16,11 +16,9 @@ class Partner(models.Model):
     city_id = fields.Many2one(comodel_name='city.city',string='Ville')
     area_id = fields.Many2one(comodel_name='area.area',string='Zone')
     common_id = fields.Many2one(comodel_name='common.common',string='Commune')
-    num_registre = fields.Integer(string='N° Registre du commerce')
-    day_visit = fields.Integer(string='Jour visite')
+    num_registre = fields.Char(string='N° Registre du commerce')
     neighborhood_id = fields.Many2one(comodel_name='neighborhood.neighborhood',string='Quartier')
-    supplier_type = fields.Selection(string='Catégorie Fournisseur',
-                                     selection=[('national', 'National'), ('international', 'International'), ])
+    supplier_type = fields.Selection(string='Catégorie Fournisseur',selection=[('national', 'National'), ('international', 'International'), ])
     delivery_person = fields.Boolean(string='Livreur', default=False)
 
 

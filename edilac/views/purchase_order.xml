@@ -248,14 +248,11 @@
 
 
         <!-- This Menu Item Must have a parent -->
-        <menuitem id="menu_purchase_local" name="Achat Local" parent="purchase.menu_procurement_management"
-                  sequence="0"/>
-        <menuitem id="purchase.menu_purchase_rfq" parent="menu_purchase_local" sequence="1" action="purchase_rfq_local"/>
-<!--        <menuitem id="menu_purchase_form_actions" name="Bons de Commande" parent="menu_purchase_local" sequence="2"-->
-<!--                  action="action_purchase_order_import"/>-->
+        <menuitem id="menu_purchase_local" name="Achat Local" parent="purchase.menu_procurement_management" sequence="0"/>
+            <menuitem id="purchase.menu_purchase_rfq" parent="menu_purchase_local" sequence="1" action="purchase_rfq_local"/>
+            <menuitem id="purchase.menu_purchase_form_action" name="Bons de Commande" parent="menu_purchase_local" sequence="2" action="action_purchase_order_import"/>
 
-        <menuitem id="menu_oders_import" name="Achat International" parent="purchase.menu_procurement_management"
-                  sequence="1"/>
+        <menuitem id="menu_oders_import" name="Achat International" parent="purchase.menu_procurement_management" sequence="1"/>
         <menuitem id="menu_purchase_import" name="Demande de prix" parent="menu_oders_import"
                   action="action_purchase_rfq_customs" sequence="1"/>
         <menuitem id="menu_purchase_order_import" name="Bon de Commande" parent="menu_oders_import"
