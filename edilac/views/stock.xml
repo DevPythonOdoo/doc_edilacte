@@ -15,6 +15,7 @@
                 </xpath>
                 <xpath expr="//page//tree//field[@name='quantity']" position="after">
                     <field name="gaps" string="Ecart" readonly="not is_quantity_done_editable"/>
+                    <field name="quality_id" string="Qualité" readonly="not is_quantity_done_editable" options="{'no_create': True, 'no_edit': True}"/>
                 </xpath>
                 <xpath expr="//field[@name='origin']" position="after">
                     <field name="total_ordered" string="Total commandés" readonly="state in ['cancel', 'done']"/>
@@ -31,6 +32,7 @@
                 <!-- Insérer le champ "gap" après le champ "product_uom_qty" par exemple -->
                 <xpath expr="//field[@name='company_id']" position="after">
                     <field name="gaps" string="Ecart" invisible="1"/>
+                    <field name="quality_id" string="Qualité" invisible="1"/>
                 </xpath>
             </field>
         </record>
@@ -45,8 +47,24 @@
             <field name="view_mode">kanban,tree,form</field>
         </record>
 
-        <menuitem name="Livreur" id="delivery_person_menu" parent="stock.menu_delivery" action="Livreur_view_action" sequence="11"/>
+        <record id="quality_view_tree" model="ir.ui.view">
+            <field name="name">quality.quality.tree</field>
+            <field name="model">quality.quality</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom">
+                    <field name="name" required="1"/>    
+                </tree>
+            </field>
+        </record>
+        <record id="quality_view_action" model="ir.actions.act_window">
+            <field name="name">Qualités Produits</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">quality.quality</field>
+            <field name="view_mode">tree</field>
+        </record>
 
+        <menuitem name="Livreur" id="delivery_person_menu" parent="stock.menu_delivery" action="Livreur_view_action" sequence="11"/>
+        <menuitem name="Qualité" id="quality_menu" parent="stock.menu_product_in_config_stock" action="quality_view_action" sequence="1"  groups="edilac.group_edilac_manager"/>
 
     </data>
 </odoo>

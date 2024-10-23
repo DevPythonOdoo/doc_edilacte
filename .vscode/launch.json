@@ -16,6 +16,7 @@
                 "edilac", // Remplacez "module_name" par le nom du module à mettre à jour
                 
                 
+                
             ],
             "cwd": "${workspaceRoot}",
             "env": {},

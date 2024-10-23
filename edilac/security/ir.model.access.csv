@@ -36,4 +36,7 @@ access_stock_picking_users,user.stock.picking,model_stock_picking,edilac.group_e
 access_stock_picking_respo,respo.stock.picking,model_stock_picking,edilac.group_edilac_respo,1,1,1,0
 access_stock_picking_manager,manager.stock.picking,model_stock_picking,edilac.group_edilac_manager,1,1,1,1
 
+access_quality_quality_users,user.quality.quality,model_quality_quality,edilac.group_edilac_user,1,1,1,0
+access_quality_quality_respo,respo.quality.quality,model_quality_quality,edilac.group_edilac_respo,1,1,1,0
+access_quality_quality_manager,manager.quality.quality,model_quality_quality,edilac.group_edilac_manager,1,1,1,1
 

@@ -44,7 +44,6 @@ class Purchase(models.Model):
         for order in self:
             # Initialisation du montant à zéro
             order.total_amount_devise = 0.0
-
             # Vérification que le partenaire a une liste de prix
             if order.partner_id and order.currency_id:
                 order.total_amount_devise = order.amount_total * order.currency_id.rate
@@ -174,4 +173,67 @@ class ProductTemplate(models.Model):
     # uom_conteneur_id = fields.Integer('Mesure en Conteneur', required=False, help="Default unit of measure used for purchase orders.",store=True)
 
 
+class ResUsers(models.Model):
+    _inherit = 'res.users'
 
+    as_a_salesperson = fields.Boolean('Comme un commercial')
+    invoiced_target = fields.Float(string="Objectif de facturation")
+
+class CrmTeam(models.Model):
+    _inherit = 'crm.team'
+
+    @api.model
+    def write(self, vals):
+        # Sauvegarder les utilisateurs actuels avant la mise à jour
+        previous_members = self.member_ids
+        # Appeler la méthode write pour effectuer la mise à jour
+        res = super(CrmTeam, self).write(vals)
+        # Récupérer les nouveaux membres après la mise à jour
+        current_members = self.member_ids
+        # Activer as_a_salesperson pour les utilisateurs ajoutés
+        for user in current_members:
+            if user not in previous_members:
+                user.as_a_salesperson = True
+        # Désactiver as_a_salesperson pour les utilisateurs supprimés
+        for user in previous_members:
+            if user not in current_members:
+                user.as_a_salesperson = False
+
+        return res
+
+
+class ResPartner(models.Model):
+    _inherit = 'res.partner'
+
+    @api.depends('parent_id')
+    def _compute_team_id(self):
+        for partner in self.filtered(lambda p: not p.team_id and p.company_type == 'person' and p.parent_id.team_id):
+            # Vérifiez si l'équipe parent a au moins un commercial actif
+            if partner.parent_id.team_id.has_salesperson:
+                partner.team_id = partner.parent_id.team_id
+
+
+class SaleOrder(models.Model):
+    _inherit = 'sale.order'
+
+
+    @api.model
+    def create(self, vals):
+        # Récupérer le partenaire et son type de client
+        partner = self.env['res.partner'].browse(vals.get('partner_id'))
+        prefix = 'S'  # Préfixe par défaut
+
+        # Modifier le préfixe en fonction du type de client
+        if partner.customer_type == 'tva':
+            prefix = 'T'
+        elif partner.customer_type == 'normal':
+            prefix = 'N'
+        elif partner.customer_type == 'normal_d':
+            prefix = 'ND'
+
+        # Générer le numéro de séquence en utilisant le préfixe personnalisé
+        seq = self.env['ir.sequence'].next_by_code('sale.order') or '/'
+        vals['name'] = prefix + seq[1:]  # Remplace le premier caractère par le préfixe désiré
+
+        # Appeler la méthode create parente
+        return super(SaleOrder, self).create(vals)
