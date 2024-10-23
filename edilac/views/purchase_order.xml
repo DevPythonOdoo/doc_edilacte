@@ -17,7 +17,7 @@
                     <attribute name="invisible">True</attribute>
                 </xpath>
                 <xpath expr="//header/button[@name='action_rfq_send']" position="replace">
-                     <button name="action_rfq_send" string="Envoyer un mail" type="object"
+                    <button name="action_rfq_send" string="Envoyer un mail" type="object"
                             invisible="state not in ('sent','submit','approved')"/>
                 </xpath>
                 <!-- Ajout de nouveaux boutons après le bouton de confirmation -->
@@ -89,7 +89,7 @@
 
                 <xpath expr="//field[@name='currency_id']" position="replace">
                     <field name="currency_id" invisible="1"/>
-                     <field name="company_currency_id" invisible="1"/>
+                    <field name="company_currency_id" invisible="1"/>
 
                 </xpath>
 
@@ -265,9 +265,10 @@
         <!-- This Menu Item Must have a parent -->
         <menuitem id="menu_purchase_local" name="Achat Local" parent="purchase.menu_procurement_management"
                   sequence="0"/>
-        <menuitem id="purchase.menu_purchase_rfq" parent="menu_purchase_local" sequence="1" action="purchase_rfq_local"/>
-<!--        <menuitem id="menu_purchase_form_actions" name="Bons de Commande" parent="menu_purchase_local" sequence="2"-->
-<!--                  action="action_purchase_order_import"/>-->
+        <menuitem id="purchase.menu_purchase_rfq" parent="menu_purchase_local" sequence="1"
+                  action="purchase_rfq_local"/>
+        <!--        <menuitem id="menu_purchase_form_actions" name="Bons de Commande" parent="menu_purchase_local" sequence="2"-->
+        <!--                  action="action_purchase_order_import"/>-->
 
         <menuitem id="menu_oders_import" name="Achat International" parent="purchase.menu_procurement_management"
                   sequence="1"/>
@@ -277,8 +278,10 @@
                   action="action_purchase_form" sequence="2"/>
 
         <!-- This Menu Item must have a parent and an action -->
-        <menuitem id="menu_Creance" name="Suivi des Créances" parent="crm.crm_menu_sales" action="account.action_move_out_invoice_type" sequence="6"/>
-        <menuitem id="menu_Relance" name="Rélances Clients" parent="crm.crm_menu_sales" action="account_followup.action_view_list_customer_statements" sequence="7"/>
+        <menuitem id="menu_Creance" name="Suivi des Créances" parent="crm.crm_menu_sales"
+                  action="account.action_move_out_invoice_type" sequence="6"/>
+        <menuitem id="menu_Relance" name="Rélances Clients" parent="crm.crm_menu_sales"
+                  action="account_followup.action_view_list_customer_statements" sequence="7"/>
 
 
     </data>

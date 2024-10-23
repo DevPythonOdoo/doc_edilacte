@@ -211,3 +211,30 @@ class ResPartner(models.Model):
             # Vérifiez si l'équipe parent a au moins un commercial actif
             if partner.parent_id.team_id.has_salesperson:
                 partner.team_id = partner.parent_id.team_id
+
+
+class SaleOrder(models.Model):
+    _inherit = 'sale.order'
+
+    sequence_id = fields.Integer(string='Sequence', compute='_compute_sequence_id', store=True)
+
+    @api.model
+    def create(self, vals):
+        # Récupérer le partenaire et son type de client
+        partner = self.env['res.partner'].browse(vals.get('partner_id'))
+        prefix = 'S'  # Préfixe par défaut
+
+        # Modifier le préfixe en fonction du type de client
+        if partner.customer_type == 'tva':
+            prefix = 'T'
+        elif partner.customer_type == 'normal':
+            prefix = 'N'
+        elif partner.customer_type == 'normal_d':
+            prefix = 'ND'
+
+        # Générer le numéro de séquence en utilisant le préfixe personnalisé
+        seq = self.env['ir.sequence'].next_by_code('sale.order') or '/'
+        vals['name'] = prefix + seq[1:]  # Remplace le premier caractère par le préfixe désiré
+
+        # Appeler la méthode create parente
+        return super(SaleOrder, self).create(vals)
