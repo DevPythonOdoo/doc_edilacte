@@ -178,6 +178,41 @@ class ResUsers(models.Model):
 
     as_a_salesperson = fields.Boolean('Comme un commercial')
     invoiced_target = fields.Float(string="Objectif de facturation")
+    target_ids = fields.One2many(
+        string=_('Objectifs Commercial'),
+        comodel_name='saleman.line',
+        inverse_name='user_id',
+    )
+    customers_ids = fields.One2many(
+        string=_('Clients suivi'),
+        comodel_name='res.partner',
+        inverse_name='user_id',
+    )
+
+class SalemLine(models.Model):
+    _name = 'saleman.line'
+    _description = _('Objectif Commercial')
+    
+    date_start = fields.Date(string="Date début",required=True)
+    date_end = fields.Date(string="Date fin",required=True)
+    target_amount = fields.Monetary(string="Montant objectif")
+    currency_id = fields.Many2one('res.currency', string="Devise",default=lambda self: self.env.company.currency_id)
+    real_amount = fields.Monetary(string="Montant réel",compute='_compute_real_amount',store=True)
+    percentage = fields.Float(string="Pourcentage d'atteinte",compiled=True, store=True, compute='_compute_percentage')
+    user_id = fields.Many2one('res.users', string="Commercial")
+    line_ids = fields.One2many(
+        string=_('Commande Client'),
+        comodel_name='sale.order',
+        inverse_name='user_id',
+    )
+
+    def _compute_percentage(self):
+        for record in self:
+            record.percentage = (record.real_amount / record.target_amount) * 100 if record.target_amount else 0.0
+    def _compute_real_amount(self):
+        for record in self:
+            record.real_amount = sum(order.amount_total for order in record.line_ids if order.state in ('sale','done'))
+
 
 class CrmTeam(models.Model):
     _inherit = 'crm.team'
@@ -202,21 +237,18 @@ class CrmTeam(models.Model):
         return res
 
 
-class ResPartner(models.Model):
-    _inherit = 'res.partner'
 
-    @api.depends('parent_id')
-    def _compute_team_id(self):
-        for partner in self.filtered(lambda p: not p.team_id and p.company_type == 'person' and p.parent_id.team_id):
-            # Vérifiez si l'équipe parent a au moins un commercial actif
-            if partner.parent_id.team_id.has_salesperson:
-                partner.team_id = partner.parent_id.team_id
 
 
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
-
+    region_id = fields.Many2one(comodel_name='region.region', string='Region',related="partner_id.region_id",store=True)
+    city_id = fields.Many2one(comodel_name='city.city',string='Ville',related="partner_id.city_id",store=True)
+    area_id = fields.Many2one(comodel_name='area.area',string='Zone',related="partner_id.area_id",store=True)
+    common_id = fields.Many2one(comodel_name='common.common',string='Commune',related="partner_id.common_id",store=True)
+    family_cust = fields.Many2one(comodel_name='family.custom',string='Famille client',related="partner_id.family_cust",store=True)
+    neighborhood_id = fields.Many2one(comodel_name='neighborhood.neighborhood',string='Quartier',related="partner_id.neighborhood_id",store=True)
     @api.model
     def create(self, vals):
         # Récupérer le partenaire et son type de client

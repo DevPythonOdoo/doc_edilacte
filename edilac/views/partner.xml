@@ -91,7 +91,7 @@
                             <field name="company_id" invisible="supplier_rank > 0"/>
                             <field name="industry_id" required="1"/>
                         </group>
-                        <group string="Autres informations">
+                        <group string="Autres informations" invisible="supplier_rank > 0">
                             <field name="customer_type" invisible="supplier_rank > 0" required="1"/>
                             <field name="customer_profil" invisible="supplier_rank > 0" required="1"/>
                             <field name="family_cust" required="1" invisible="supplier_rank > 0"/>
