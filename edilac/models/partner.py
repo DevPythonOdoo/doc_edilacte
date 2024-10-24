@@ -1,30 +1,62 @@
-from odoo import models, fields, api
+from odoo import models, fields, api,_,exceptions
 from datetime import datetime
+
 
 
 class Partner(models.Model):
     _inherit = 'res.partner'
 
 
-    date_create_customer =fields.Datetime(string='Date Création client', default=fields.Datetime.now)
+    # date_create_customer =fields.Datetime(string='Date Création client', default=fields.Datetime.now)
     family_cust = fields.Many2one(comodel_name='family.custom',string='Famille client')
     customer_type = fields.Selection(string='Type de client',selection=[('tva', 'TVA OU TOTAL'),('normal', 'Normal'), ('normal_d', 'Normal déclaré') ])
     customer_profil = fields.Selection(string='Profil client',selection=[('on', 'ON-US'),('off', 'OFF-US'), ])
     #payment_mode = fields.Selection(string='Mode de paiement', selection=[('espece', 'Espèce'), ('check', 'Chèque/Virement'), ])
-    airsi = fields.Char(string='AIRSI')
+    # airsi = fields.Char(string='AIRSI')
     region_id = fields.Many2one(comodel_name='region.region', string='Region')
     city_id = fields.Many2one(comodel_name='city.city',string='Ville')
     area_id = fields.Many2one(comodel_name='area.area',string='Zone')
     common_id = fields.Many2one(comodel_name='common.common',string='Commune')
-    num_registre = fields.Integer(string='N° Registre du commerce')
-    day_visit = fields.Integer(string='Jour visite')
+    num_registre = fields.Char(string='N° Registre du commerce')
     neighborhood_id = fields.Many2one(comodel_name='neighborhood.neighborhood',string='Quartier')
-    supplier_type = fields.Selection(string='Catégorie Fournisseur',
-                                     selection=[('national', 'National'), ('international', 'International'), ])
+    supplier_type = fields.Selection(string='Catégorie Fournisseur',selection=[('national', 'National'), ('international', 'International'), ])
     delivery_person = fields.Boolean(string='Livreur', default=False)
 
+    @api.depends('parent_id')
+    def _compute_team_id(self):
+        for partner in self.filtered(lambda p: not p.team_id and p.company_type == 'person' and p.parent_id.team_id):
+            # Vérifiez si l'équipe parent a au moins un commercial actif
+            if partner.parent_id.team_id.has_salesperson:
+                partner.team_id = partner.parent_id.team_id    
+class producpricelist(models.Model):
+    _inherit = 'product.pricelist'
 
+    state = fields.Selection(
+        string=_('state'),
+        selection=[
+            ('draft', 'Nouveau'),
+            ('send', 'Soumis'),
+            ('done', 'Validé'),
+        ], default='draft',readonly=True, tracking=True,
+    )
+
+    def action_submit(self):
+        for rec in self:
+            if not rec.pricelist_rules :
+                raise exceptions.UserError('Veuillez ajouter des règles de tarification pour cette liste de prix.')
+        self.write({"state": "send"})
     
+    def action_validate(self):
+        self.write({"state": "done"})
+    
+    def action_cancel(self):
+        self.write({"state": "draft"})
+        
+"""
++++++++++++++++++++++ 
+CLASS OBJECTS
++++++++++++++++++++++
+""" 
 
 class Family(models.Model):
     _name = 'family.custom'

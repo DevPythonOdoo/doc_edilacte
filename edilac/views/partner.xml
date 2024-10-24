@@ -1,6 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
+
+        <record id="product_list_state" model="ir.ui.view">
+            <field name="name">product.list.state</field>
+            <field name="model">product.pricelist</field>
+            <field name="priority">8</field>
+            <field name="inherit_id" ref="product.product_pricelist_view"/>
+            <field name="arch" type="xml">
+               <xpath expr="//sheet" position="before">
+                   <header>
+                       <button name="action_submit" class="oe_highlight" invisible="state not in ('draft')" string="Soumettre" type="object"/>
+                       <button name="action_validate" groups="edilac.group_edilac_respo" class="oe_highlight" invisible="state not in ('send')" string="Valider" type="object"/>
+                       <button name="action_cancel" invisible="state not in ('done','send')" string="Annuler" type="object"/>
+                       <field name="state" widget="statusbar" statusbar_visible="draft,send,done"/>
+                   </header>
+               </xpath>
+            </field>
+        </record>
          <record id="customer_view_form_inherit" model="ir.ui.view">
             <field name="name">client.res.partner</field>
             <field name="model">res.partner</field>
@@ -18,7 +35,7 @@
                 </xpath>
 
                 <xpath expr="//div[@class='o_address_format']" position="replace">
-
+                         <field name="customer_rank" invisible="1"/>
                         <div class="o_address_format" invisible="customer_rank > 0">
                             <field name="street" placeholder="Street..." class="o_address_street"
                                    readonly="type == 'contact' and parent_id"/>
@@ -53,14 +70,10 @@
                     
                     <field name="zip" string="Adresse Postal" class="o_address_zip" readonly="type == 'contact' and parent_id" invisible="supplier_rank > 0"/>
                     <field name="country_id" string="Pays" class="o_address_country" options="{&quot;no_open&quot;: True, &quot;no_create&quot;: True}" readonly="type == 'contact' and parent_id" invisible="supplier_rank > 0"/>
-                    <field name="property_product_pricelist" invisible="supplier_rank > 0"/>
-                    <field name="num_registre" invisible="supplier_rank > 0"/>
-                    <field name="delivery_person" widget="boolean_toggle" invisible="1"/>
+                    <field name="property_product_pricelist" domain="[('state' ,'=', 'done')]" invisible="supplier_rank > 0"/>
+                   
                 </xpath>
-                <xpath expr="//field[@name='vat']" position="after">
-                    <field name="supplier_rank" invisible="1"/>
-                    <field name="date_create_customer" invisible="supplier_rank > 0"/>
-                </xpath>
+             
                 <xpath expr="//field[@name='phone']" position="before">
                     <field name="customer_rank" invisible="1"/>
                     <field name="supplier_type" widget="radio" options="{'horizontal': True}"
@@ -70,19 +83,20 @@
                     <field name="vat" placeholder="e.g. BE0477472701" readonly="parent_id" string="NCC"/>
                 </xpath>
 
-               <xpath expr="//field[@name='lang']" position="after">
-                    <field name="customer_type" invisible="supplier_rank > 0" required="1"/>
-                    <field name="customer_profil" invisible="supplier_rank > 0" required="1"/>
-               </xpath>
                <xpath expr="//group" position="after">
-                    <group string="Information fiscale et Vente" invisible="supplier_rank > 0">
-                        <field name="user_id" widget="many2one_avatar_user" domain="[('share', '=', False)]" invisible="supplier_rank > 0"/>
-                        <field name="property_account_position_id" invisible="supplier_rank > 0"/>
-                        <field name="company_id" invisible="supplier_rank > 0"/>
-                        <field name="industry_id" required="1"/>
-
+                    <group>
+                        <group string="Information fiscale et Vente" invisible="supplier_rank > 0">
+                            <field name="user_id" widget="many2one_avatar_user" string="Commercial" domain="[('share', '=', False)]" invisible="supplier_rank > 0"/>
+                            <field name="property_account_position_id" invisible="supplier_rank > 0"/>
+                            <field name="company_id" invisible="supplier_rank > 0"/>
+                            <field name="industry_id" required="1"/>
+                        </group>
+                        <group string="Autres informations" invisible="supplier_rank > 0">
+                            <field name="customer_type" invisible="supplier_rank > 0" required="1"/>
+                            <field name="customer_profil" invisible="supplier_rank > 0" required="1"/>
+                            <field name="family_cust" required="1" invisible="supplier_rank > 0"/>
+                        </group>
                     </group>
-                    
                </xpath>
                <xpath expr="//page[@name='sales_purchases']" position="replace">
                     <!--attribute name="invisible">1</attribute-->
@@ -98,6 +112,8 @@
                                     <field name="ref" string="Reference"/>
                                     <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}" readonly="parent_id" force_save="1"/>
                                     <field name="industry_id" invisible="not is_company" options="{'no_create': True}"/>
+                                    <field name="num_registre" invisible="supplier_rank > 0"/>
+                                    <field name="delivery_person" widget="boolean_toggle" invisible="1"/>
                                 </group>
                             </group>
                     </page>
@@ -107,16 +123,14 @@
             </field>
         </record>
 
-        <record id="customer_view_list" model="ir.ui.view">
-            <field name="name">client.tree</field>
+
+
+        
+        <record id="view_customer_edilac_tree" model="ir.ui.view">
+            <field name="name">view.customer_edilac.tree</field>
             <field name="model">res.partner</field>
-            <field name="inherit_id" ref="base.view_partner_tree"/>
-            <field name="priority" eval="1"/>
             <field name="arch" type="xml">
-                
-                <xpath expr="//tree" position="replace">
-                    <!-- Add new fields here -->
-                    <tree string="Contacts" sample="1" multi_edit="1">
+                <tree string="Contacts" sample="1" multi_edit="1">
                         <field name="supplier_rank" invisible="1" optional="hide"/>
                         <field name="customer_rank" invisible="1" optional="hide"/>
                         <field name="display_name" string="Nom"/>
@@ -128,7 +142,6 @@
                         <field name="customer_type" invisible="supplier_rank > 0"/>
                         <field name="phone" class="o_force_ltr" optional="show"/>
                         <field name="customer_profil" invisible="supplier_rank > 0"/>
-                        <field name="day_visit" invisible="supplier_rank > 0"/>
                         <field name="function" column_invisible="True"/>
                         <field name="mobile" optional="hide"/>
                         <field name="email" optional="hide"/>
@@ -141,15 +154,12 @@
                         <field name="is_company" column_invisible="True"/>
                         <field name="parent_id" readonly="1" column_invisible="True"/>
                         <field name="active" column_invisible="True"/>
-                        <field name="supplier_type" invisible="customer_rank > 0"/>
                     </tree>
-
-                </xpath>
-
             </field>
         </record>
+        
 
-        <record id="customer_view_search" model="ir.ui.view">
+        <record id="customer_edilac_view_search" model="ir.ui.view">
             <field name="name">client.search</field>
             <field name="model">res.partner</field>
             <field name="inherit_id" ref="base.view_res_partner_filter"/>
@@ -180,22 +190,16 @@
                         <group expand="0" name="group_by" string="Group By">
                             <filter name="salesperson" string="Commercial" domain="[]"
                                     context="{'group_by' : 'user_id'}"/>
-                            <filter name="group_region_id" string="Région" context="{'group_by': 'region_id'}"
-                                    domain="[('customer_rank', '>', 0)]"/>
-                            <filter name="group_area_id" string="Zone de livraison" context="{'group_by': 'area_id'}"
-                                    domain="[('customer_rank', '>', 0)]"/> 
-                            <filter name="group_common_id" string="Commune" context="{'group_by': 'common_id'}"
-                                    domain="[('customer_rank', '>', 0)]"/>
-                            <filter name="group_neighborhood_id" string="Quartier" context="{'group_by': 'neighborhood_id'}"
-                                    domain="[('customer_rank', '>', 0)]"/>                
-                            <filter name="customer_type" string="Type de client" context="{'group_by': 'customer_type'}"
-                                    domain="[('customer_rank', '>', 0)]"/>
-                            <filter name="family_cust" string="Famille de client" context="{'group_by': 'family_cust'}"
-                                    domain="[('customer_rank', '>', 0)]"/>
-                            <filter name="customer_profil" string="Profil client" context="{'group_by': 'customer_profil'}"
-                                    domain="[('customer_rank', '>', 0)]"/>
+                            <filter name="group_region_id" string="Région" context="{'group_by': 'region_id'}"/>
+                            <filter name="group_area_id" string="Zone de livraison" context="{'group_by': 'area_id'}"/> 
+                            <filter name="group_common_id" string="Commune" context="{'group_by': 'common_id'}"/>
+                            <filter name="group_neighborhood_id" string="Quartier" context="{'group_by': 'neighborhood_id'}"/>                
+                            <filter name="customer_type" string="Type de client" context="{'group_by': 'customer_type'}"/>
+                            <filter name="family_cust" string="Famille de client" context="{'group_by': 'family_cust'}"/>
+                            <filter name="customer_profil" string="Profil client" context="{'group_by': 'customer_profil'}"/>
                                     
                             <filter name="group_company" string="Société" context="{'group_by': 'parent_id'}"/>
+                            <filter name="group_company" string="Filiales" context="{'group_by': 'company_id'}"/>
                             <filter name="group_country" string="Pays" context="{'group_by': 'country_id'}"/>
                         </group>
                     </search>
@@ -208,24 +212,28 @@
 
 
 
-        <record id="customer_view_action" model="ir.actions.act_window">
+        <record id="customers_view_action" model="ir.actions.act_window">
             <field name="name">Clients</field>
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">res.partner</field>
-            <field name="domain">[("customer_rank", ">", 0)]</field>
+            <field name="domain">[("customer_rank", '&gt;', 0)]</field>
+             <field name="search_view_id" ref="customer_edilac_view_search"/>
             <field name="context">{'search_default_customer': 1,'res_partner_search_mode': 'customer', 'default_is_company': True, 'default_customer_rank': 1}</field>
-            <field name="view_mode">kanban,tree,form</field>
+            <field name="view_mode">tree,kanban,form</field>
         </record>
 
-
-        <record id="supplier_view_action" model="ir.actions.act_window">
-            <field name="name">Fournisseurs</field>
-            <field name="type">ir.actions.act_window</field>
-            <field name="res_model">res.partner</field>
-            <field name="domain">[("supplier_rank", ">", 0)]</field>
-            <field name="context">{'search_default_supplier': 1,'res_partner_search_mode': 'supplier', 'default_is_company': True, 'default_supplier_rank': 1}</field>
-            <field name="view_mode">kanban,tree,form</field>
+        <record id="action_tree_customer_edilac" model="ir.actions.act_window.view">
+            <field name="sequence" eval="0"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="view_customer_edilac_tree"/>
+            <field name="act_window_id" ref="customers_view_action"/>
         </record>
+
+         
+
+        <menuitem id="account.menu_account_customer" parent="account.menu_finance_receivables" name="Clients" action="customers_view_action" />
+        <menuitem id="sale.res_partner_menu" action="customers_view_action" parent="sale.sale_order_menu" groups="sales_team.group_sale_salesman" sequence="40"/>
+
 
 
 
@@ -474,22 +482,38 @@
             <field name="view_mode">tree</field>
         </record>
 
+        <record id="family_custom_view_tree" model="ir.ui.view">
+            <field name="name">family.custom.tree</field>
+            <field name="model">family.custom</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom">
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+        <record id="family_custom_view_action" model="ir.actions.act_window">
+            <field name="name">Famille de Client</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">family.custom</field>
+            <field name="view_mode">tree</field>
+        </record>
+
         <!-- VUE Fournisseurs  PERSONALISÉE-->
         <record id="vendor_view_tree" model="ir.ui.view">
             <field name="name">vendor_view_tree</field>
             <field name="model">res.partner</field>
             <field name="arch" type="xml">
                 <tree string="Contacts" sample="1" multi_edit="1">
-                    <field name="display_name" string="Name"/>
+                    <field name="display_name" string="Fournisseurs"/>
                     <field name="function" column_invisible="True"/>
                     <field name="phone" class="o_force_ltr" optional="show"/>
                     <field name="mobile" optional="hide"/>
                     <field name="email" optional="show"/>
                     <field name="user_id" optional="show" widget="many2one_avatar_user" domain="[('share', '=', False)]"/>
                     <field name="city" optional="show"/>
-                    <field name="state_id" optional="hide" readonly="1"/>
                     <field name="country_id" optional="show" readonly="1"/>
                     <field name="vat" optional="hide" readonly="1"/>
+                    <field name="supplier_type" optional="show" />
                     <field name="category_id" optional="hide" widget="many2many_tags" options="{'color_field': 'color'}"/>
                     <field name="company_id" groups="base.group_multi_company" readonly="1"/>
                     <field name="is_company" column_invisible="True"/>
@@ -536,7 +560,7 @@
             <field name="view_mode">kanban,tree,form</field>
             <field name="search_view_id" ref="vendor_view_search"/>
             <field name="view_id" ref="vendor_view_tree"/>
-            <field name="domain">[("supplier_rank", ">", 0)]</field>
+            <field name="domain">[("supplier_rank", '&gt;', 0)]</field>
             <field name="context">{'search_default_supplier': 1,'res_partner_search_mode': 'supplier', 'default_is_company': True, 'default_supplier_rank': 1}</field>   
             <field name="help" type="html">
                 <p class="o_view_nocontent_smiling_face">
@@ -548,7 +572,8 @@
         <menuitem name="Ville" id="city_menu" parent="contacts.res_partner_menu_config" action="city_view_action" sequence="2" groups="edilac.group_edilac_manager"/>
         <menuitem name="Zone" id="area_menu" parent="contacts.res_partner_menu_config" action="area_view_action" sequence="3" groups="edilac.group_edilac_manager"/>
         <menuitem name="Commune" id="common_menu" parent="contacts.res_partner_menu_config" action="common_common_view_action" sequence="4" groups="edilac.group_edilac_manager"/>
-        <menuitem name="Quartier" id="neighborhood_menu" parent="contacts.res_partner_menu_config" action="neighborhood_view_action" sequence="5" groups="edilac.group_edilac_manager"/>
+        <menuitem name="Quartier" id="neighborhood_menu" parent="contacts.res_partner_menu_config" action="neighborhood_view_action" sequence="4" groups="edilac.group_edilac_manager"/>
+        <menuitem name="Famille de client" id="family_custom__menu" parent="contacts.res_partner_menu_config" action="family_custom_view_action" sequence="4" groups="edilac.group_edilac_manager"/>
         
         <menuitem name="Fournisseurs" id="account.menu_account_supplier" parent="account.menu_finance_payables" active="False"/>
         <menuitem name="Fournisseur" id="vendor_menu" parent="account.menu_finance_payables" action="action_vendor" sequence="200"/>

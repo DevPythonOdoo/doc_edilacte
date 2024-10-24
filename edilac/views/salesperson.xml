@@ -1,5 +1,122 @@
 <odoo>
     <data>
+
+       <record id="sale_order_zone_inherit_view" model="ir.ui.view">
+           <field name="name">delivery.edilac.sale.order</field>
+           <field name="model">sale.order</field>
+           <field name="inherit_id" ref="sale.view_order_form"/>
+           <field name="arch" type="xml">
+               <field name="partner_shipping_id" position="after">
+                   <field name="region_id"/>
+                   <field name="city_id"/>
+                   <field name="area_id"/>
+                   <field name="common_id"/>
+                   <field name="neighborhood_id"/>
+                   <field name="neighborhood_id"/>
+                   <field name="family_cust"/>
+               </field>
+           </field>
+       </record>
+
+        <record id="view_sale_order_line_edilac_tree" model="ir.ui.view">
+            <field name="name">view.sale_order_line.edilac.tree</field>
+            <field name="model">sale.order.line</field>
+            <field name="arch" type="xml">
+                <tree create="0" duplicate="0" edit="0" delete="0">
+                    <field name="order_id"/>
+                    <field name="order_partner_id"/>
+                    <field name="name" optional="hide"/>
+                    <field name="salesman_id" string="Commercial(e)"/>
+                    <field name="date_order" widget="remaining_days"/>
+                    <field name="product_id"/>
+                    <field name="price_unit" optional="hide"/>
+                    <field name="product_uom" optional="hide"/>
+                    <field name="product_uom_qty" sum="Total"/>
+                    <field name="qty_delivered" sum="Total"/>
+                    <field name="price_subtotal" sum="Total"/>
+                    <field name="price_total" sum="Total"/>
+                    <field name="qty_invoiced" sum="Total"/>
+                    <field name="qty_to_invoice" sum="Total" optional="hide"/>
+                    <field name="tax_id" optional="hide"/>
+                    <field name="state" decoration-success="state == 'sale'" decoration-info="state == 'draft'" decoration-primary="state == 'sent'" widget="badge" optional="hide"/>
+                    <field name="invoice_status" decoration-success="invoice_status == 'invoiced'" decoration-info="invoice_status == 'to invoice'" decoration-warning="invoice_status == 'upselling'" widget="badge" optional="show"/>
+              
+                </tree>
+            </field>
+        </record>
+        
+        
+        <record id="view_sale_order_line_edilac_search" model="ir.ui.view">
+            <field name="name">view.sale_order_line.search</field>
+            <field name="model">sale.order.line</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="order_id"/>
+                    <field name="product_id"/>
+                    <field name="order_partner_id"/>
+                    
+                    <filter string="Clients TVA" name="tva_partner_type" domain="[('partner_type','=','tva')]"/>
+                    <filter string="Clients Normal" name="normal_partner_type" domain="[('partner_type','=','normal')]"/>
+                    <separator/>
+                    <filter string="Date Commande" name="filter_date_order" date="date_order"/>
+                    <group expand="1" string="Group By">
+                        <filter string="Clients" name="partners" domain="[]" context="{'group_by':'order_partner_id'}"/>
+                        <filter string="Produits" name="products" domain="[]" context="{'group_by':'product_id'}"/>
+                        <filter string="Date Commande" name="dates" domain="[]" context="{'group_by':'date_order'}"/>
+                        <filter string="Type de Clients" name="field_name" domain="[]" context="{'group_by':'partner_type'}"/>
+                        <filter string="Commande" name="sale_order_line" domain="[]" context="{'group_by':'order_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+        
+        <record id="view_sale_order_line_graph_edilac" model="ir.ui.view">
+            <field name="name">view.sale_order_line_graph_edilac</field>
+            <field name="model">sale.order.line</field>
+            <field name="arch" type="xml">
+                <graph string="CA" type="bar">
+                    <field name="date_order" type="row"/>
+                    <field name="price_total" type="measure"/>                    
+                </graph>
+            </field>
+        </record>
+
+        <record id="view_sale_order_line_pivot_edilac" model="ir.ui.view">
+            <field name="name">view.sale_order_line_pivot_edilac</field>
+            <field name="model">sale.order.line</field>
+            <field name="arch" type="xml">
+                <pivot string="CA">
+                    <field name="date_order" type="row"/>
+                    <field name="partner_type" type="row"/>
+                    <field name="product_id" type="row"/>
+                    <field name="order_partner_id" type="row"/>
+                    <field name="price_subtotal" type="measure"/>
+                    <field name="price_total" type="measure"/>
+                    <field name="product_uom_qty" type="measure"/>
+                    <field name="qty_delivered" type="measure"/>
+                    <field name="qty_invoiced" type="measure"/>
+                    <field name="qty_to_invoice" type="measure"/>
+                </pivot>
+            </field>
+        </record>
+        
+        <record id="sale_order_line_action" model="ir.actions.act_window">
+            <field name="name">Ligne de commande</field>
+            <field name="res_model">sale.order.line</field>
+            <field name="search_view_id" ref="view_sale_order_line_edilac_search"/>
+            <field name="view_mode">tree,graph,pivot,form</field>
+        </record>
+
+        <record id="action_action_view_sale_order_line" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="view_sale_order_line_edilac_tree"/>
+            <field name="act_window_id" ref="sale_order_line_action"/>
+        </record>
+
+
+        <menuitem id="sale_order_line_edilac" action="sale_order_line_action" parent="sale.sale_order_menu" groups="sales_team.group_sale_salesman" sequence="30"/>
+
         <record id="res_users_form_inherit" model="ir.ui.view">
             <field name="name">res.users.form.inherit</field>
             <field name="model">res.users</field>
@@ -15,24 +132,94 @@
             <field name="name">commercial form</field>
             <field name="model">res.users</field>
             <field name="arch" type="xml">
-                <form string="_form">
+                <form string="_form" create="0" delete="0">
                     <sheet>
-                        <group>
-                            <group string="Information personnel">
+                        <field name="image_1920" widget="image" options="{'size': (68, 68)}"/>
+
+                        <div class="oe_title">
+                            <label for="name"/>
+                            <h1>
                                 <field name="name"/>
+<<<<<<< HEAD
+=======
+                            </h1>
+                             <field name="login" string="Email"/>
+                        </div>
+                        
+                        <group>
+                            <group string="Information personnel">                               
+>>>>>>> 1db37f1f967e41d5331c7886405a0e3f6f2fcdc9
                                 <field name="partner_id"/>
-                                <field name="company_id"/>
+                                <!-- <field name="company_id"/> -->
                                 <field name="phone"/>
                                 <field name="mobile"/>
                                 <field name="invoiced_target"/>
                             </group>
                             <group>
                                 <group>
-                                    <field name="image_1920" widget="image" options="{'size': (68, 68)}"/>
+                                    <!-- <field name="image_1920" widget="image" options="{'size': (68, 68)}"/> -->
                                 </group>
                             </group>
 
                         </group>
+                        <notebook>
+                            <page name="target_sale_man" string="Objectif Commercial">
+                                <field name="target_ids">
+                                    <tree string="commercial_tree">
+                                        <field name="date_start"/>
+                                        <field name="date_end"/>
+                                        <field name="currency_id" invisible="1"/>
+                                        <field name="target_amount" widget="monetary" sum="Total"/>
+                                        <field name="real_amount" widget="monetary" sum="Total"/>
+                                        <field name="percentage" widget="progressbar"/>
+                                       
+                                    </tree>
+                                    <form string="target">
+                                        <sheet>
+                                            <div class="oe_title">
+                                                <label for="user_id"/>
+                                                <h1>
+                                                    <field name="user_id"/>
+                                                </h1>
+                                            </div>
+                                            <group>
+                                                <group string="Periode ">
+                                                    <field name="date_start" />
+                                                    <field name="date_end" />
+                                                </group>
+                                                <group string="Objectif">
+                                                    <field name="target_amount"/>
+                                                    <field name="real_amount"/>
+                                                    <field name="percentage" widget="progressbar"/>
+                                                </group>
+                                            </group>
+                                            <notebook>
+                                                <page name="sale_order" string="Devis/commande">
+                                                    <field name="line_ids" readonly='1'/>
+                                                </page>
+                                            </notebook>
+                                        </sheet>
+                                    </form>
+                                    
+                                </field>
+                            </page>
+                            <page name="customers" string="Clients">
+                                <field name="customers_ids">
+                                    <tree string="commercial_tree" create="0" edit="0">
+                                        <field name="display_name" string="Nom"/>
+                                        <field name="family_cust"/>
+                                        <field name="area_id" string="Zone" />
+                                        <field name="city_id" string="Ville"/>
+                                        <field name="customer_type" />
+                                        <field name="phone" class="o_force_ltr" optional="show"/>
+                                        <field name="customer_profil" />
+                                        <field name="mobile" optional="hide"/>
+                                        <field name="email" optional="hide"/>
+                                        <field name="vat" optional="hide" readonly="1"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
                     </sheet>
                 </form>
             </field>
@@ -42,8 +229,12 @@
             <field name="name">commercial_view_tree</field>
             <field name="model">res.users</field>
             <field name="arch" type="xml">
-                <tree string="commercial_tree" create="false">
+                <tree string="commercial_tree" create="false" duplicate="0">
                     <field name="name"/>
+<<<<<<< HEAD
+=======
+                    <field name="login" string="Email"/>
+>>>>>>> 1db37f1f967e41d5331c7886405a0e3f6f2fcdc9
                     <field name="partner_id"/>
                     <field name="company_id"/>
                     <field name="phone"/>
@@ -54,7 +245,7 @@
         </record>
 
         <record model="ir.actions.act_window" id="action_commercial">
-            <field name="name">Les Commerciaux</field>
+            <field name="name">Commerciaux</field>
             <field name="res_model">res.users</field>
             <field name="view_mode">tree,form</field>
             <!-- <field name="search_view_id" ref="view_res_partner_insurance_filter"/> -->
@@ -84,9 +275,7 @@
         </record>
 
 
-
-        <menuitem id="menu_commercial" name="Commercial" parent="crm.crm_menu_sales" action="action_commercial"
-                  sequence="8"/>
+        <menuitem id="menu_commercial" name="Commercial" parent="crm.crm_menu_sales" action="action_commercial" sequence="8"/>
 
         <!--        &lt;!&ndash; Inherit Form View to Modify it &ndash;&gt;-->
         <!--        <record id="crm_team_form_inherit" model="ir.ui.view">-->
