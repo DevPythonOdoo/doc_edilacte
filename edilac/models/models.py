@@ -177,9 +177,9 @@ class ResUsers(models.Model):
     _inherit = 'res.users'
 
     as_a_salesperson = fields.Boolean('Comme un commercial')
-<<<<<<< HEAD
+
     invoiced_target = fields.Monetary(string="Objectif de facturation")
-=======
+
     invoiced_target = fields.Float(string="Objectif de facturation")
     target_ids = fields.One2many(
         string=_('Objectifs Commercial'),
@@ -216,7 +216,7 @@ class SalemLine(models.Model):
         for record in self:
             record.real_amount = sum(order.amount_total for order in record.line_ids if order.state in ('sale','done'))
 
->>>>>>> 1db37f1f967e41d5331c7886405a0e3f6f2fcdc9
+
 
 class CrmTeam(models.Model):
     _inherit = 'crm.team'
