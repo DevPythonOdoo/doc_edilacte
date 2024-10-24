@@ -5,7 +5,7 @@
             <field name="name">view.sale_order_line.edilac.tree</field>
             <field name="model">sale.order.line</field>
             <field name="arch" type="xml">
-                <tree create="0" duplicate="0" no_edit="0" delete="0">
+                <tree create="0" duplicate="0" edit="0" delete="0">
                     <field name="order_id"/>
                     <field name="order_partner_id"/>
                     <field name="name" optional="hide"/>
