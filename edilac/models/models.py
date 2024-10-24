@@ -177,7 +177,7 @@ class ResUsers(models.Model):
     _inherit = 'res.users'
 
     as_a_salesperson = fields.Boolean('Comme un commercial')
-    invoiced_target = fields.Float(string="Objectif de facturation")
+    invoiced_target = fields.Monetary(string="Objectif de facturation")
 
 class CrmTeam(models.Model):
     _inherit = 'crm.team'

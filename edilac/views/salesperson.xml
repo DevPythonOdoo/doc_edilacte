@@ -20,7 +20,6 @@
                         <group>
                             <group string="Information personnel">
                                 <field name="name"/>
-                                <field name="login"/>
                                 <field name="partner_id"/>
                                 <field name="company_id"/>
                                 <field name="phone"/>
@@ -45,7 +44,6 @@
             <field name="arch" type="xml">
                 <tree string="commercial_tree" create="false">
                     <field name="name"/>
-                    <field name="login"/>
                     <field name="partner_id"/>
                     <field name="company_id"/>
                     <field name="phone"/>
