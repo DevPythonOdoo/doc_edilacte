@@ -140,15 +140,13 @@
                             <label for="name"/>
                             <h1>
                                 <field name="name"/>
-<<<<<<< HEAD
-=======
+
                             </h1>
                              <field name="login" string="Email"/>
                         </div>
                         
                         <group>
-                            <group string="Information personnel">                               
->>>>>>> 1db37f1f967e41d5331c7886405a0e3f6f2fcdc9
+                            <group string="Information personnel">
                                 <field name="partner_id"/>
                                 <!-- <field name="company_id"/> -->
                                 <field name="phone"/>
@@ -231,10 +229,9 @@
             <field name="arch" type="xml">
                 <tree string="commercial_tree" create="false" duplicate="0">
                     <field name="name"/>
-<<<<<<< HEAD
-=======
+
                     <field name="login" string="Email"/>
->>>>>>> 1db37f1f967e41d5331c7886405a0e3f6f2fcdc9
+
                     <field name="partner_id"/>
                     <field name="company_id"/>
                     <field name="phone"/>
