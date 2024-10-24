@@ -1,5 +1,6 @@
-from odoo import models, fields, api
+from odoo import models, fields, api,_,exceptions
 from datetime import datetime
+
 
 
 class Partner(models.Model):
@@ -20,9 +21,36 @@ class Partner(models.Model):
     neighborhood_id = fields.Many2one(comodel_name='neighborhood.neighborhood',string='Quartier')
     supplier_type = fields.Selection(string='Catégorie Fournisseur',selection=[('national', 'National'), ('international', 'International'), ])
     delivery_person = fields.Boolean(string='Livreur', default=False)
-
-
     
+class producpricelist(models.Model):
+    _inherit = 'product.pricelist'
+
+    state = fields.Selection(
+        string=_('state'),
+        selection=[
+            ('draft', 'Nouveau'),
+            ('send', 'Soumis'),
+            ('done', 'Validé'),
+        ], default='draft',readonly=True, tracking=True,
+    )
+
+    def action_submit(self):
+        for rec in self:
+            if not rec.pricelist_rules :
+                raise exceptions.UserError('Veuillez ajouter des règles de tarification pour cette liste de prix.')
+        self.write({"state": "send"})
+    
+    def action_validate(self):
+        self.write({"state": "done"})
+    
+    def action_cancel(self):
+        self.write({"state": "draft"})
+        
+"""
++++++++++++++++++++++ 
+CLASS OBJECTS
++++++++++++++++++++++
+""" 
 
 class Family(models.Model):
     _name = 'family.custom'

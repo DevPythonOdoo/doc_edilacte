@@ -237,3 +237,15 @@ class SaleOrder(models.Model):
 
         # Appeler la méthode create parente
         return super(SaleOrder, self).create(vals)
+    
+    from odoo import models, fields, api, _
+    
+    
+class saleOderLine(models.Model):
+    _inherit = 'sale.order.line'
+
+    date_order = fields.Datetime(string=_('Date Commande'), related='order_id.date_order',store=True,precompute=True)
+    partner_type = fields.Selection(related='order_partner_id.customer_type', string=_('Type de client'),store=True,precompute=True)
+    invoice_status = fields.Selection(related='order_id.invoice_status', string=_('Etat de facturation'),store=True,precompute=True)
+    
+    

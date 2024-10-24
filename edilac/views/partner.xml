@@ -1,6 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
+
+        <record id="product_list_state" model="ir.ui.view">
+            <field name="name">product.list.state</field>
+            <field name="model">product.pricelist</field>
+            <field name="priority">8</field>
+            <field name="inherit_id" ref="product.product_pricelist_view"/>
+            <field name="arch" type="xml">
+               <xpath expr="//sheet" position="before">
+                   <header>
+                       <button name="action_submit" class="oe_highlight" invisible="state not in ('draft')" string="Soumettre" type="object"/>
+                       <button name="action_validate" groups="edilac.group_edilac_respo" class="oe_highlight" invisible="state not in ('send')" string="Valider" type="object"/>
+                       <button name="action_cancel" invisible="state not in ('done','send')" string="Annuler" type="object"/>
+                       <field name="state" widget="statusbar" statusbar_visible="draft,send,done"/>
+                   </header>
+               </xpath>
+            </field>
+        </record>
          <record id="customer_view_form_inherit" model="ir.ui.view">
             <field name="name">client.res.partner</field>
             <field name="model">res.partner</field>
@@ -53,7 +70,7 @@
                     
                     <field name="zip" string="Adresse Postal" class="o_address_zip" readonly="type == 'contact' and parent_id" invisible="supplier_rank > 0"/>
                     <field name="country_id" string="Pays" class="o_address_country" options="{&quot;no_open&quot;: True, &quot;no_create&quot;: True}" readonly="type == 'contact' and parent_id" invisible="supplier_rank > 0"/>
-                    <field name="property_product_pricelist" invisible="supplier_rank > 0"/>
+                    <field name="property_product_pricelist" domain="[('state' ,'=', 'done')]" invisible="supplier_rank > 0"/>
                    
                 </xpath>
              
@@ -211,6 +228,8 @@
             <field name="view_id" ref="view_customer_edilac_tree"/>
             <field name="act_window_id" ref="customers_view_action"/>
         </record>
+
+         
 
         <menuitem id="account.menu_account_customer" parent="account.menu_finance_receivables" name="Clients" action="customers_view_action" />
         <menuitem id="sale.res_partner_menu" action="customers_view_action" parent="sale.sale_order_menu" groups="sales_team.group_sale_salesman" sequence="40"/>
@@ -463,6 +482,22 @@
             <field name="view_mode">tree</field>
         </record>
 
+        <record id="family_custom_view_tree" model="ir.ui.view">
+            <field name="name">family.custom.tree</field>
+            <field name="model">family.custom</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom">
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+        <record id="family_custom_view_action" model="ir.actions.act_window">
+            <field name="name">Famille de Client</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">family.custom</field>
+            <field name="view_mode">tree</field>
+        </record>
+
         <!-- VUE Fournisseurs  PERSONALISÉE-->
         <record id="vendor_view_tree" model="ir.ui.view">
             <field name="name">vendor_view_tree</field>
@@ -537,7 +572,8 @@
         <menuitem name="Ville" id="city_menu" parent="contacts.res_partner_menu_config" action="city_view_action" sequence="2" groups="edilac.group_edilac_manager"/>
         <menuitem name="Zone" id="area_menu" parent="contacts.res_partner_menu_config" action="area_view_action" sequence="3" groups="edilac.group_edilac_manager"/>
         <menuitem name="Commune" id="common_menu" parent="contacts.res_partner_menu_config" action="common_common_view_action" sequence="4" groups="edilac.group_edilac_manager"/>
-        <menuitem name="Quartier" id="neighborhood_menu" parent="contacts.res_partner_menu_config" action="neighborhood_view_action" sequence="5" groups="edilac.group_edilac_manager"/>
+        <menuitem name="Quartier" id="neighborhood_menu" parent="contacts.res_partner_menu_config" action="neighborhood_view_action" sequence="4" groups="edilac.group_edilac_manager"/>
+        <menuitem name="Famille de client" id="family_custom__menu" parent="contacts.res_partner_menu_config" action="family_custom_view_action" sequence="4" groups="edilac.group_edilac_manager"/>
         
         <menuitem name="Fournisseurs" id="account.menu_account_supplier" parent="account.menu_finance_payables" active="False"/>
         <menuitem name="Fournisseur" id="vendor_menu" parent="account.menu_finance_payables" action="action_vendor" sequence="200"/>

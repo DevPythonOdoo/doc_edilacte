@@ -260,7 +260,7 @@
             </field>
         </record>
 
-
+        
 
         <!-- This Menu Item Must have a parent -->
         <menuitem id="menu_purchase_local" name="Achat Local" parent="purchase.menu_procurement_management" sequence="0"/>
