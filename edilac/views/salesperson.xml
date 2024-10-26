@@ -140,12 +140,13 @@
                             <label for="name"/>
                             <h1>
                                 <field name="name"/>
+
                             </h1>
                              <field name="login" string="Email"/>
                         </div>
                         
                         <group>
-                            <group string="Information personnel">                               
+                            <group string="Information personnel">
                                 <field name="partner_id"/>
                                 <!-- <field name="company_id"/> -->
                                 <field name="phone"/>
@@ -228,7 +229,9 @@
             <field name="arch" type="xml">
                 <tree string="commercial_tree" create="false" duplicate="0">
                     <field name="name"/>
+
                     <field name="login" string="Email"/>
+
                     <field name="partner_id"/>
                     <field name="company_id"/>
                     <field name="phone"/>

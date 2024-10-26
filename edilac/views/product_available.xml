@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Vue tree pour les produits, si vous souhaitez personnaliser -->
+        <record id="view_product_tree_crm" model="ir.ui.view">
+            <field name="name">product.product.tree.crm</field>
+            <field name="model">product.product</field>
+            <field name="arch" type="xml">
+                <tree string="Produits Disponibles" create="false">
+                    <field name="name"/>
+                    <field name="default_code"/>
+                    <field name="type"/>
+                    <field name="categ_id"/>
+                    <field name="qty_available"/>
+                    <field name="uom_id"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Vue form pour les produits, si vous souhaitez personnaliser -->
+        <record id="view_product_form_crm" model="ir.ui.view">
+            <field name="name">product.product.form.crm</field>
+            <field name="model">product.product</field>
+            <field name="arch" type="xml">
+                <form string="Produit">
+                    <sheet>
+                        <group>
+                            <field name="name"/>
+                            <field name="default_code"/>
+                            <field name="categ_id"/>
+                            <field name="type"/>
+                            <field name="uom_id"/>
+                            <field name="qty_available" readonly="1"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Vue Kanban pour les produits disponibles -->
+        <record id="view_product_kanban_crm" model="ir.ui.view">
+            <field name="name">product.product.kanban.crm</field>
+            <field name="model">product.product</field>
+            <field name="arch" type="xml">
+                <kanban class="o_kanban_small_column" default_group_by="categ_id" create="false">
+                    <field name="name"/>
+                    <field name="default_code"/>
+                    <field name="qty_available"/>
+                    <field name="categ_id"/>
+                    <field name="image_1920"/>
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div class="oe_kanban_global_click o_kanban_record">
+                                <div class="o_kanban_image">
+                                    <img t-att-src="kanban_image('product.product', 'image_1920', record.id)"
+                                         alt="Image"/>
+                                </div>
+                                <div class="o_kanban_details">
+                                    <strong t-esc="record.name.value" class="o_kanban_record_title"/>
+                                    <div class="o_kanban_record_body">
+                                        <span>Référence :
+                                            <t t-esc="record.default_code.value"/>
+                                        </span>
+                                        <br/>
+                                        <span>Catégorie :
+                                            <t t-esc="record.categ_id.value"/>
+                                        </span>
+                                        <br/>
+                                        <span>Quantité disponible :
+                                            <t t-esc="record.qty_available.value"/>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+
+        <!-- Action associée au menu pour afficher les produits disponibles -->
+        <record id="action_product_available_crm" model="ir.actions.act_window">
+            <field name="name">Produits Disponibles</field>
+            <field name="res_model">product.product</field>
+            <field name="view_mode">kanban,tree,form</field>
+            <field name="domain">[('qty_available', '>', 0)]</field>
+            <field name="context">{'search_default_filter_available': 1}</field>
+        </record>
+
+
+        <menuitem name="Produits Disponibles" id="menu_product_available_crm" parent="crm.crm_menu_root"
+                  action="action_product_available_crm" sequence="10"/>
+
+    </data>
+</odoo>
