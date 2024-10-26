@@ -20,7 +20,7 @@
                 <th name="th_description">
                     <strong>Description</strong>
                 </th>
-                <th name="th_qte_palet" class="text-center">
+                <th name="th_qte_palet" class="text-end">
                     <strong>Nombre de Palet</strong>
                 </th>
                 <th name="th_quantity" class="text-end">
@@ -62,11 +62,11 @@
                     <td name="total">
                         <strong>Total</strong>
                     </td>
-                    <td>
-                        <span class="text-end" t-esc="o.qte_palet"/>
+                    <td class="text-end">
+                        <span  t-field="o.qte_palet"/>
                     </td>
-                    <td>
-                        <span class="text-end" t-esc="o.product_qty"/>
+                    <td class="text-end">
+                        <span  t-field="o.product_qty"/>
                     </td>
                 </tr>
             </tfoot>
@@ -92,10 +92,10 @@
                             <strong>Description</strong>
                         </th>
                         <th name="th_qte_palet">
-                            <strong>Quantité Palet</strong>
+                            <strong> Palette</strong>
                         </th>
-                        <th name="th_quantity" class="text-end" invisible="1">
-                            <strong>Cartons Commandés</strong>
+                        <th name="th_quantity" class="text-end">
+                            <strong>Commandés</strong>
                         </th>
                        
                         <th name="th_subtotal" class="text-end">
@@ -117,7 +117,7 @@
                                 <td id="product">
                                     <span t-field="line.name"/>
                                 </td>
-                                <td name="td_qte_palet">
+                                <td name="td_qte_palet" class="text-end">
                                     <span t-field="line.qte_palet"/>
                                 </td>
                                 <td class="text-end">
@@ -166,11 +166,11 @@
                         <td name="total">
                             <strong>Total</strong>
                         </td>
-                        <td>
-                            <span class="text-end" t-esc="total_qte_palet"/>
+                        <td class="text-end">
+                            <span t-esc="total_qte_palet"/>
                         </td>
-                        <td>
-                            <span class="text-end" t-esc="total_product_qty"/>
+                        <td class="text-end">
+                            <span t-esc="total_product_qty"/>
                         </td>
                         <td/>
                     </tr>
