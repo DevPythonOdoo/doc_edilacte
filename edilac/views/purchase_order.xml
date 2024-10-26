@@ -9,32 +9,20 @@
             <field name="arch" type="xml">
                 <!-- Remplacement du bouton de confirmation -->
                 <xpath expr="//header/button[@name='button_confirm']" position="replace">
-                    <button name="button_action_submit" string="Soumettre" type="object"
-                            invisible="state not in ('draft')"/>
+                    <button name="button_action_submit" string="Soumettre" type="object" invisible="state not in ('draft')"/>
+                    <button name="button_action_validate" invisible="state not in ('submit','sent')" string="Confirmer la commande"
+                            type="object" class="oe_highlight" context="{'validate_analytic': True}" id="bid_confirm" data-hotkey="q"/>
+                     <button name="button_cancel" invisible="state not in ('submit')" string="Annuler" type="object" data-hotkey="x"/>
                 </xpath>
                 <!-- Modification de l'attribut invisible -->
                 <xpath expr="//header/button[@name='button_confirm']" position="attributes">
                     <attribute name="invisible">True</attribute>
                 </xpath>
                 <xpath expr="//header/button[@name='action_rfq_send']" position="replace">
-                    <button name="action_rfq_send" string="Envoyer un mail" type="object"
+                    <button name="action_rfq_send" string="Envoyer un mail" type="object" class="btn-primary"
                             invisible="state not in ('sent','submit','approved')"/>
                 </xpath>
-                <!-- Ajout de nouveaux boutons après le bouton de confirmation -->
-                <xpath expr="//button[@name='button_confirm']" position="after">
-                    <button name="button_action_approuve_daf" invisible="state != 'submit'" string="Valider"
-                            type="object" class="oe_highlight"/>
-                    <button name="button_cancel" invisible="state != 'submit'" string="Annuler" type="object"
-                            data-hotkey="x"/>
-                </xpath>
-                <!-- Ajout d'autres actions après soumission -->
-                <xpath expr="//button[@name='button_action_submit']" position="after">
-                    <button name="button_confirm_test" invisible="state != 'approved'" string="Approuver"
-                            type="object"
-                            class="oe_highlight"/>
-                    <button name="button_cancel" invisible="state != 'approved'" string="Annuler"
-                            type="object"/>
-                </xpath>
+              
                 <!-- Remplacement du champ state avec widget statusbar -->
                 <xpath expr="//field[@name='state']" position="replace">
                     <field name="state" widget="statusbar" statusbar_visible="draft,sent,submit,purchase"
@@ -47,12 +35,16 @@
                 <xpath expr="//field[@name='partner_ref']" position="after">
                     <field name="type" invisible="1"/>
                 </xpath>
+
+                <!-- <xpath expr="//field[@name='requisition_id']" position="attributes">
+                    <attribute name="string">Demande d'Achat</attribute>
+                </xpath> -->
                 <!-- Modification du champ order_line pour le rendre readonly sous certaines conditions -->
                 <xpath expr="//field[@name='order_line']" position="attributes">
                     <field name="order_line" readonly="state in ['submit']"/>
                 </xpath>
 
-                <xpath expr="//field[@name='qty_received']" position="replace">
+                <!-- <xpath expr="//field[@name='qty_received']" position="replace">
                     <field name="qty_received" string="Cartons Reçu" sum="Total des Cartons Reçus"/>
 
                 </xpath>
@@ -60,7 +52,7 @@
                 <xpath expr="//field[@name='qty_invoiced']" position="replace">
                     <field name="qty_invoiced" string="Cartons Facturés" sum="Total Cartons Facturés"/>
 
-                </xpath>
+                </xpath> -->
 
                 <xpath expr="//field[@name='price_subtotal']" position="replace">
                     <field name="price_subtotal" string="Sous-Total"/>
@@ -68,17 +60,18 @@
                 </xpath>
 
                 <xpath expr="//field[@name='product_qty']" position="replace">
-                    <field name="product_qty" string="Cartons Commandés" sum="Total Cartons Commandés"/>
+                    <!-- <field name="product_qty" string="Cartons Commandés" sum="Total Cartons Commandés"/> -->
+                    <field name="product_qty" string="Commandés" sum="Total Cartons Commandés"/>
                 </xpath>
 
                 <xpath expr="//field[@name='product_qty']" position="after">
                     <field name="type" optional="hide" invisible="1"/>
-                    <field name="qte_palet" required="type=='import'" sum="Total des Palet/Qte" string="Palet/Qte"/>
+                    <field name="qte_palet" required="type =='import'" invisible="type =='local'" sum="Total des Palet/Qte" optional="show" string="Palet/Qte"/>
 
                 </xpath>
 
                 <xpath expr="//field[@name='partner_ref']" position="after">
-                    <field name="number_palet"/>
+                    <field name="number_palet" invisible="type == 'local'" />
 
                 </xpath>
 
@@ -125,9 +118,9 @@
             <field name="name">product.template.product.form</field>
             <field name="model">product.template</field>
             <field name="priority" eval="8"/>
-            <field name="inherit_id" ref="product.product_template_only_form_view"/>
+            <field name="inherit_id" ref="product.product_template_form_view"/>
             <field name="arch" type="xml">
-                <xpath expr="//group/field[@name='invoice_policy']" position="after">
+                <xpath expr="//group/field[@name='uom_id']" position="before">
                     <field name="palet"/>
                 </xpath>
 

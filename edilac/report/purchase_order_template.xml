@@ -36,7 +36,7 @@
                             <td id="product">
                                 <span t-field="order_line.name"/>
                             </td>
-                            <td class="text-center">
+                            <td class="text-end">
                                 <span t-field="order_line.qte_palet"/>
                             </td>
                             <td class="text-end">
@@ -58,15 +58,15 @@
                 </t>
             </tbody>
             <tfoot>
-                <tr class='bg-200 fw-bold o_line_section'>
+                <tr class='bg-200 fw-bold o_line_section' style="border: 2px solid #000;background:#F4C10B">
                     <td name="total">
                         <strong>Total</strong>
                     </td>
                     <td>
-                        <span t-esc="o.qte_palet"/>
+                        <span class="text-end" t-esc="o.qte_palet"/>
                     </td>
                     <td>
-                        <span t-esc="o.product_qty"/>
+                        <span class="text-end" t-esc="o.product_qty"/>
                     </td>
                 </tr>
             </tfoot>
@@ -99,7 +99,7 @@
                         </th>
                        
                         <th name="th_subtotal" class="text-end">
-                            <strong>Montant en Devise</strong>
+                            <strong>Montant</strong>
                         </th>
                     </tr>
                 </thead>
@@ -120,7 +120,7 @@
                                 <td name="td_qte_palet">
                                     <span t-field="line.qte_palet"/>
                                 </td>
-                                <td class="text-center">
+                                <td class="text-end">
                                     <span t-field="line.product_qty"/>
                                     <span t-field="line.product_uom.name" groups="uom.group_uom"/>
                                     <span t-if="line.product_packaging_id">
@@ -151,7 +151,7 @@
                         <t t-if="current_section and (line_last or o.order_line[line_index+1].display_type == 'line_section')">
                             <tr class="is-subtotal text-end">
                                 <td colspan="99" id="subtotal">
-                                    <strong class="mr16">Subtotal</strong>
+                                    <strong class="mr16">Sous total</strong>
                                     <span
                                             t-esc="current_subtotal"
                                             t-options='{"widget": "monetary", "display_currency": o.currency_id}'
@@ -162,15 +162,15 @@
                     </t>
                 </tbody>
                 <tfoot>
-                    <tr>
+                    <tr class='bg-200 fw-bold o_line_section' style="border: 2px solid #000;background:#F4C10B">
                         <td name="total">
                             <strong>Total</strong>
                         </td>
                         <td>
-                            <span t-esc="total_qte_palet"/>
+                            <span class="text-end" t-esc="total_qte_palet"/>
                         </td>
                         <td>
-                            <span t-esc="total_product_qty"/>
+                            <span class="text-end" t-esc="total_product_qty"/>
                         </td>
                         <td/>
                     </tr>

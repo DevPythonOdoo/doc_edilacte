@@ -31,7 +31,7 @@
         'views/salesperson.xml',
         'views/partner.xml',
         'views/stock.xml',
-        #'report/purchase_order_template.xml',  # Corrected typo in filename
+        'report/purchase_order_template.xml',  # Corrected typo in filename
         'report/stock_template.xml',
     ],
 

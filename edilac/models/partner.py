@@ -10,7 +10,7 @@ class Partner(models.Model):
     # date_create_customer =fields.Datetime(string='Date Création client', default=fields.Datetime.now)
     family_cust = fields.Many2one(comodel_name='family.custom',string='Famille client')
     customer_type = fields.Selection(string='Type de client',selection=[('tva', 'TVA OU TOTAL'),('normal', 'Normal'), ('normal_d', 'Normal déclaré') ])
-    customer_profil = fields.Selection(string='Profil client',selection=[('on', 'ON-US'),('off', 'OFF-US'), ])
+    customer_profil = fields.Selection(string='Profil client',selection=[('on', 'ON-US'),('off', 'OFF-US')])
     #payment_mode = fields.Selection(string='Mode de paiement', selection=[('espece', 'Espèce'), ('check', 'Chèque/Virement'), ])
     # airsi = fields.Char(string='AIRSI')
     region_id = fields.Many2one(comodel_name='region.region', string='Region')
@@ -19,7 +19,7 @@ class Partner(models.Model):
     common_id = fields.Many2one(comodel_name='common.common',string='Commune')
     num_registre = fields.Char(string='N° Registre du commerce')
     neighborhood_id = fields.Many2one(comodel_name='neighborhood.neighborhood',string='Quartier')
-    supplier_type = fields.Selection(string='Catégorie Fournisseur',selection=[('national', 'National'), ('international', 'International'), ])
+    supplier_type = fields.Selection(string='Catégorie Fournisseur',selection=[('national', 'National'), ('international', 'International')])
     delivery_person = fields.Boolean(string='Livreur', default=False)
 
     @api.depends('parent_id')
@@ -42,7 +42,7 @@ class producpricelist(models.Model):
 
     def action_submit(self):
         for rec in self:
-            if not rec.pricelist_rules :
+            if not rec.item_ids :
                 raise exceptions.UserError('Veuillez ajouter des règles de tarification pour cette liste de prix.')
         self.write({"state": "send"})
     

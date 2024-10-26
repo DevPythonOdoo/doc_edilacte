@@ -22,7 +22,7 @@ class Purchase(models.Model):
         ('draft', 'Demande de prix'),
         ('sent', 'Envoyé'),
         ('submit', "En attente de validation"),
-        ('approved', "En attente d'approbation"),
+        # ('approved', "En attente d'approbation"),
         ('to approve', 'A approuver'),
         ('purchase', 'Bon de commande'),
         ('done', 'Bloqué'),
@@ -32,12 +32,16 @@ class Purchase(models.Model):
     # vat = fields.Html(string='Vat', required=False)
 
     number_palet = fields.Integer(string='Nombre Totale de Palet',compute='_compute_total_palet',required=False, store= True)
-    qte_palet = fields.Integer(string='Total Palet',required=False,  related="order_line.qte_palet", store=True)
-    product_qty = fields.Float(string='Total Carton',required=False,  related="order_line.product_qty", store=True)
+    qte_palet = fields.Integer(string='Total Palet',required=False,  compute='_compute_total', store=True)
+    product_qty = fields.Float(string='Total Carton',required=False,  compute='_compute_total', store=True)
     company_currency_id = fields.Many2one('res.currency', string='Devise societé', required=True, default=lambda self: self.env.company.currency_id)
     total_amount_devise = fields.Monetary(string='Total FCFA', required=False, currency_field="company_currency_id", compute='_compute_total_amount_devise', store=True)
     
-
+    @api.depends('order_line')
+    def _compute_total(self):
+        for order in self:
+            order.product_qty = sum(line.product_qty for line in order.order_line)
+            order.qte_palet = sum(line.qte_palet for line in order.order_line)
 
     @api.depends('partner_id', 'amount_total', 'currency_id')
     def _compute_total_amount_devise(self):
@@ -66,8 +70,8 @@ class Purchase(models.Model):
         partner_vals_list = []
         for vals in vals_list:
             # Vérifiez si la commande a des lignes
-            if 'order_line' not in vals or not vals['order_line']:
-                raise UserError("Vous ne pouvez pas créer une commande d'achat sans lignes de commande.")
+            # if 'order_line' not in vals or not vals['order_line']:
+            #     raise UserError("Vous ne pouvez pas créer une commande d'achat sans lignes de commande.")
 
             company_id = vals.get('company_id', self.default_get(['company_id'])['company_id'])
             # Assurez-vous que le type de prélèvement et la devise par défaut sont pris dans la bonne entreprise.
@@ -103,43 +107,33 @@ class Purchase(models.Model):
             order.order_line._validate_analytic_distribution()
             order._add_supplier_to_product()
             # Deal with double validation process
-            if order._approval_allowed():
-                order.button_approve()
+            if order.type == "import":
+                order.write({'state': 'to approve'})
             else:
-                order.write({'state': 'purchase'})
+                order.button_approve()
             if order.partner_id not in order.message_partner_ids:
                 order.message_subscribe([order.partner_id.id])
         return True
 
 
-    def button_action_approuve_daf(self):
-        check_config = self.env['res.config.settings'].search([], limit=1)
-        print(check_config)
-        for rec in self:
-            # Vérifiez le type de l'enregistrement
-            if rec.type == 'local':
-                # Si le type est 'local', passez à 'purchase'
-                rec.write({'state': 'purchase'})
-            elif rec.type == 'import':
-                # Si le type est 'import', passez à 'approved' et confirmez
-                rec.write({'state': 'approved'})
-                rec.button_confirm()
+    def button_action_validate(self):
+        return self.button_confirm()
 
 
 
-    def button_confirm_test(self):
-        for order in self:
-            if order.state != 'approved':
-                raise UserError("L'état de la commande doit être 'approved' pour être confirmée.")
-            order.order_line._validate_analytic_distribution()
-            order._add_supplier_to_product()
-            if order._approval_allowed():
-                order.button_approve()
-            else:
-                order.write({'state': 'purchase'})
-            if order.partner_id not in order.message_partner_ids:
-                order.message_subscribe([order.partner_id.id])
-        return True
+    # def button_confirm_test(self):
+    #     for order in self:
+    #         if order.state != 'approved':
+    #             raise UserError("L'état de la commande doit être 'approved' pour être confirmée.")
+    #         order.order_line._validate_analytic_distribution()
+    #         order._add_supplier_to_product()
+    #         if order._approval_allowed():
+    #             order.button_approve()
+    #         else:
+    #             order.write({'state': 'purchase'})
+    #         if order.partner_id not in order.message_partner_ids:
+    #             order.message_subscribe([order.partner_id.id])
+    #     return True
 
 
 

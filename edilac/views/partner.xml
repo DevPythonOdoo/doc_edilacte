@@ -100,14 +100,14 @@
                </xpath>
                <xpath expr="//page[@name='sales_purchases']" position="replace">
                     <!--attribute name="invisible">1</attribute-->
-                    <page name="sales_purchases" string="Sales &amp; Purchase" invisible="customer_rank > 0">
+                    <page name="sales_purchases" string="Ventes &amp; Achats" invisible="customer_rank > 0">
                             <group name="container_row_2">
-                                <group string="Sales" name="sale" priority="1">
+                                <group string="Ventes" name="sale" priority="1">
                                     <field name="user_id" widget="many2one_avatar_user" domain="[('share', '=', False)]"/>
                                 </group>
-                                <group string="Purchase" name="purchase" priority="2">
+                                <group string="Achats" name="purchase" priority="2">
                                 </group>
-                                <group name="misc" string="Misc">
+                                <group name="misc" string="Divers">
                                     <field name="company_registry" invisible="parent_id"/>
                                     <field name="ref" string="Reference"/>
                                     <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}" readonly="parent_id" force_save="1"/>
