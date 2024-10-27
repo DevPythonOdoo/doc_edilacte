@@ -150,13 +150,11 @@
                                 <field name="mobile"/>
                                 <field name="invoiced_target"/>
                             </group>
-                            <group string="Suivi des Objectifs">
-                                <field name="date_start" />
-                                <field name="date_end" />
+                            <group string="Suivi global des Objectifs">
                                 <field name="target_amount"/>
                                 <field name="currency_id" invisible="1"/>
                                 <field name="real_amount"/>
-                                <!-- <field name="percentage" widget="progressbar"/> -->
+                                <field name="percentage" widget="progressbar"/>
                             </group>
                         </group>
                         <notebook>
@@ -229,10 +227,12 @@
                     <field name="name"/>
                     <field name="login" string="Email"/>
                     <field name="partner_id"/>
-                    <field name="company_id"/>
-                    <field name="phone"/>
+                    <field name="company_id" optional="hide"/>
+                    <field name="phone" optional="hide"/>
                     <field name="mobile"/>
-                    <field name="invoiced_target"/>
+                    <field name="target_amount"/>
+                    <field name="real_amount"/>
+                    <field name="percentage" widget="progressbar"/>
                 </tree>
             </field>
         </record>
