@@ -63,13 +63,16 @@ class Family(models.Model):
     _description = 'Famille de client'
 
     name = fields.Char(string='Famille client')
+    company_id = fields.Many2one(comodel_name='res.company', string='Société', required=True,default=lambda self: self.env.company.id)
 
 class Region(models.Model):
     _name = 'region.region'
     _description = 'Region'
 
     name = fields.Char(string='Région',required=True)
-    city_ids = fields.One2many(comodel_name='city.city', inverse_name='region_id',string="Ville")  
+    city_ids = fields.One2many(comodel_name='city.city', inverse_name='region_id',string="Ville") 
+    company_id = fields.Many2one(comodel_name='res.company', string='Société', required=True,default=lambda self: self.env.company.id)
+ 
     
 class City(models.Model):
     _name = 'city.city'
@@ -77,7 +80,9 @@ class City(models.Model):
 
     name = fields.Char(string='Ville',required=True)
     region_id = fields.Many2one(comodel_name='region.region',required=True,string='Region')
-    area_ids = fields.One2many(comodel_name='area.area', inverse_name='city_id',string="Zone") 
+    area_ids = fields.One2many(comodel_name='area.area', inverse_name='city_id',string="Zone")
+    company_id = fields.Many2one(comodel_name='res.company', string='Société', required=True,default=lambda self: self.env.company.id)
+ 
 
 class Area(models.Model):
     _name = 'area.area'
@@ -85,9 +90,9 @@ class Area(models.Model):
 
     name = fields.Char(string='Zone',required=True)
     city_id = fields.Many2one(comodel_name='city.city',string='Ville',required=True)
-    common_ids = fields.One2many(comodel_name='common.common', inverse_name='area_id',string="Commune",) 
-
-    
+    common_ids = fields.One2many(comodel_name='common.common', inverse_name='area_id',string="Commune")
+    company_id = fields.Many2one(comodel_name='res.company', string='Société', required=True,default=lambda self: self.env.company.id)
+ 
 
 class Common(models.Model):
     _name = 'common.common'
@@ -95,6 +100,7 @@ class Common(models.Model):
 
     name = fields.Char(string='Commune',required=True)
     area_id = fields.Many2one(comodel_name='area.area',string='Zone',required=True,)
+    company_id = fields.Many2one(comodel_name='res.company', string='Société', required=True,default=lambda self: self.env.company.id)
     neighborhood_ids = fields.One2many(comodel_name='neighborhood.neighborhood', inverse_name='common_id',string="Quartier") 
 
 
@@ -103,4 +109,5 @@ class Neighborhood(models.Model):
     _description = 'Quartier'
 
     name = fields.Char(string='Quartier',required=True)
-    common_id = fields.Many2one(comodel_name='common.common',string='Commune',required=True,)
+    common_id = fields.Many2one(comodel_name='common.common',string='Commune',required=True)
+    company_id = fields.Many2one(comodel_name='res.company', string='Société', required=True,default=lambda self: self.env.company.id)
