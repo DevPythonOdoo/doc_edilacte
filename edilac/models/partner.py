@@ -116,7 +116,7 @@ class Neighborhood(models.Model):
     _description = 'Quartier'
 
     name = fields.Char(string='Quartier',required=True)
-<<<<<<< HEAD
+
     common_id = fields.Many2one(comodel_name='common.common',string='Commune',required=True,)
 
 
@@ -127,7 +127,7 @@ class PartnerFreezer(models.Model):
     name = fields.Many2one('product.template',string="Nom du Congélateur",domain=[('freezer', '=', True)],help="Sélectionner un produit marqué comme congélateur")
     capacity = fields.Integer(string="Capacité", help="Capacité du congélateur en litres")
     partner_id = fields.Many2one('res.partner', string="Client", ondelete='cascade')
-=======
+
     common_id = fields.Many2one(comodel_name='common.common',string='Commune',required=True)
     company_id = fields.Many2one(comodel_name='res.company', string='Société', required=True,default=lambda self: self.env.company.id)
->>>>>>> f24ed9f9a28a83bb83b78116cb67943c2cc09838
+
