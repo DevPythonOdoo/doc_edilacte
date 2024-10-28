@@ -92,22 +92,22 @@
                             <field name="industry_id" required="1"/>
                         </group>
                         <group string="Autres informations" invisible="supplier_rank > 0">
-                            <field name="customer_type" invisible="supplier_rank > 0" required="1"/>
-                            <field name="customer_profil" invisible="supplier_rank > 0" required="1"/>
+                            <field name="customer_type" widget="radio" invisible="supplier_rank > 0" required="1"/>
+                            <field name="customer_profil" widget="radio" options="{'horizontal': True}" invisible="supplier_rank > 0" required="1"/>
                             <field name="family_cust" required="1" invisible="supplier_rank > 0"/>
                         </group>
                     </group>
                </xpath>
                <xpath expr="//page[@name='sales_purchases']" position="replace">
                     <!--attribute name="invisible">1</attribute-->
-                    <page name="sales_purchases" string="Sales &amp; Purchase" invisible="customer_rank > 0">
+                    <page name="sales_purchases" string="Ventes &amp; Achats" invisible="customer_rank > 0">
                             <group name="container_row_2">
-                                <group string="Sales" name="sale" priority="1">
+                                <group string="Ventes" name="sale" priority="1">
                                     <field name="user_id" widget="many2one_avatar_user" domain="[('share', '=', False)]"/>
                                 </group>
-                                <group string="Purchase" name="purchase" priority="2">
+                                <group string="Achats" name="purchase" priority="2">
                                 </group>
-                                <group name="misc" string="Misc">
+                                <group name="misc" string="Divers">
                                     <field name="company_registry" invisible="parent_id"/>
                                     <field name="ref" string="Reference"/>
                                     <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}" readonly="parent_id" force_save="1"/>
@@ -246,11 +246,11 @@
                 <form>
                     <sheet>
                         <div class="oe_title">
-                                <label for="name" string="Libellé région"/>
-                                <h1>
-                                    <field name="name" placeholder="Comoe"/>
-                                </h1>
-                                
+                            <label for="name" string="Libellé région"/>
+                            <h1>
+                                <field name="name" placeholder="Lomé..."/>
+                            </h1>
+                            <field name="company_id" invisible="1"/>
                         </div>
                         
                         <notebook>
@@ -264,16 +264,14 @@
                                             <div class="d-flex">
                                                 <label for="name"/>
                                                 <h5 class="d-flex flex-row">
-                                                    <field name="name"/>
+                                                    <field name="name" placeholder="Nom de la ville"/>
                                                 </h5>
                                             </div>
                                         </div>
                                         <group>
                                             <group>
-                                        
                                                 <field name="region_id" invisible="1"/>
                                             </group>
-                                            
                                         </group>
                                         <notebook>
                                             <page string="Zone">
@@ -281,19 +279,38 @@
                                                     <form>
                                                         <div class="oe_title">
                                                             <h1>
-                                                                <field name="name"
-                                                                       placeholder="Libellé de la zone"/>
+                                                                <field name="name" placeholder="Libellé la zone"/>
                                                             </h1>
                                                         </div>
                                                         <group>
-                                                           
+                                                           <field name="city_id"/>
                                                         </group>
                                                         <notebook>
                                                             <page string="Commune">
                                                                 <field name="common_ids">
-                                                                    <tree editable="bottom">
+                                                                    <tree>
                                                                         <field name="name"/>
                                                                     </tree>
+                                                                    <form>
+                                                                        <div class="oe_title">
+                                                                            <h1>
+                                                                                <field name="name" placeholder="Nom de la commune"/>
+                                                                            </h1>
+                                                                        </div>
+                                                                        <group>
+                                                                            <field name="area_id"/>
+                                                                        </group>
+                                                                        <notebook>
+                                                                            <page string="Quatiers">
+                                                                                <field name="neighborhood_ids">
+                                                                                    <tree editable="bottom">
+                                                                                        <field name="name"/>
+                                                                                    </tree>
+                                                                                    
+                                                                                </field>
+                                                                            </page>
+                                                                        </notebook>
+                                                                    </form>
                                                                 </field>
                                                             </page>
                                                         </notebook>
@@ -319,6 +336,7 @@
             <field name="arch" type="xml">
                 <tree>
                     <field name="name"/>
+                    <field name="city_ids" widget="many2many_tags"/>
                 </tree>
             </field>
         </record>
@@ -353,6 +371,7 @@
                             <h1>
                                 <field name="name"/>
                             </h1>
+                            <field name="company_id" invisible="1"/>
                         </div>
                         <notebook>
                             <page string="Zones">
@@ -399,6 +418,7 @@
                             <h1>
                                 <field name="name"/>
                             </h1>
+                            <field name="company_id" invisible="1"/>
                         </div>
                         <notebook>
                             <page string="Communes">
@@ -433,6 +453,7 @@
                             <h1>
                                 <field name="name"/>
                             </h1>
+                            <field name="company_id" invisible="1"/>
                         </div>
                         <notebook>
                             <page string="Quartiers">
@@ -455,6 +476,8 @@
                 <tree>
                     <field name="name"/>
                     <field name="area_id"/>
+                    <field name="neighborhood_ids" widget="many2many_tags"/>
+                    <field name="company_id" invisible="1"/>
                 </tree>
             </field>
         </record>
@@ -472,6 +495,7 @@
                 <tree editable="bottom">
                     <field name="name"/>
                     <field name="common_id"/>
+                    <field name="company_id" invisible="1"/>
                 </tree>
             </field>
         </record>
@@ -488,6 +512,7 @@
             <field name="arch" type="xml">
                 <tree editable="bottom">
                     <field name="name"/>
+                    <field name="company_id" invisible="1"/>
                 </tree>
             </field>
         </record>
