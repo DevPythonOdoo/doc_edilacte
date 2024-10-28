@@ -32,7 +32,7 @@
         'views/partner.xml',
         'views/stock.xml',
         'views/product_available.xml',
-        #'report/purchase_order_template.xml',  # Corrected typo in filename
+        #'report/purchase_oder_template.xml',  # Corrected typo in filename
         'report/stock_template.xml',
     ],
 

@@ -12,7 +12,6 @@
                    <field name="area_id"/>
                    <field name="common_id"/>
                    <field name="neighborhood_id"/>
-                   <field name="neighborhood_id"/>
                    <field name="family_cust"/>
                </field>
            </field>
@@ -134,30 +133,29 @@
             <field name="arch" type="xml">
                 <form string="_form" create="0" delete="0">
                     <sheet>
-                        <field name="image_1920" widget="image" options="{'size': (68, 68)}"/>
+                        <!-- <field name="image_1920" widget="image" options="{'size': (68, 68)}"/> -->
 
                         <div class="oe_title">
                             <label for="name"/>
                             <h1>
                                 <field name="name"/>
                             </h1>
-                             <field name="login" string="Email"/>
                         </div>
-                        
                         <group>
                             <group string="Information personnel">
+                                <field name="login" string="Email"/>    
                                 <field name="partner_id"/>
                                 <!-- <field name="company_id"/> -->
                                 <field name="phone"/>
                                 <field name="mobile"/>
                                 <field name="invoiced_target"/>
                             </group>
-                            <group>
-                                <group>
-                                    <!-- <field name="image_1920" widget="image" options="{'size': (68, 68)}"/> -->
-                                </group>
+                            <group string="Suivi global des Objectifs">
+                                <field name="target_amount"/>
+                                <field name="currency_id" invisible="1"/>
+                                <field name="real_amount"/>
+                                <field name="percentage" widget="progressbar"/>
                             </group>
-
                         </group>
                         <notebook>
                             <page name="target_sale_man" string="Objectif Commercial">
@@ -169,7 +167,6 @@
                                         <field name="target_amount" widget="monetary" sum="Total"/>
                                         <field name="real_amount" widget="monetary" sum="Total"/>
                                         <field name="percentage" widget="progressbar"/>
-                                       
                                     </tree>
                                     <form string="target">
                                         <sheet>
@@ -228,14 +225,14 @@
             <field name="arch" type="xml">
                 <tree string="commercial_tree" create="false" duplicate="0">
                     <field name="name"/>
-
                     <field name="login" string="Email"/>
-
                     <field name="partner_id"/>
-                    <field name="company_id"/>
-                    <field name="phone"/>
+                    <field name="company_id" optional="hide"/>
+                    <field name="phone" optional="hide"/>
                     <field name="mobile"/>
-                    <field name="invoiced_target"/>
+                    <field name="target_amount"/>
+                    <field name="real_amount"/>
+                    <field name="percentage" widget="progressbar"/>
                 </tree>
             </field>
         </record>
@@ -272,26 +269,10 @@
 
 
         <menuitem id="menu_commercial" name="Commercial" parent="crm.crm_menu_sales" action="action_commercial" sequence="8"/>
-
-        <!--        &lt;!&ndash; Inherit Form View to Modify it &ndash;&gt;-->
-        <!--        <record id="crm_team_form_inherit" model="ir.ui.view">-->
-        <!--            <field name="name">crm.team.form.inherit</field>-->
-        <!--            <field name="model">crm.team</field>-->
-        <!--            <field name="inherit_id" ref="sales_team.crm_team_view_form"/>-->
-        <!--            <field name="arch" type="xml">-->
-
-        <!--                <xpath expr="//page[@name='members_users']" position="after">-->
-        <!--                    &lt;!&ndash; Add your fields or attributes here &ndash;&gt;-->
-        <!--                    <page string="Information" name="crm_teams_id">-->
-        <!--                        <field name="crm_object_id">-->
-
-        <!--                        </field>-->
-
-        <!--                    </page>-->
-        <!--                </xpath>-->
-
-        <!--            </field>-->
-        <!--        </record>-->
+        <menuitem id="menu_sale_commercial" name="Commercial" parent="sale.sale_order_menu" action="action_commercial" sequence="25"/>
+        <!-- This Menu Item must have a parent and an action -->
+        <menuitem id="menu_Creance" name="Suivi des Créances" parent="sale.menu_sale_invoicing" action="account.action_move_out_invoice_type" sequence="6"/>
+        <menuitem id="menu_Relance" name="Rélances Clients" parent="sale.menu_sale_invoicing" action="account_followup.action_view_list_customer_statements" sequence="7"/>
 
     </data>
 </odoo>

@@ -1,5 +1,17 @@
 <odoo>
     <data>
+        
+        <record id="product_template_only_form" model="ir.ui.view">
+            <field name="name">product.template.product.form</field>
+            <field name="model">product.template</field>
+            <field name="priority" eval="8"/>
+            <field name="inherit_id" ref="product.product_template_form_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//group/field[@name='uom_id']" position="before">
+                    <field name="palet"/>
+                </xpath>
+            </field>
+        </record>
 
         <record id="purchases_view_form_inherit" model="ir.ui.view">
             <field name="name">h_purchase.form</field>
@@ -9,32 +21,20 @@
             <field name="arch" type="xml">
                 <!-- Remplacement du bouton de confirmation -->
                 <xpath expr="//header/button[@name='button_confirm']" position="replace">
-                    <button name="button_action_submit" string="Soumettre" type="object"
-                            invisible="state not in ('draft')"/>
+                    <button name="button_action_submit" string="Soumettre" type="object" invisible="state not in ('draft')"/>
+                    <button name="button_action_validate" invisible="state not in ('submit','sent')" string="Confirmer la commande"
+                            type="object" class="oe_highlight" context="{'validate_analytic': True}" id="bid_confirm" data-hotkey="q"/>
+                     <button name="button_cancel" invisible="state not in ('submit')" string="Annuler" type="object" data-hotkey="x"/>
                 </xpath>
                 <!-- Modification de l'attribut invisible -->
                 <xpath expr="//header/button[@name='button_confirm']" position="attributes">
                     <attribute name="invisible">True</attribute>
                 </xpath>
                 <xpath expr="//header/button[@name='action_rfq_send']" position="replace">
-                    <button name="action_rfq_send" string="Envoyer un mail" type="object"
+                    <button name="action_rfq_send" string="Envoyer un mail" type="object" class="btn-primary"
                             invisible="state not in ('sent','submit','approved')"/>
                 </xpath>
-                <!-- Ajout de nouveaux boutons après le bouton de confirmation -->
-                <xpath expr="//button[@name='button_confirm']" position="after">
-                    <button name="button_action_approuve_daf" invisible="state != 'submit'" string="Valider"
-                            type="object" class="oe_highlight"/>
-                    <button name="button_cancel" invisible="state != 'submit'" string="Annuler" type="object"
-                            data-hotkey="x"/>
-                </xpath>
-                <!-- Ajout d'autres actions après soumission -->
-                <xpath expr="//button[@name='button_action_submit']" position="after">
-                    <button name="button_confirm_test" invisible="state != 'approved'" string="Approuver"
-                            type="object"
-                            class="oe_highlight"/>
-                    <button name="button_cancel" invisible="state != 'approved'" string="Annuler"
-                            type="object"/>
-                </xpath>
+              
                 <!-- Remplacement du champ state avec widget statusbar -->
                 <xpath expr="//field[@name='state']" position="replace">
                     <field name="state" widget="statusbar" statusbar_visible="draft,sent,submit,purchase"
@@ -47,12 +47,16 @@
                 <xpath expr="//field[@name='partner_ref']" position="after">
                     <field name="type" invisible="1"/>
                 </xpath>
+
+                <!-- <xpath expr="//field[@name='requisition_id']" position="attributes">
+                    <attribute name="string">Demande d'Achat</attribute>
+                </xpath> -->
                 <!-- Modification du champ order_line pour le rendre readonly sous certaines conditions -->
                 <xpath expr="//field[@name='order_line']" position="attributes">
                     <field name="order_line" readonly="state in ['submit']"/>
                 </xpath>
 
-                <xpath expr="//field[@name='qty_received']" position="replace">
+                <!-- <xpath expr="//field[@name='qty_received']" position="replace">
                     <field name="qty_received" string="Cartons Reçu" sum="Total des Cartons Reçus"/>
 
                 </xpath>
@@ -60,7 +64,7 @@
                 <xpath expr="//field[@name='qty_invoiced']" position="replace">
                     <field name="qty_invoiced" string="Cartons Facturés" sum="Total Cartons Facturés"/>
 
-                </xpath>
+                </xpath> -->
 
                 <xpath expr="//field[@name='price_subtotal']" position="replace">
                     <field name="price_subtotal" string="Sous-Total"/>
@@ -68,22 +72,25 @@
                 </xpath>
 
                 <xpath expr="//field[@name='product_qty']" position="replace">
-                    <field name="product_qty" string="Cartons Commandés" sum="Total Cartons Commandés"/>
+                    <!-- <field name="product_qty" string="Cartons Commandés" sum="Total Cartons Commandés"/> -->
+                    <field name="product_qty" string="Commandés" sum="Total Cartons Commandés"/>
                 </xpath>
 
                 <xpath expr="//field[@name='product_qty']" position="after">
                     <field name="type" optional="hide" invisible="1"/>
-                    <field name="qte_palet" required="type=='import'" sum="Total des Palet/Qte" string="Palet/Qte"/>
+                    <field name="qte_palet" required="type =='import'"  invisible="type =='local'" sum="Total des Palet/Qte" optional="show" string="Palet/Qte"/>
 
                 </xpath>
 
                 <xpath expr="//field[@name='partner_ref']" position="after">
-                    <field name="number_palet"/>
+                    <field name="type" optional="hide" invisible="1"/>
+                    <field name="number_palet" invisible="type == 'local'" />
 
                 </xpath>
 
                 <xpath expr="//field[@name='tax_totals']" position="after">
-                    <field name="total_amount_devise"/>
+                    <field name="type" optional="hide" invisible="1"/>
+                    <field name="total_amount_devise" invisible="type == 'local'"/>
 
                 </xpath>
 
@@ -97,36 +104,52 @@
         </record>
 
 
-        <!-- Inherit Form View to Modify it -->
-        <record id="purchase_order_tree_inherit" model="ir.ui.view">
-            <field name="name">purchase.order.tree</field>
+        <record id="purchase_order_import_tree" model="ir.ui.view">
+            <field name="name">purchase.order.inherit.import.tree</field>
             <field name="model">purchase.order</field>
-            <field name="inherit_id" ref="purchase.purchase_order_kpis_tree"/>
+            <field name="priority" eval="10"/>
             <field name="arch" type="xml">
-
-                <xpath expr="//field[@name='amount_total']" position="before">
+                <tree string="Purchase Order" decoration-info="state in ['draft', 'sent']"
+                decoration-muted="state == 'cancel'" decoration-warning="state == 'submit'"
+                class="o_purchase_order" js_class="purchase_dashboard_list" sample="1">
+                    <header>
+                        <button name="action_create_invoice" type="object" string="Créer des factures"/>
+                    </header>
+                    <field name="priority" optional="show" widget="priority" nolabel="1"/>
+                    <field name="partner_ref" optional="hide"/>
+                    <field name="name" string="Reference" readonly="1" decoration-bf="1"/>
+                    <field name="date_approve" column_invisible="context.get('quotation_only', False)" optional="show"/>
+                    <field name="partner_id" readonly="1"/>
+                    <field name="company_id" readonly="1" options="{'no_create': True}" groups="base.group_multi_company" optional="show"/>
+                    <field name="company_id" groups="!base.group_multi_company" column_invisible="True" readonly="state in ['cancel', 'done', 'purchase']"/>
+                    <field name="date_planned" column_invisible="context.get('quotation_only', False)" optional="show"/>
+                    <field name="user_id" optional="show" widget="many2one_avatar_user"/>
+                    <field name="date_order"
+                        invisible="state == 'purchase' or state == 'done' or state == 'cancel'"
+                        column_invisible="not context.get('quotation_only', False)"
+                        readonly="state in ['cancel', 'done', 'purchase']" widget="remaining_days" optional="show"/>
+                    <field name="activity_ids" widget="list_activity" optional="hide"/>
+                    <field name="origin" optional="hide"/>
                     <field name="qte_palet" string="Total Palet" sum="Total Palet" optional="show"/>
-                </xpath>
-
-                <xpath expr="//field[@name='qte_palet']" position="before">
                     <field name="product_qty" string="Total Carton" sum="Total Carton" optional="show"/>
-                </xpath>
-
-                <xpath expr="//field[@name='qte_palet']" position="after">
-                    <field name="company_currency_id" optional="hide"/>
+                     <field name="company_currency_id" column_invisible="True"/>
                     <field name="total_amount_devise" widget="monetary"/>
-
-                </xpath>
-
+                    <field name="amount_untaxed" sum="Total Untaxed amount" string="Untaxed" widget="monetary" optional="hide"/>
+                    <field name="amount_total" sum="Total amount" widget="monetary" optional="show" decoration-bf="state in ['purchase', 'done']"/>
+                    <field name="currency_id" column_invisible="True" readonly="state in ['cancel', 'done', 'purchase']"/>
+                    <field name="state" optional="show" widget="badge" decoration-success="state == 'purchase' or state == 'done'"
+                        decoration-warning="state == 'to approve' or state == 'submit'" decoration-info="state == 'draft' or state == 'sent'"/>
+                    <field name="invoice_status" optional="hide"/>
+                </tree>
             </field>
         </record>
 
-        <record id="product_template_only_form" model="ir.ui.view">
-            <field name="name">product.template.product.form</field>
-            <field name="model">product.template</field>
-            <field name="priority" eval="8"/>
-            <field name="inherit_id" ref="product.product_template_only_form_view"/>
+        <record id="purchase_order_local_tree" model="ir.ui.view">
+            <field name="name">purchase.order.inherit.local.tree</field>
+            <field name="model">purchase.order</field>
+            <field name="priority" eval="10"/>
             <field name="arch" type="xml">
+<<<<<<< HEAD
                 <xpath expr="//group/field[@name='invoice_policy']" position="after">
                     <field name="palet"/>
                 </xpath>
@@ -137,17 +160,51 @@
                 <xpath expr="//group/field[@name='freezer']" position="after">
                     <field name="capacity"/>
                 </xpath>
+=======
+                <tree string="Purchase Order" decoration-info="state in ['draft', 'sent']"
+                decoration-muted="state == 'cancel'" decoration-warning="state == 'submit'"
+                class="o_purchase_order" js_class="purchase_dashboard_list" sample="1">
+                    <header>
+                        <button name="action_create_invoice" type="object" string="Créer des factures"/>
+                    </header>
+                    <field name="priority" optional="show" widget="priority" nolabel="1"/>
+                    <field name="partner_ref" optional="hide"/>
+                    <field name="name" string="Reference" readonly="1" decoration-bf="1"/>
+                    <field name="date_approve" column_invisible="context.get('quotation_only', False)" optional="show"/>
+                    <field name="partner_id" readonly="1"/>
+                    <field name="company_id" readonly="1" options="{'no_create': True}" groups="base.group_multi_company" optional="show"/>
+                    <field name="company_id" groups="!base.group_multi_company" column_invisible="True" readonly="state in ['cancel', 'done', 'purchase']"/>
+                    <field name="date_planned" column_invisible="context.get('quotation_only', False)" optional="show"/>
+                    <field name="user_id" optional="show" widget="many2one_avatar_user"/>
+                    <field name="date_order"
+                        invisible="state == 'purchase' or state == 'done' or state == 'cancel'"
+                        column_invisible="not context.get('quotation_only', False)"
+                        readonly="state in ['cancel', 'done', 'purchase']" widget="remaining_days" optional="show"/>
+                    <field name="activity_ids" widget="list_activity" optional="hide"/>
+                    <field name="origin" optional="hide"/>
+                    <field name="amount_untaxed" sum="Total Untaxed amount" string="Hors Taxe" widget="monetary" optional="hide"/>
+                    <field name="amount_total" sum="Total amount" widget="monetary" optional="show" decoration-bf="state in ['purchase', 'done']"/>
+                    <field name="currency_id" column_invisible="True" readonly="state in ['cancel', 'done', 'purchase']"/>
+                    <field name="state" optional="show" widget="badge" decoration-success="state == 'purchase' or state == 'done'"
+                        decoration-warning="state == 'to approve' or state == 'submit'" decoration-info="state == 'draft' or state == 'sent'"/>
+                    <field name="invoice_status" optional="hide"/>
+                </tree>
+>>>>>>> f24ed9f9a28a83bb83b78116cb67943c2cc09838
             </field>
         </record>
+      
 
 
+<<<<<<< HEAD
 
 
         <record id="purchase_rfq_local" model="ir.actions.act_window">
+=======
+        <record id="purchase_rfq_locals" model="ir.actions.act_window">
+>>>>>>> f24ed9f9a28a83bb83b78116cb67943c2cc09838
             <field name="name">Demande de prix local</field>
             <field name="res_model">purchase.order</field>
             <field name="view_mode">tree,kanban,form,pivot,graph,calendar,activity</field>
-            <field name="view_id" ref="purchase.purchase_order_kpis_tree"/>
             <field name="domain">[('type','=','local')]</field>
             <field name="search_view_id" ref="purchase.view_purchase_order_filter"/>
             <field name="context">{'quotation_only': True}</field>
@@ -163,11 +220,20 @@
                 </p>
             </field>
         </record>
-        <record id="action_purchase_rfq_customs" model="ir.actions.act_window">
+        
+        <record id="action_purchase_order_local" model="ir.actions.act_window.view">
+            <field name="sequence" eval="0"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="purchase_order_local_tree"/>
+            <field name="act_window_id" ref="purchase_rfq_locals"/>
+        </record>
+
+    
+
+        <record id="action_purchases_rfq_customs" model="ir.actions.act_window">
             <field name="name">Demande de prix internationale</field>
             <field name="res_model">purchase.order</field>
             <field name="view_mode">tree,kanban,form,pivot,graph,calendar,activity</field>
-            <field name="view_id" ref="purchase.purchase_order_kpis_tree"/>
             <field name="domain">[('type','=','import')]</field>
             <field name="search_view_id" ref="purchase.view_purchase_order_filter"/>
             <field name="context">{'default_quotation_only': True,'default_type':'import'}</field>
@@ -183,6 +249,14 @@
                 </p>
             </field>
         </record>
+
+        <record id="action_purchase_import" model="ir.actions.act_window.view">
+            <field name="sequence" eval="0"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="purchase_order_import_tree"/>
+            <field name="act_window_id" ref="action_purchases_rfq_customs"/>
+        </record>
+
         <record id="action_purchase_local" model="ir.actions.act_window">
             <field name="name">Bon de Commande</field>
             <field name="res_model">purchase.order</field>
@@ -275,20 +349,27 @@
         </record>
 
         <!-- This Menu Item Must have a parent -->
+<<<<<<< HEAD
         <menuitem id="menu_purchase_local" name="Achat Local" parent="purchase.menu_procurement_management"
                   sequence="0"/>
         <menuitem id="purchase.menu_purchase_rfq" parent="menu_purchase_local" sequence="1"
                   action="purchase_rfq_local"/>
         <menuitem id="purchase.menu_purchase_form_action" name="Bons de Commande" parent="menu_purchase_local"
                   sequence="2" action="action_purchase_order_import"/>
+=======
+        <menuitem id="menu_purchase_local" name="Achat Local" parent="purchase.menu_procurement_management" sequence="0"/>
+            <menuitem id="purchase.menu_purchase_rfq" parent="menu_purchase_local" sequence="1" action="purchase_rfq_locals"/>
+            <menuitem id="purchase.menu_purchase_form_action" name="Bons de Commande" parent="menu_purchase_local" sequence="2" action="action_purchase_order_import"/>
+>>>>>>> f24ed9f9a28a83bb83b78116cb67943c2cc09838
 
         <menuitem id="menu_oders_import" name="Achat International" parent="purchase.menu_procurement_management"
                   sequence="1"/>
         <menuitem id="menu_purchase_import" name="Demande de prix" parent="menu_oders_import"
-                  action="action_purchase_rfq_customs" sequence="1"/>
+                  action="action_purchases_rfq_customs" sequence="1"/>
         <menuitem id="menu_purchase_order_import" name="Bon de Commande" parent="menu_oders_import"
                   action="action_purchase_form" sequence="2"/>
 
+<<<<<<< HEAD
         <!-- This Menu Item must have a parent and an action -->
         <menuitem id="menu_Creance" name="Suivi des Créances" parent="crm.crm_menu_sales"
                   action="account.action_move_out_invoice_type" sequence="6"/>
@@ -297,6 +378,11 @@
         <!-- Menu pour accéder à la vue des congélateurs -->
         <menuitem id="menu_product_freezer" name="Congélateurs" parent="sale.sale_menu_root"
                   action="action_product_freezer" sequence="10"/>
+=======
+
+        
+
+>>>>>>> f24ed9f9a28a83bb83b78116cb67943c2cc09838
 
     </data>
 </odoo>

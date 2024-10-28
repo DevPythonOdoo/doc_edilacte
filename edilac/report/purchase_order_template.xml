@@ -20,7 +20,7 @@
                 <th name="th_description">
                     <strong>Description</strong>
                 </th>
-                <th name="th_qte_palet" class="text-center">
+                <th name="th_qte_palet" class="text-end">
                     <strong>Nombre de Palet</strong>
                 </th>
                 <th name="th_quantity" class="text-end">
@@ -36,7 +36,7 @@
                             <td id="product">
                                 <span t-field="order_line.name"/>
                             </td>
-                            <td class="text-center">
+                            <td class="text-end">
                                 <span t-field="order_line.qte_palet"/>
                             </td>
                             <td class="text-end">
@@ -58,15 +58,15 @@
                 </t>
             </tbody>
             <tfoot>
-                <tr class='bg-200 fw-bold o_line_section'>
+                <tr class='bg-200 fw-bold o_line_section' style="border: 2px solid #000;background:#F4C10B">
                     <td name="total">
                         <strong>Total</strong>
                     </td>
-                    <td>
-                        <span t-esc="o.qte_palet"/>
+                    <td class="text-end">
+                        <span  t-field="o.qte_palet"/>
                     </td>
-                    <td>
-                        <span t-esc="o.product_qty"/>
+                    <td class="text-end">
+                        <span  t-field="o.product_qty"/>
                     </td>
                 </tr>
             </tfoot>
@@ -92,14 +92,14 @@
                             <strong>Description</strong>
                         </th>
                         <th name="th_qte_palet">
-                            <strong>Quantité Palet</strong>
+                            <strong> Palette</strong>
                         </th>
-                        <th name="th_quantity" class="text-end" invisible="1">
-                            <strong>Cartons Commandés</strong>
+                        <th name="th_quantity" class="text-end">
+                            <strong>Commandés</strong>
                         </th>
                        
                         <th name="th_subtotal" class="text-end">
-                            <strong>Montant en Devise</strong>
+                            <strong>Montant</strong>
                         </th>
                     </tr>
                 </thead>
@@ -117,10 +117,10 @@
                                 <td id="product">
                                     <span t-field="line.name"/>
                                 </td>
-                                <td name="td_qte_palet">
+                                <td name="td_qte_palet" class="text-end">
                                     <span t-field="line.qte_palet"/>
                                 </td>
-                                <td class="text-center">
+                                <td class="text-end">
                                     <span t-field="line.product_qty"/>
                                     <span t-field="line.product_uom.name" groups="uom.group_uom"/>
                                     <span t-if="line.product_packaging_id">
@@ -151,7 +151,7 @@
                         <t t-if="current_section and (line_last or o.order_line[line_index+1].display_type == 'line_section')">
                             <tr class="is-subtotal text-end">
                                 <td colspan="99" id="subtotal">
-                                    <strong class="mr16">Subtotal</strong>
+                                    <strong class="mr16">Sous total</strong>
                                     <span
                                             t-esc="current_subtotal"
                                             t-options='{"widget": "monetary", "display_currency": o.currency_id}'
@@ -162,14 +162,14 @@
                     </t>
                 </tbody>
                 <tfoot>
-                    <tr>
+                    <tr class='bg-200 fw-bold o_line_section' style="border: 2px solid #000;background:#F4C10B">
                         <td name="total">
                             <strong>Total</strong>
                         </td>
-                        <td>
+                        <td class="text-end">
                             <span t-esc="total_qte_palet"/>
                         </td>
-                        <td>
+                        <td class="text-end">
                             <span t-esc="total_product_qty"/>
                         </td>
                         <td/>

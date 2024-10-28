@@ -3,10 +3,6 @@ access_res_partner_users,user.res.partner,model_res_partner,edilac.group_edilac_
 access_res_partner_respo,respo.res.partner,model_res_partner,edilac.group_edilac_respo,1,1,1,0
 access_res_partner_manager,manager.res.partner,model_res_partner,edilac.group_edilac_manager,1,1,1,1
 
-access_saleman_line_users,user.model_saleman_line,model_saleman_line,edilac.group_edilac_user,1,0,0,0
-access_saleman_line_respo,respo.model_saleman_line,model_saleman_line,edilac.group_edilac_respo,1,1,1,0
-access_saleman_line_manager,manager.model_saleman_line,model_saleman_line,edilac.group_edilac_manager,1,1,1,1
-
 access_family_custom_users,user.family.custom,model_family_custom,edilac.group_edilac_user,1,1,1,0
 access_family_custom_respo,respo.family.custom,model_family_custom,edilac.group_edilac_respo,1,1,1,0
 access_family_custom_manager,manager.family.custom,model_family_custom,edilac.group_edilac_manager,1,1,1,1
@@ -32,9 +28,9 @@ access_neighborhood_neighborhood_users,user.neighborhood.neighborhood,model_neig
 access_neighborhood_neighborhood_respo,respo.neighborhood.neighborhood,model_neighborhood_neighborhood,edilac.group_edilac_respo,1,1,1,0
 access_neighborhood_neighborhood_manager,manager.neighborhood.neighborhood,model_neighborhood_neighborhood,edilac.group_edilac_manager,1,1,1,1
 
-access_stock_move_users,user.stock.move,model_stock_move,edilac.group_edilac_user,1,1,1,0
-access_stock_moved_respo,respo.stock.move,model_stock_move,edilac.group_edilac_respo,1,1,1,0
-access_stock_move_manager,manager.stock.move,model_stock_move,edilac.group_edilac_manager,1,1,1,1
+access_stock_mov_users,user.stock.move,model_stock_move,edilac.group_edilac_user,1,1,1,0
+access_stock_mov_respo,respo.stock.move,model_stock_move,edilac.group_edilac_respo,1,1,1,0
+access_stock_mov_manager,manager.stock.move,model_stock_move,edilac.group_edilac_manager,1,1,1,1
 
 access_stock_picking_users,user.stock.picking,model_stock_picking,edilac.group_edilac_user,1,1,1,0
 access_stock_picking_respo,respo.stock.picking,model_stock_picking,edilac.group_edilac_respo,1,1,1,0
@@ -44,7 +40,13 @@ access_quality_quality_users,user.quality.quality,model_quality_quality,edilac.g
 access_quality_quality_respo,respo.quality.quality,model_quality_quality,edilac.group_edilac_respo,1,1,1,0
 access_quality_quality_manager,manager.quality.quality,model_quality_quality,edilac.group_edilac_manager,1,1,1,1
 
+<<<<<<< HEAD
 
 access_partner_freezer_users,user.partner.freezer,model_partner_freezer,edilac.group_edilac_user,1,1,1,0
 access_partner_freezer_respo,respo.partner.freezer,model_partner_freezer,edilac.group_edilac_respo,1,1,1,0
 access_partner_freezer_manager,manager.partner.freezer,model_partner_freezer,edilac.group_edilac_manager,1,1,1,1
+=======
+access_saleman_line_users,user.saleman.line,model_saleman_line,edilac.group_edilac_user,1,0,0,0
+access_saleman_line_respo,respo.saleman.line,model_saleman_line,edilac.group_edilac_respo,1,1,1,0
+access_saleman_line_manager,manager.saleman.line,model_saleman_line,edilac.group_edilac_manager,1,1,1,1
+>>>>>>> f24ed9f9a28a83bb83b78116cb67943c2cc09838
