@@ -170,6 +170,8 @@ class ProductTemplate(models.Model):
     _inherit = 'product.template'
 
     palet = fields.Integer('Nbre de carton en palette', default=1,  help="Cette valeur sera utilisé pour obtenir le nombre de carton pour une commande fournisseur de ce produit")
+    freezer = fields.Boolean(string='Marqué Comme un Congélateur', required=False, help="Une fois coché le produit sera marqué comme un congélateur")
+    capacity = fields.Float(string='Capacité du congélateur', required=False, help="Une fois coché, le produit sera marqué comme un congélateur")
     # uom_conteneur_id = fields.Integer('Mesure en Conteneur', required=False, help="Default unit of measure used for purchase orders.",store=True)
 
 
@@ -180,7 +182,6 @@ class ResUsers(models.Model):
 
     invoiced_target = fields.Monetary(string="Objectif de facturation")
 
-    invoiced_target = fields.Float(string="Objectif de facturation")
     target_ids = fields.One2many(
         string=_('Objectifs Commercial'),
         comodel_name='saleman.line',

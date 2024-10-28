@@ -21,6 +21,13 @@ class Partner(models.Model):
     neighborhood_id = fields.Many2one(comodel_name='neighborhood.neighborhood',string='Quartier')
     supplier_type = fields.Selection(string='Catégorie Fournisseur',selection=[('national', 'National'), ('international', 'International'), ])
     delivery_person = fields.Boolean(string='Livreur', default=False)
+    freezer_ids = fields.One2many('partner.freezer', 'partner_id', string="Congélateurs")
+
+    # Calcul automatique du nombre de congélateurs
+    @api.depends('freezer_ids')
+    def _compute_freezer_count(self):
+        for partner in self:
+            partner.freezer_count = len(partner.freezer_ids)
 
     @api.depends('parent_id')
     def _compute_team_id(self):
@@ -104,3 +111,12 @@ class Neighborhood(models.Model):
 
     name = fields.Char(string='Quartier',required=True)
     common_id = fields.Many2one(comodel_name='common.common',string='Commune',required=True,)
+
+
+class PartnerFreezer(models.Model):
+    _name = 'partner.freezer'
+    _description = 'Congélateur lié au client'
+
+    name = fields.Many2one('product.template',string="Nom du Congélateur",domain=[('freezer', '=', True)],help="Sélectionner un produit marqué comme congélateur")
+    capacity = fields.Integer(string="Capacité", help="Capacité du congélateur en litres")
+    partner_id = fields.Many2one('res.partner', string="Client", ondelete='cascade')

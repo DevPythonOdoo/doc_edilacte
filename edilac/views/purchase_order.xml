@@ -131,12 +131,16 @@
                     <field name="palet"/>
                 </xpath>
 
-                <!-- <xpath expr="//group/field[@name='uom_palet_id']" position="after">
-                    <field name="uom_conteneur_id"/>
-
-                </xpath> -->
+                <xpath expr="//group/field[@name='palet']" position="after">
+                    <field name="freezer"/>
+                </xpath>
+                <xpath expr="//group/field[@name='freezer']" position="after">
+                    <field name="capacity"/>
+                </xpath>
             </field>
         </record>
+
+
 
 
         <record id="purchase_rfq_local" model="ir.actions.act_window">
@@ -260,14 +264,26 @@
             </field>
         </record>
 
-        
+
+        <!-- Action pour afficher les produits marqués comme congélateurs -->
+        <record id="action_product_freezer" model="ir.actions.act_window">
+            <field name="name">Congélateurs</field>
+            <field name="res_model">product.template</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('freezer', '=', True)]</field>
+            <field name="context">{}</field>
+        </record>
 
         <!-- This Menu Item Must have a parent -->
-        <menuitem id="menu_purchase_local" name="Achat Local" parent="purchase.menu_procurement_management" sequence="0"/>
-            <menuitem id="purchase.menu_purchase_rfq" parent="menu_purchase_local" sequence="1" action="purchase_rfq_local"/>
-            <menuitem id="purchase.menu_purchase_form_action" name="Bons de Commande" parent="menu_purchase_local" sequence="2" action="action_purchase_order_import"/>
+        <menuitem id="menu_purchase_local" name="Achat Local" parent="purchase.menu_procurement_management"
+                  sequence="0"/>
+        <menuitem id="purchase.menu_purchase_rfq" parent="menu_purchase_local" sequence="1"
+                  action="purchase_rfq_local"/>
+        <menuitem id="purchase.menu_purchase_form_action" name="Bons de Commande" parent="menu_purchase_local"
+                  sequence="2" action="action_purchase_order_import"/>
 
-        <menuitem id="menu_oders_import" name="Achat International" parent="purchase.menu_procurement_management" sequence="1"/>
+        <menuitem id="menu_oders_import" name="Achat International" parent="purchase.menu_procurement_management"
+                  sequence="1"/>
         <menuitem id="menu_purchase_import" name="Demande de prix" parent="menu_oders_import"
                   action="action_purchase_rfq_customs" sequence="1"/>
         <menuitem id="menu_purchase_order_import" name="Bon de Commande" parent="menu_oders_import"
@@ -278,7 +294,9 @@
                   action="account.action_move_out_invoice_type" sequence="6"/>
         <menuitem id="menu_Relance" name="Rélances Clients" parent="crm.crm_menu_sales"
                   action="account_followup.action_view_list_customer_statements" sequence="7"/>
-
+        <!-- Menu pour accéder à la vue des congélateurs -->
+        <menuitem id="menu_product_freezer" name="Congélateurs" parent="sale.sale_menu_root"
+                  action="action_product_freezer" sequence="10"/>
 
     </data>
 </odoo>

@@ -44,3 +44,7 @@ access_quality_quality_users,user.quality.quality,model_quality_quality,edilac.g
 access_quality_quality_respo,respo.quality.quality,model_quality_quality,edilac.group_edilac_respo,1,1,1,0
 access_quality_quality_manager,manager.quality.quality,model_quality_quality,edilac.group_edilac_manager,1,1,1,1
 
+
+access_partner_freezer_users,user.partner.freezer,model_partner_freezer,edilac.group_edilac_user,1,1,1,0
+access_partner_freezer_respo,respo.partner.freezer,model_partner_freezer,edilac.group_edilac_respo,1,1,1,0
+access_partner_freezer_manager,manager.partner.freezer,model_partner_freezer,edilac.group_edilac_manager,1,1,1,1
