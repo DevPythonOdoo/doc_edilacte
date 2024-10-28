@@ -96,7 +96,7 @@ class Purchase(models.Model):
 
 
     def button_confirm(self):
-        for order in self:
+        for order in self:   
             if order.state not in ['draft', 'sent', 'submit']:
                 continue
             order.order_line._validate_analytic_distribution()
@@ -114,6 +114,51 @@ class Purchase(models.Model):
     def button_action_validate(self):
         return self.button_confirm()
 
+    def button_approve(self):
+        # Appelez la méthode de confirmation de base
+        super(Purchase, self).button_approve()
+        
+        for order in self:
+            # Initialiser le compteur pour chaque commande
+            lot_counter = 1
+            
+            for line in order.order_line:
+                # Récupérer la référence fournisseur
+                supplier_ref = order.partner_ref or 'REF'
+                
+                # Chercher les réceptions liées à cette ligne de commande
+                stock_moves = self.env['stock.move'].search([
+                    ('purchase_line_id', '=', line.id),
+                    ('state', 'not in', ('done', 'cancel'))  # Uniquement les mouvements en attente
+                ])
+
+                # Générer les numéros de lot pour chaque mouvement de stock
+                for move in stock_moves:
+                    # Créer un numéro de lot incrémenté
+                    lot_name = f"{supplier_ref}-{str(lot_counter).zfill(3)}"
+                    
+                    # Créer le lot
+                    lot = self.env['stock.lot'].create({
+                        'name': lot_name,
+                        'product_qty': line.product_qty,
+                        'product_id': line.product_id.id,
+                        'location_id': move.location_id.id,
+                        #'location_dest_id': move.location_dest_id.id,
+                        'company_id': order.company_id.id,
+                    })
+                    
+                    # Associer le lot au niveau des lignes de mouvement de stock (stock.move.line)
+                    move_line = self.env['stock.move.line'].search([('move_id', '=', move.id)], limit=1)
+                    if move_line:
+                        move_line.write({
+                            'lot_id': lot.id,
+                            'lot_name': lot.name,
+                            'location_id': move.location_id.id,
+                            'location_dest_id': move.location_dest_id.id,
+                        })
+                    move.write({'lot_ids': [(4, lot.id)]})
+                    # Incrémenter le compteur pour le prochain lot
+                    lot_counter += 1    
 
 class PurchaseOrderLine(models.Model):
     _inherit = 'purchase.order.line'
