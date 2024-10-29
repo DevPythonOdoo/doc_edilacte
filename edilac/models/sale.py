@@ -24,28 +24,21 @@ class ResUsers(models.Model):
         comodel_name='res.partner',
         inverse_name='user_id',
     )
-   
-    target_amount = fields.Monetary(string="Montant objectif",compute='_compute_amount',store=True)
+    date_start = fields.Date(string="Date début",related="target_ids.date_start", store=True)
+    date_end = fields.Date(string="Date fin",related="target_ids.date_end",store=True)
+    target_amount = fields.Monetary(string="Montant objectif",related="target_ids.target_amount",store=True)
     currency_id = fields.Many2one('res.currency', string="Devise",default=lambda self: self.env.company.currency_id)
-    real_amount = fields.Monetary(string="Montant réel",compute='_compute_amount',store=True)
-    percentage = fields.Float(string="Pourcentage d'atteinte", store=True, compute='_compute_amount')
-    
-    @api.depends('target_ids')
-    def _compute_amount(self):
-        for record in self:
-            record.target_amount = sum(line.target_amount for line in record.target_ids)
-            record.real_amount = sum(line.real_amount for line in record.target_ids)
-            if record.target_amount:
-                record.percentage = (record.real_amount / record.target_amount) * 100 if record.target_amount else 0.0
-            
+    real_amount = fields.Monetary(string="Montant réel",related="target_ids.real_amount",store=True)
+    # percentage = fields.Float(string="Pourcentage d'atteinte",compiled=True, store=True, compute='_compute_percentage')
+
 
 class SalemLine(models.Model):
     _name = 'saleman.line'
     _description = _('Objectif Commercial')
     _order = 'date_start desc'
     
-    date_start = fields.Datetime(string="Date début",required=True)
-    date_end = fields.Datetime(string="Date fin",required=True)
+    date_start = fields.Date(string="Date début",required=True)
+    date_end = fields.Date(string="Date fin",required=True)
     target_amount = fields.Monetary(string="Montant objectif")
     currency_id = fields.Many2one('res.currency', string="Devise",default=lambda self: self.env.company.currency_id)
     real_amount = fields.Monetary(string="Montant réel",compute='_compute_real_amount',store=True)
@@ -55,32 +48,14 @@ class SalemLine(models.Model):
         string=_('Commande Client'),
         comodel_name='sale.order',
         inverse_name='user_id',domain=[('state','in',('sale','done'))])
-
-    @api.onchange('date_start', 'date_end')
-    def _onchange_date_start_end(self):
-        data = []
-        self.update({'line_ids': []})
-        if self.date_start and self.date_end and self.date_start > self.date_end:
-            raise ValidationError(_('La date de début doit être antérieure à la date de fin.'))
-        for record in self:
-            for line in record.line_ids.filtered(lambda order: order.date_order >= record.date_start and order.date_order <= record.date_end):
-                data.append(line.id)
-            # raise ValidationError(data)
-            record.line_ids = [(6, 0, data)]
-       
     @api.depends('real_amount', 'target_amount')
     def _compute_percentage(self):
         for record in self:
             record.percentage = (record.real_amount / record.target_amount) * 100 if record.target_amount else 0.0
     @api.depends('line_ids.amount_total')
     def _compute_real_amount(self):
-        total_amount = 0.0
         for record in self:
-            if record.line_ids.filtered(lambda order: order.state in ('sale','done')):
-                for line in record.line_ids.filtered(lambda order: order.date_order >= record.date_start and order.date_order <= record.date_end):
-                    total_amount += line.amount_total
-                # raise ValidationError(total_amount)
-                record.real_amount = total_amount
+            record.real_amount = sum(order.amount_total for order in record.line_ids if order.state in ('sale','done'))
 
 
 
