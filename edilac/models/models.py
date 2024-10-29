@@ -38,7 +38,6 @@ class Purchase(models.Model):
     total_amount_devise = fields.Monetary(string='Total FCFA', required=False, currency_field="company_currency_id", compute='_compute_total_amount_devise', store=True)
     
 
-
     @api.depends('partner_id', 'amount_total', 'currency_id')
     def _compute_total_amount_devise(self):
         for order in self:
@@ -54,9 +53,6 @@ class Purchase(models.Model):
         for order in self:
             total_palet = sum(line.qte_palet for line in order.order_line)
             order.number_palet = total_palet
-    # mail_dg = fields.Char(string='mail', required=False, default='alexandre@gmail.com')
-
-
     # mail_dg = fields.Char(string='mail', required=False, default='alexandre@gmail.com')
 
 
@@ -205,8 +201,6 @@ class PurchaseOrderLine(models.Model):
             # line.qte_palet = 0
             if line.qte_palet:  
                 line.product_qty = line.qte_palet * product.palet
-            
-
 
 
 class ProductTemplate(models.Model):
@@ -222,7 +216,6 @@ class ResUsers(models.Model):
     _inherit = 'res.users'
 
     as_a_salesperson = fields.Boolean('Comme un commercial')
-
     invoiced_target = fields.Monetary(string="Objectif de facturation")
 
     target_ids = fields.One2many(

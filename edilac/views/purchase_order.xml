@@ -1,18 +1,5 @@
 <odoo>
     <data>
-        
-        <record id="product_template_only_form" model="ir.ui.view">
-            <field name="name">product.template.product.form</field>
-            <field name="model">product.template</field>
-            <field name="priority" eval="8"/>
-            <field name="inherit_id" ref="product.product_template_form_view"/>
-            <field name="arch" type="xml">
-                <xpath expr="//group/field[@name='uom_id']" position="before">
-                    <field name="palet"/>
-                </xpath>
-            </field>
-        </record>
-
         <record id="purchases_view_form_inherit" model="ir.ui.view">
             <field name="name">h_purchase.form</field>
             <field name="model">purchase.order</field>
@@ -34,7 +21,7 @@
                     <button name="action_rfq_send" string="Envoyer un mail" type="object" class="btn-primary"
                             invisible="state not in ('sent','submit','approved')"/>
                 </xpath>
-              
+
                 <!-- Remplacement du champ state avec widget statusbar -->
                 <xpath expr="//field[@name='state']" position="replace">
                     <field name="state" widget="statusbar" statusbar_visible="draft,sent,submit,purchase"
@@ -144,12 +131,13 @@
             </field>
         </record>
 
-        <record id="purchase_order_local_tree" model="ir.ui.view">
-            <field name="name">purchase.order.inherit.local.tree</field>
-            <field name="model">purchase.order</field>
-            <field name="priority" eval="10"/>
+
+        <record id="product_template_only_form" model="ir.ui.view">
+            <field name="name">product.template.product.form</field>
+            <field name="model">product.template</field>
+            <field name="priority" eval="8"/>
+            <field name="inherit_id" ref="product.product_template_only_form_view"/>
             <field name="arch" type="xml">
-<<<<<<< HEAD
                 <xpath expr="//group/field[@name='invoice_policy']" position="after">
                     <field name="palet"/>
                 </xpath>
@@ -160,48 +148,13 @@
                 <xpath expr="//group/field[@name='freezer']" position="after">
                     <field name="capacity"/>
                 </xpath>
-=======
-                <tree string="Purchase Order" decoration-info="state in ['draft', 'sent']"
-                decoration-muted="state == 'cancel'" decoration-warning="state == 'submit'"
-                class="o_purchase_order" js_class="purchase_dashboard_list" sample="1">
-                    <header>
-                        <button name="action_create_invoice" type="object" string="Créer des factures"/>
-                    </header>
-                    <field name="priority" optional="show" widget="priority" nolabel="1"/>
-                    <field name="partner_ref" optional="hide"/>
-                    <field name="name" string="Reference" readonly="1" decoration-bf="1"/>
-                    <field name="date_approve" column_invisible="context.get('quotation_only', False)" optional="show"/>
-                    <field name="partner_id" readonly="1"/>
-                    <field name="company_id" readonly="1" options="{'no_create': True}" groups="base.group_multi_company" optional="show"/>
-                    <field name="company_id" groups="!base.group_multi_company" column_invisible="True" readonly="state in ['cancel', 'done', 'purchase']"/>
-                    <field name="date_planned" column_invisible="context.get('quotation_only', False)" optional="show"/>
-                    <field name="user_id" optional="show" widget="many2one_avatar_user"/>
-                    <field name="date_order"
-                        invisible="state == 'purchase' or state == 'done' or state == 'cancel'"
-                        column_invisible="not context.get('quotation_only', False)"
-                        readonly="state in ['cancel', 'done', 'purchase']" widget="remaining_days" optional="show"/>
-                    <field name="activity_ids" widget="list_activity" optional="hide"/>
-                    <field name="origin" optional="hide"/>
-                    <field name="amount_untaxed" sum="Total Untaxed amount" string="Hors Taxe" widget="monetary" optional="hide"/>
-                    <field name="amount_total" sum="Total amount" widget="monetary" optional="show" decoration-bf="state in ['purchase', 'done']"/>
-                    <field name="currency_id" column_invisible="True" readonly="state in ['cancel', 'done', 'purchase']"/>
-                    <field name="state" optional="show" widget="badge" decoration-success="state == 'purchase' or state == 'done'"
-                        decoration-warning="state == 'to approve' or state == 'submit'" decoration-info="state == 'draft' or state == 'sent'"/>
-                    <field name="invoice_status" optional="hide"/>
-                </tree>
->>>>>>> f24ed9f9a28a83bb83b78116cb67943c2cc09838
             </field>
         </record>
-      
 
 
-<<<<<<< HEAD
 
 
         <record id="purchase_rfq_local" model="ir.actions.act_window">
-=======
-        <record id="purchase_rfq_locals" model="ir.actions.act_window">
->>>>>>> f24ed9f9a28a83bb83b78116cb67943c2cc09838
             <field name="name">Demande de prix local</field>
             <field name="res_model">purchase.order</field>
             <field name="view_mode">tree,kanban,form,pivot,graph,calendar,activity</field>
@@ -220,15 +173,8 @@
                 </p>
             </field>
         </record>
-        
-        <record id="action_purchase_order_local" model="ir.actions.act_window.view">
-            <field name="sequence" eval="0"/>
-            <field name="view_mode">tree</field>
-            <field name="view_id" ref="purchase_order_local_tree"/>
-            <field name="act_window_id" ref="purchase_rfq_locals"/>
-        </record>
 
-    
+
 
         <record id="action_purchases_rfq_customs" model="ir.actions.act_window">
             <field name="name">Demande de prix internationale</field>
@@ -349,18 +295,13 @@
         </record>
 
         <!-- This Menu Item Must have a parent -->
-<<<<<<< HEAD
+
         <menuitem id="menu_purchase_local" name="Achat Local" parent="purchase.menu_procurement_management"
                   sequence="0"/>
         <menuitem id="purchase.menu_purchase_rfq" parent="menu_purchase_local" sequence="1"
                   action="purchase_rfq_local"/>
         <menuitem id="purchase.menu_purchase_form_action" name="Bons de Commande" parent="menu_purchase_local"
                   sequence="2" action="action_purchase_order_import"/>
-=======
-        <menuitem id="menu_purchase_local" name="Achat Local" parent="purchase.menu_procurement_management" sequence="0"/>
-            <menuitem id="purchase.menu_purchase_rfq" parent="menu_purchase_local" sequence="1" action="purchase_rfq_locals"/>
-            <menuitem id="purchase.menu_purchase_form_action" name="Bons de Commande" parent="menu_purchase_local" sequence="2" action="action_purchase_order_import"/>
->>>>>>> f24ed9f9a28a83bb83b78116cb67943c2cc09838
 
         <menuitem id="menu_oders_import" name="Achat International" parent="purchase.menu_procurement_management"
                   sequence="1"/>
@@ -369,7 +310,6 @@
         <menuitem id="menu_purchase_order_import" name="Bon de Commande" parent="menu_oders_import"
                   action="action_purchase_form" sequence="2"/>
 
-<<<<<<< HEAD
         <!-- This Menu Item must have a parent and an action -->
         <menuitem id="menu_Creance" name="Suivi des Créances" parent="crm.crm_menu_sales"
                   action="account.action_move_out_invoice_type" sequence="6"/>
@@ -378,11 +318,6 @@
         <!-- Menu pour accéder à la vue des congélateurs -->
         <menuitem id="menu_product_freezer" name="Congélateurs" parent="sale.sale_menu_root"
                   action="action_product_freezer" sequence="10"/>
-=======
-
-        
-
->>>>>>> f24ed9f9a28a83bb83b78116cb67943c2cc09838
 
     </data>
 </odoo>

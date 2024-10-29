@@ -267,12 +267,8 @@
             <field name="act_window_id" ref="action_commercial"/>
         </record>
 
-
         <menuitem id="menu_commercial" name="Commercial" parent="crm.crm_menu_sales" action="action_commercial" sequence="8"/>
         <menuitem id="menu_sale_commercial" name="Commercial" parent="sale.sale_order_menu" action="action_commercial" sequence="25"/>
-        <!-- This Menu Item must have a parent and an action -->
-        <menuitem id="menu_Creance" name="Suivi des Créances" parent="sale.menu_sale_invoicing" action="account.action_move_out_invoice_type" sequence="6"/>
-        <menuitem id="menu_Relance" name="Rélances Clients" parent="sale.menu_sale_invoicing" action="account_followup.action_view_list_customer_statements" sequence="7"/>
 
     </data>
 </odoo>

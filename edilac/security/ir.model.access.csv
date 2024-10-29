@@ -40,13 +40,12 @@ access_quality_quality_users,user.quality.quality,model_quality_quality,edilac.g
 access_quality_quality_respo,respo.quality.quality,model_quality_quality,edilac.group_edilac_respo,1,1,1,0
 access_quality_quality_manager,manager.quality.quality,model_quality_quality,edilac.group_edilac_manager,1,1,1,1
 
-<<<<<<< HEAD
+
 
 access_partner_freezer_users,user.partner.freezer,model_partner_freezer,edilac.group_edilac_user,1,1,1,0
 access_partner_freezer_respo,respo.partner.freezer,model_partner_freezer,edilac.group_edilac_respo,1,1,1,0
 access_partner_freezer_manager,manager.partner.freezer,model_partner_freezer,edilac.group_edilac_manager,1,1,1,1
-=======
+
 access_saleman_line_users,user.saleman.line,model_saleman_line,edilac.group_edilac_user,1,0,0,0
 access_saleman_line_respo,respo.saleman.line,model_saleman_line,edilac.group_edilac_respo,1,1,1,0
 access_saleman_line_manager,manager.saleman.line,model_saleman_line,edilac.group_edilac_manager,1,1,1,1
->>>>>>> f24ed9f9a28a83bb83b78116cb67943c2cc09838

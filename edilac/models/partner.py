@@ -1,3 +1,5 @@
+from odoo.exceptions import UserError
+
 from odoo import models, fields, api,_,exceptions
 from datetime import datetime
 
@@ -20,14 +22,8 @@ class Partner(models.Model):
     num_registre = fields.Char(string='N° Registre du commerce')
     neighborhood_id = fields.Many2one(comodel_name='neighborhood.neighborhood',string='Quartier')
     supplier_type = fields.Selection(string='Catégorie Fournisseur',selection=[('national', 'National'), ('international', 'International')])
-    delivery_person = fields.Boolean(string='Livreur', default=False)
+    delivery_person = fields.Boolean(string='Livreur', default=True)
     freezer_ids = fields.One2many('partner.freezer', 'partner_id', string="Congélateurs")
-
-    # Calcul automatique du nombre de congélateurs
-    @api.depends('freezer_ids')
-    def _compute_freezer_count(self):
-        for partner in self:
-            partner.freezer_count = len(partner.freezer_ids)
 
     @api.depends('parent_id')
     def _compute_team_id(self):
@@ -114,9 +110,8 @@ class Common(models.Model):
 class Neighborhood(models.Model):
     _name = 'neighborhood.neighborhood'
     _description = 'Quartier'
-
     name = fields.Char(string='Quartier',required=True)
-
+    company_id = fields.Char(string='Company',required=True)
     common_id = fields.Many2one(comodel_name='common.common',string='Commune',required=True,)
 
 
@@ -124,10 +119,23 @@ class PartnerFreezer(models.Model):
     _name = 'partner.freezer'
     _description = 'Congélateur lié au client'
 
-    name = fields.Many2one('product.template',string="Nom du Congélateur",domain=[('freezer', '=', True)],help="Sélectionner un produit marqué comme congélateur")
+    product_id = fields.Many2one('product.template',string="Nom du Congélateur", domain=[('freezer', '=', True)],help="Sélectionner un produit marqué comme congélateur")
     capacity = fields.Integer(string="Capacité", help="Capacité du congélateur en litres")
     partner_id = fields.Many2one('res.partner', string="Client", ondelete='cascade')
+    freezer_number = fields.Integer(string="Nombre de Congélateur")
+    turnover = fields.Float(string="Chiffre d'affaire")
 
-    common_id = fields.Many2one(comodel_name='common.common',string='Commune',required=True)
-    company_id = fields.Many2one(comodel_name='res.company', string='Société', required=True,default=lambda self: self.env.company.id)
+    @api.model
+    def create(self, vals):
+        # Vérifie le produit et la quantité disponible
+        product = self.env['product.product'].browse(vals['product_id'])
 
+        if product.qty_available < 1:
+            raise UserError(f"Stock insuffisant pour le produit {product.name}. Stock actuel : {product.qty_available}")
+
+        # Crée le congélateur pour le client
+        record = super().create(vals)
+
+        # Met à jour le stock du produit (déduit une unité pour chaque congélateur assigné)
+        product.qty_available -= 1
+        return record
