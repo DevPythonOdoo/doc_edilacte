@@ -127,7 +127,7 @@ class PartnerFreezer(models.Model):
     _description = 'Congélateur lié au client'
 
     product_id = fields.Many2one('product.product',string="Nom du Congélateur",domain=[('freezer', '=', True)],help="Sélectionner un produit marqué comme congélateur")
-    capacity = fields.Integer(string="Capacité", help="Capacité du congélateur en litres")
+    capacity = fields.Float(related='product_id.capacity',string="Capacité", help="Capacité du congélateur en litres")
     partner_id = fields.Many2one('res.partner', string="Client", ondelete='cascade')
     freezer_number = fields.Integer(string="Nombre de Congélateur", default=1)
     turnover = fields.Float(string="Chiffre d'affaire")
