@@ -1,3 +1,5 @@
+from odoo.tools import float_is_zero
+
 from odoo.exceptions import UserError
 
 from odoo import models, fields, api,_,exceptions
@@ -24,6 +26,11 @@ class Partner(models.Model):
     supplier_type = fields.Selection(string='Catégorie Fournisseur',selection=[('national', 'National'), ('international', 'International')])
     delivery_person = fields.Boolean(string='Livreur', default=True)
     freezer_ids = fields.One2many('partner.freezer', 'partner_id', string="Congélateurs")
+    nbre = fields.Integer(string='Nbre Congelateur', compute="_compute_freezer",required=False)
+
+    def _compute_freezer(self):
+        for rec in self:
+            rec.nbre = len(rec.freezer_ids)
 
     @api.depends('parent_id')
     def _compute_team_id(self):
@@ -119,23 +126,116 @@ class PartnerFreezer(models.Model):
     _name = 'partner.freezer'
     _description = 'Congélateur lié au client'
 
-    product_id = fields.Many2one('product.template',string="Nom du Congélateur", domain=[('freezer', '=', True)],help="Sélectionner un produit marqué comme congélateur")
+    product_id = fields.Many2one('product.product',string="Nom du Congélateur",domain=[('freezer', '=', True)],help="Sélectionner un produit marqué comme congélateur")
     capacity = fields.Integer(string="Capacité", help="Capacité du congélateur en litres")
     partner_id = fields.Many2one('res.partner', string="Client", ondelete='cascade')
-    freezer_number = fields.Integer(string="Nombre de Congélateur")
+    freezer_number = fields.Integer(string="Nombre de Congélateur", default=1)
     turnover = fields.Float(string="Chiffre d'affaire")
 
-    @api.model
-    def create(self, vals):
-        # Vérifie le produit et la quantité disponible
-        product = self.env['product.product'].browse(vals['product_id'])
-
-        if product.qty_available < 1:
-            raise UserError(f"Stock insuffisant pour le produit {product.name}. Stock actuel : {product.qty_available}")
-
-        # Crée le congélateur pour le client
-        record = super().create(vals)
-
-        # Met à jour le stock du produit (déduit une unité pour chaque congélateur assigné)
-        product.qty_available -= 1
-        return record
+#     @api.model
+#     def create(self, vals):
+#         product = self.env['product.product'].browse(vals['product_id'])
+#         freezer_qty = vals.get('freezer_number', 1)  # Utilise freezer_number pour la quantité
+#
+#         # Vérifie si la quantité disponible est suffisante
+#         if product.qty_available < freezer_qty:
+#             raise UserError(f"Stock insuffisant pour le produit {product.name}. Stock actuel : {product.qty_available}")
+#
+#         # Emplacements source et destination explicites
+#         location_id = self.env['stock.location'].search([('complete_name', '=', 'WH/Stock')], limit=1)
+#         location_dest_id = self.env['stock.location'].search([('complete_name', '=', 'Partners/Vendors')], limit=1)
+#         if not location_id:
+#             raise UserError("L'emplacement 'WH/STOCK' n'a pas été trouvé.")
+#
+#         picking_type_out = self.env.ref('stock.picking_type_out')  # Type de picking de sortie
+#         picking = self.env['stock.picking'].create({
+#             'partner_id': vals['partner_id'],
+#             'picking_type_id': picking_type_out.id,
+#             'location_id': location_id.id,
+#             'location_dest_id': location_dest_id.id,
+#         })
+#
+#         # Crée un mouvement de stock en état brouillon (sortie)
+#         stock_move = self.env['stock.move'].create({
+#             'name': f'Affectation de {freezer_qty} congélateur(s) {product.name} au client {vals["partner_id"]}',
+#             'product_id': product.id,
+#             'product_uom_qty': freezer_qty,
+#             'product_uom': product.uom_id.id,
+#             'location_id': location_id.id,  # Emplacement source (stock)
+#             'location_dest_id': location_dest_id.id,
+#             'state': 'draft',
+#             'picking_id': picking.id, # Démarre en état brouillon
+#         })
+#
+#         # Confirme et effectue le mouvement
+#
+#         picking.button_validate_test()
+#
+#         # Crée le congélateur pour le client après le mouvement de stock
+#         record = super().create(vals)
+#
+#         return record
+#
+# class Stock(models.Model):
+#     _inherit = 'stock.picking'
+#
+#     def button_validate_test(self):
+#         draft_picking = self.filtered(lambda p: p.state == 'draft')
+#         draft_picking.action_confirm()
+#         for move in draft_picking.move_ids:
+#             if float_is_zero(move.quantity, precision_rounding=move.product_uom.rounding) and\
+#                not float_is_zero(move.product_uom_qty, precision_rounding=move.product_uom.rounding):
+#                 move.quantity = move.product_uom_qty
+#
+#         # Sanity checks.
+#         if not self.env.context.get('skip_sanity_check', False):
+#             self._sanity_check()
+#         self.message_subscribe([self.env.user.partner_id.id])
+#
+#         # Run the pre-validation wizards. Processing a pre-validation wizard should work on the
+#         # moves and/or the context and never call `_action_done`.
+#         if not self.env.context.get('button_validate_picking_ids'):
+#             self = self.with_context(button_validate_picking_ids=self.ids)
+#         res = self._pre_action_done_hook()
+#         if res is not True:
+#             return res
+#
+#         # Call `_action_done`.
+#         pickings_not_to_backorder = self.filtered(lambda p: p.picking_type_id.create_backorder == 'never')
+#         if self.env.context.get('picking_ids_not_to_backorder'):
+#             pickings_not_to_backorder |= self.browse(self.env.context['picking_ids_not_to_backorder']).filtered(
+#                 lambda p: p.picking_type_id.create_backorder != 'always'
+#             )
+#         pickings_to_backorder = self - pickings_not_to_backorder
+#         pickings_not_to_backorder.with_context(cancel_backorder=True)._action_done()
+#         pickings_to_backorder.with_context(cancel_backorder=False)._action_done()
+#         report_actions = self._get_autoprint_report_actions()
+#         another_action = False
+#         if self.user_has_groups('stock.group_reception_report'):
+#             pickings_show_report = self.filtered(lambda p: p.picking_type_id.auto_show_reception_report)
+#             lines = pickings_show_report.move_ids.filtered(lambda m: m.product_id.type == 'product' and m.state != 'cancel' and m.quantity and not m.move_dest_ids)
+#             if lines:
+#                 # don't show reception report if all already assigned/nothing to assign
+#                 wh_location_ids = self.env['stock.location']._search([('id', 'child_of', pickings_show_report.picking_type_id.warehouse_id.view_location_id.ids), ('usage', '!=', 'supplier')])
+#                 if self.env['stock.move'].search([
+#                         ('state', 'in', ['confirmed', 'partially_available', 'waiting', 'assigned']),
+#                         ('product_qty', '>', 0),
+#                         ('location_id', 'in', wh_location_ids),
+#                         ('move_orig_ids', '=', False),
+#                         ('picking_id', 'not in', pickings_show_report.ids),
+#                         ('product_id', 'in', lines.product_id.ids)], limit=1):
+#                     action = pickings_show_report.action_view_reception_report()
+#                     action['context'] = {'default_picking_ids': pickings_show_report.ids}
+#                     if not report_actions:
+#                         return action
+#                     another_action = action
+#         if report_actions:
+#             return {
+#                 'type': 'ir.actions.client',
+#                 'tag': 'do_multi_print',
+#                 'params': {
+#                     'reports': report_actions,
+#                     'anotherAction': another_action,
+#                 }
+#             }
+#         return True

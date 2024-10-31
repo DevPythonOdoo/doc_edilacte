@@ -2,6 +2,7 @@
 <odoo>
     <data>
 
+
         <record id="product_list_state" model="ir.ui.view">
             <field name="name">product.list.state</field>
             <field name="model">product.pricelist</field>
@@ -77,7 +78,7 @@
                     <field name="common_id" invisible="supplier_rank > 0" domain="[('area_id' ,'=', area_id)]"
                            options="{'no_create': True, 'no_edit': True}" required="1"/>
                     <field name="neighborhood_id" invisible="supplier_rank > 0" domain="[('common_id' ,'=', common_id)]"
-                           options="{'no_create': True, 'no_edit': True}" required="1"/>
+                           options="{'no_create': True, 'no_edit': True}" required="0"/>
 
                     <field name="zip" string="Adresse Postal" class="o_address_zip"
                            readonly="type == 'contact' and parent_id" invisible="supplier_rank > 0"/>
@@ -598,16 +599,12 @@
                                 <field name="freezer_ids">
                                     <tree string="Congélateurs" editable="top">
                                         <field name="product_id" domain="[('freezer', '=', True)]"/>
-                                        <field name="freezer_number"/>
                                         <field name="capacity"/>
-                                        <field name="turnover"/>
                                     </tree>
                                     <form string="Congélateur">
                                         <group>
                                             <field name="product_id"/>
-                                            <field name="freezer_number" sum="Total"/>
                                             <field name="capacity" sum="Total"/>
-                                            <field name="turnover" sum="Total"/>
                                         </group>
                                     </form>
                                 </field>
@@ -621,17 +618,48 @@
         <record id="view_partner_tree_inherited" model="ir.ui.view">
             <field name="name">res.partner.tree.inherit.freezer</field>
             <field name="model">res.partner</field>
-            <field name="inherit_id" ref="base.view_partner_tree"/>
+            <field name="inherit_id" ref="edilac.view_customer_edilac_tree"/>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='company_id']" position="after">
-                    <field name="freezer_ids" widget="one2many_list" context="{'default_partner_id': id}">
-                        <tree>
-                            <field name="product_id" string="Nom du Congélateur"/>
-                            <field name="capacity" string="Capacité (L)"/>
-                        </tree>
-                    </field>
+                            <field name="nbre"/>
                 </xpath>
             </field>
+        </record>
+
+        <!-- Vue Liste des Congélateurs -->
+        <record id="view_partner_freezer_tree" model="ir.ui.view">
+            <field name="name">partner.freezer.tree</field>
+            <field name="model">partner.freezer</field>
+            <field name="arch" type="xml">
+                <tree string="Congélateurs">
+                    <field name="product_id"/>
+                    <field name="capacity"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Vue Formulaire des Congélateurs -->
+        <record id="view_partner_freezer_form" model="ir.ui.view">
+            <field name="name">partner.freezer.form</field>
+            <field name="model">partner.freezer</field>
+            <field name="arch" type="xml">
+                <form string="Détails du Congélateur">
+                    <sheet>
+                        <group>
+                            <field name="product_id"/>
+                            <field name="capacity"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Action pour accéder aux Congélateurs -->
+        <record id="action_partner_freezer" model="ir.actions.act_window">
+            <field name="name">Congélateurs</field>
+            <field name="res_model">partner.freezer</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="view_partner_freezer_tree"/>
         </record>
 
 
@@ -685,6 +713,7 @@
             </field>
         </record>
 
+
         <menuitem name="Région" id="region_menu" parent="contacts.res_partner_menu_config" action="region_view_action"
                   sequence="1" groups="edilac.group_edilac_manager"/>
 
@@ -715,5 +744,8 @@
         <menuitem name="Fournisseur" id="vendor2_menu" parent="purchase.menu_procurement_management"
                   action="action_vendor" sequence="15"/>
 
+        <!-- This Menu Item must have a parent and an action -->
+        <menuitem id="menu_partner_freezer" name="Affectation" parent="menu_product_parent_freezer" action="action_partner_freezer" sequence="2"/>
+         <!-- Menu pour accéder à l'action -->
     </data>
 </odoo>

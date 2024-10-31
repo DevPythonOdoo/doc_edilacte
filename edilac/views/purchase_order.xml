@@ -315,9 +315,11 @@
                   action="account.action_move_out_invoice_type" sequence="6"/>
         <menuitem id="menu_Relance" name="Rélances Clients" parent="crm.crm_menu_sales"
                   action="account_followup.action_view_list_customer_statements" sequence="7"/>
+        <!-- This Menu Item Must have a parent -->
+        <menuitem id="menu_product_parent_freezer" name="Gestion des congélateurs" parent="sale.sale_menu_root" sequence="10"/>
         <!-- Menu pour accéder à la vue des congélateurs -->
-        <menuitem id="menu_product_freezer" name="Congélateurs" parent="sale.sale_menu_root"
-                  action="action_product_freezer" sequence="10"/>
+        <menuitem id="menu_product_freezer" name="Congélateurs" parent="menu_product_parent_freezer"
+                  action="action_product_freezer" sequence="1"/>
 
     </data>
 </odoo>
