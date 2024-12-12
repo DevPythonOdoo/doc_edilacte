@@ -119,7 +119,7 @@
             <field name="inherit_id" ref="stock_picking_batch.stock_picking_batch_form"/>
             <field name="priority" eval="1"/>
             <field name="arch" type="xml">
-                
+
                 <xpath expr="//button[@name='action_print']" position="replace">
                      <button name="action_print" invisible="1" string="Imprimer BP" type="object"/>
                   
