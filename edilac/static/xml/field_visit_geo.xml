@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="assets_backend" name="Field Visit Geo JS" inherit_id="web.assets_backend">
+            <xpath expr="." position="inside">
+                <script type="module" src="/edilac/static/js/field_visit_geo.js"/>
+            </xpath>
+        </template>
+    </data>
+</odoo>

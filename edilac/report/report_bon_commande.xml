@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="report_bon_commande" model="ir.actions.report">
+        <field name="name">Bon de Commande</field>
+        <field name="model">stock.picking.batch</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">edilac.report_bon_commande_documents</field>
+        <field name="report_file">edilac.report_bon_commande_documents</field>
+        <field name="print_report_name">'Bon de Commande - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="model_stock_picking_batch"/>
+        <field name="binding_type">report</field>
+    </record>
+    <template id="report_bon_commande_documents">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.internal_layout">
+                    <div class="page" style="font:13px">
+                        <!-- <h5 class="text-center">
+                            <strong>
+                                <span>BON DE PREPARATION :</span>
+                                <span t-field="o.name"/>
+                            </strong>
+                        </h5>
+                        <div class="row mt-3">
+                            <div class="col-6 text-left">
+                                <strong><span>Livreur: </span></strong>
+                                <span t-field="o.deliv_personn"/>
+                            </div>
+                            <div class="col-6 text-right">
+                                <strong><span>Camion: </span></strong>
+                                <span t-field="o.fleet_vehicle_id"/>
+                            </div>
+                            <br/><br/>
+                        </div>
+                        <br/><br/>
+                        
+                        <table class="table table-sm o_main_table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th name="th_sm_product">
+                                        <strong>Produits</strong>
+                                    </th>
+                                    <th name="th_sm_product">
+                                        <strong>N° Lot</strong>
+                                    </th>
+                                
+                                    <th name="th_sm_ordered" class="text-center">
+                                        <strong>Quantités</strong>
+                                    </th>
+                                </tr>
+                            </thead>
+                           
+                            <tbody>
+                                <t t-set="total" t-value="0"/>
+                                <t t-foreach="o.group_products_and_quantities()" t-as="product_data">
+                                    <t t-set="total" t-value="total + product_data['total_quantity']"/>
+                                    <tr>
+                                        <td>
+                                            <span t-esc="product_data['product_name']"/>
+                                        </td>
+                                        <td>
+                                            <span t-esc="product_data['lot_name']"/>
+                                        </td>
+                                        <td class="text-center">
+                                            <span t-esc="product_data['total_quantity']" t-options="{'widget': 'float', 'precision': 2}"/>
+                                        </td>
+                                    </tr>
+                                    
+                                </t>
+                                <tr>
+                                    <td class="text-center" colspan="2"><strong>TOTAL</strong></td>
+                                    <td class="text-center"><span t-esc="total" t-options="{&quot;widget&quot;: &quot;float&quot;, &quot;precision&quot;: 0}"/></td>
+                                </tr>
+
+                            </tbody>
+                            
+                        </table>
+                        
+                        
+                        <p style="page-break-after: always;"/> -->
+
+                        <h5 class="text-center">
+                            <strong>
+                                <span>Bon de Commande </span>
+                                <!-- <span t-field="o.name"/> -->
+                            </strong>
+                        </h5>
+                        <div class="row mt-3">
+                            <div class="col-6 text-left">
+                                <strong><span>Livreur: </span></strong>
+                                <span t-field="o.deliv_person_id"/>
+                            </div>
+                            <div class="col-6 text-right">
+                                <strong><span>Camion: </span></strong>
+                                <span t-field="o.fleet_vehicle_id"/>
+                            </div>
+                            <br/><br/>
+                        </div>  
+                        <br/><br/>  
+                        <!-- <div class="row">
+                            <div class="col-4">
+                                <strong>Commande :</strong> <span t-field="o.name"/>
+                            </div>
+                            <div class="col-4">
+                                <strong>Date Prévue :</strong> <span t-field="o.scheduled_date"/>
+                            </div>
+                            <div class="col-4">
+                                <strong>Client :</strong> <span t-field="o.partner_id.display_name"/>
+                            </div>
+                        </div> -->
+                        <div class="oe_structure"/> 
+                        <t t-foreach="o.picking_ids" t-as="pickings">  
+                            <t t-if="pickings != o.picking_ids[0]">
+                                <div style="page-break-before: always;"></div>
+                            </t>
+                            <div class="row mt-3">      
+                                <div class="col-6 text-left">
+                                    <strong><span>Client: </span></strong>
+                                    <span t-field="pickings.partner_id"/>
+                                </div>
+                                <div class="col-6 text-left">
+                                    <div>
+                                        <strong><span>BC: </span></strong>
+                                        <span t-field="pickings.origin"/>
+                                    
+                                    </div>
+                                    <div>
+                                        <strong><span>Date: </span></strong>
+                                        <span t-field="pickings.scheduled_date"/>
+                                    </div>
+                                </div>          
+                                
+                                <br/><br/>
+                            </div> 
+                            <br/><br/>
+                            <table class="table table-sm o_main_table table-bordered">
+                                <thead>
+                                    <tr>
+
+                                        <th name="th_sm_product">
+                                            <strong>PRODUITS</strong>
+                                        </th>
+                                        <th name="th_sm_product">
+                                            <strong>COLISAGE</strong>
+                                        </th>
+                                        <th name="th_sm_ordered" class="text-center">
+                                            <strong>QTY</strong>
+                                        </th>
+                                        <th name="th_sm_product">
+                                            <strong>PRIX UNITAIRE</strong>
+                                        </th>
+                                        
+                                        <th name="th_sm_ordered" class="text-center">
+                                            <strong>MONTANT</strong>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                   
+                                    <t t-set="total" t-value="0"/>
+                                    <t t-set="total_amount" t-value="0"/>
+                                    <t t-set="total_ht" t-value="0"/>
+                                    <t t-set="amount_tax" t-value="0"/>
+                                    <t t-set="TTC" t-value="0"/>
+                                    
+                                    <t t-foreach="pickings.move_line_ids" t-as="lines">
+                                        <t t-set="total_qty" t-value="0"/>
+                                        <t t-set="unit" t-value="0"/>
+                                        <t t-set="colissage" t-value="0"/>
+                                        <t t-set="nb_pc_crt" t-value="0"/>
+                                        <t t-set="total_qty" t-value="total_qty + lines.quantity"/>
+                                        <t t-set="unit" t-value="unit + lines.price_unit"/>
+                                        <t t-set="nb_pc_crt" t-value="nb_pc_crt + lines.product_id.nbm_pc_crt"/>
+                                        <t t-set="total" t-value="total + total_qty"/>
+                                        <t t-set="total_amount" t-value="total_qty * unit"/>
+                                        <t t-set="colisage" t-value="nb_pc_crt * lines.quantity"/>
+                                        <t t-set="total_ht" t-value="total_ht + total_amount"/>
+                                        <t t-set="amount_tax" t-value="amount_tax + lines.taxes"/>
+                                        <t t-set="TTC" t-value="total_ht + amount_tax"/>
+                                        <t t-set="tax" t-value="lines.tax_percent"/>
+                                        <tr>
+                                            <td class="text-left"><span t-field="lines.product_id.display_name"/></td>
+                                            <td class="text-center"><span t-esc="colisage" t-options="{&quot;widget&quot;: &quot;float&quot;, &quot;precision&quot;: 0}"/></td>
+                                            <td class="text-center"><span t-esc="total_qty" t-options="{&quot;widget&quot;: &quot;float&quot;, &quot;precision&quot;: 0}"/></td>
+                                            <td class="text-center"><span t-esc="unit" t-options="{'widget': 'monetary', 'display_currency': lines.currency_id}"/></td>
+                                            <td class="text-center"><span t-esc="total_amount" t-options="{'widget': 'monetary', 'display_currency': lines.currency_id}"/></td>
+                                            
+                                        </tr>
+                                    </t>
+                            
+                                </tbody>
+                                <br/><br/>
+                                <tr>
+                                   
+                                    <td style="visibility: hidden;"></td>
+                                    <td style="visibility: hidden;"></td>
+                                    <td style="visibility: hidden;"></td>
+                                    <td class="text-center"><strong>Montant HT </strong></td>
+                                    <td class="text-center"><span t-esc="total_ht" t-options="{'widget': 'monetary', 'display_currency': lines.currency_id}"/></td>
+                                </tr>
+                               
+                                <tr>
+                                    <td style="visibility: hidden;"></td>
+                                    <td style="visibility: hidden;"></td>
+                                    <td style="visibility: hidden;"></td>
+                                    <td class="text-center">
+                                        <strong>Taxe (<t t-esc="lines.tax_percent"/>)</strong>
+                                    </td>
+                                    <td class="text-center">
+                                        <span t-esc="amount_tax" t-options="{'widget': 'monetary', 'display_currency': lines.currency_id}"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="visibility: hidden;"></td>
+                                    <td style="visibility: hidden;"></td>
+                                    <td style="visibility: hidden;"></td>
+                                    <td class="text-center"><strong>Total TTC </strong></td>
+                                    <td class="text-center"><span t-esc="TTC" t-options="{'widget': 'monetary', 'display_currency': lines.currency_id}"/></td>
+                                </tr>
+                            </table>            
+                     
+                            
+                            <br/><br/>
+                        </t>
+
+                        <br/><br/>
+                        <div class="row">
+                            <div class="text-right col-6">
+                                <strong>Le livreur</strong>
+                            </div>
+                            <div class="text-left col-6">
+                                <strong>Le Client</strong>
+                            </div>
+                        </div>
+                    
+                    </div>
+                </t>
+            </t>
+        </t>    
+
+    </template>
+</odoo>

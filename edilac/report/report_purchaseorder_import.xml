@@ -1,0 +1,177 @@
+<odoo>
+    <record id="report_purchase_quotation_import" model="ir.actions.report">
+        <field name="name">Bon de commande fournisseur inter.</field>
+        <field name="model">purchase.order</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">edilac.report_purchasequotation_document_import</field>
+        <field name="report_file">edilac.report_purchasequotation_document_import</field>
+        <field name="print_report_name">'Request for Quotation - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="model_purchase_order"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_purchasequotation_document_import">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <t t-set="o" t-value="o.with_context(lang=o.partner_id.lang)"/>
+                    <t t-set="forced_vat" t-value="o.fiscal_position_id.foreign_vat"/>
+                    <t t-set="address">
+                        <div t-if="o and o.partner_id" t-field="o.partner_id"
+                             t-options='{"widget": "contact", "fields": ["address", "name", "phone", "vat"], "no_marker": True, "phone_icons": True}'/>
+                    </t>
+                    <!-- Adresse de destination -->
+                    <t t-if="o.dest_address_id">
+                        <t t-set="information_block">
+                            <strong>Shipping address:</strong>
+                            <div t-field="o.dest_address_id"
+                                 t-options='{"widget": "contact", "fields": ["address", "name", "phone"], "no_marker": True, "phone_icons": True}'
+                                 name="purchase_shipping_address"/>
+                        </t>
+                    </t>
+
+                    <div class="page">
+                        <div class="oe_structure"/>
+
+                        <div class="mt-4">
+                            <h2 t-if="o.state in ['draft', 'sent', 'to approve']">Demande de prix Inter. #
+                                <span t-field="o.name"/>
+                            </h2>
+                            <h2 t-if="o.state in ['purchase', 'done']">Bon de commande inter. #
+                                <span t-field="o.name"/>
+                            </h2>
+                            <h2 t-if="o.state == 'cancel'">Commande annulée #
+                                <span t-field="o.name"/>
+                            </h2>
+                        </div>
+                        <div id="informations" class="row mt-4 mb32">
+                            <div t-if="o.user_id" class="col-3 bm-2">
+                                <strong>Représentant des Achats:</strong>
+                                <p t-field="o.user_id" class="m-0"/>
+                            </div>
+                            <div t-if="o.partner_ref" class="col-3 bm-2">
+                                <strong>Référence de Commande:</strong>
+                                <p t-field="o.partner_ref" class="m-0"/>
+                            </div>
+                            <div t-if="o.state in ['purchase','done'] and o.date_approve" class="col-3 bm-2">
+                                <strong>Date de Commande:</strong>
+                                <p t-field="o.date_approve" class="m-0"/>
+                            </div>
+                            <div t-elif="o.date_order" class="col-3 bm-2">
+                                <strong>Date limite de Commande:</strong>
+                                <p t-field="o.date_order" class="m-0"/>
+                            </div>
+                        </div>
+                        <table class="table table-sm mt-4">
+                            <thead style="display: table-row-group">
+                                <tr>
+                                    <th name="th_description">
+                                        <strong>Description</strong>
+                                    </th>
+                                    <th name="th_qte_palet">
+                                        <strong>Palette</strong>
+                                    </th>
+                                    <th name="th_quantity" class="text-end">
+                                        <strong>Commandés</strong>
+                                    </th>
+                                    <th name="th_subtotal" class="text-end">
+                                        <strong>Montant</strong>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="current_subtotal" t-value="0"/>
+                                <t t-set="total_qte_palet" t-value="0"/>
+                                <t t-set="total_product_qty" t-value="0"/>
+                                <t t-foreach="o.order_line" t-as="line">
+                                    <t t-set="current_subtotal" t-value="current_subtotal + line.price_subtotal"/>
+                                    <t t-set="total_qte_palet" t-value="total_qte_palet + line.qte_palet"/>
+                                    <t t-set="total_product_qty" t-value="total_product_qty + line.product_qty"/>
+
+                                    <tr t-att-class="'bg-200 fw-bold o_line_section' if line.display_type == 'line_section' else 'fst-italic o_line_note' if line.display_type == 'line_note' else ''">
+                                        <t t-if="not line.display_type">
+                                            <td id="product">
+                                                <span t-field="line.name"/>
+                                            </td>
+                                            <td name="td_qte_palet" class="text-end">
+                                                <span t-field="line.qte_palet"/>
+                                            </td>
+                                            <td class="text-end">
+                                                <span t-field="line.product_qty"/>
+                                                <span t-field="line.product_uom.name" groups="uom.group_uom"/>
+                                                <span t-if="line.product_packaging_id">
+                                                    (
+                                                    <span t-field="line.product_packaging_qty"
+                                                          t-options='{"widget": "integer"}'/>
+                                                    <span t-field="line.product_packaging_id"/>)
+                                                </span>
+                                            </td>
+                                            <td class="text-end">
+                                                <span t-field="line.price_subtotal"
+                                                      t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                            </td>
+                                        </t>
+                                        <t t-if="line.display_type == 'line_section'">
+                                            <td colspan="99" id="section">
+                                                <span t-field="line.name"/>
+                                            </td>
+                                            <t t-set="current_section" t-value="line"/>
+                                            <t t-set="current_subtotal" t-value="0"/>
+                                        </t>
+                                        <t t-if="line.display_type == 'line_note'">
+                                            <td colspan="99" id="note">
+                                                <span t-field="line.name"/>
+                                            </td>
+                                        </t>
+                                    </tr>
+                                    <t t-if="current_section and (line_last or o.order_line[line_index+1].display_type == 'line_section')">
+                                        <tr class="is-subtotal text-end">
+                                            <td colspan="99" id="subtotal">
+                                                <strong class="mr16">Sous total</strong>
+                                                <span
+                                                        t-esc="current_subtotal"
+                                                        t-options='{"widget": "monetary", "display_currency": o.currency_id}'
+                                                />
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </t>
+                            </tbody>
+                            <tfoot>
+                                <tr class='bg-200 fw-bold o_line_section'
+                                    style="border: 2px solid #000;background:#F4C10B">
+                                    <td name="total">
+                                        <strong>Total</strong>
+                                    </td>
+                                    <td class="text-end">
+                                        <span t-esc="total_qte_palet"/>
+                                    </td>
+                                    <td class="text-end">
+                                        <span t-esc="total_product_qty"/>
+                                    </td>
+                                    <td/>
+                                </tr>
+                            </tfoot>
+                        </table>
+                        <div id="total" class="row justify-content-end">
+                            <div class="col-4">
+                                <table class="table table-sm table-borderless">
+                                    <t t-set="tax_totals" t-value="o.tax_totals"/>
+                                    <t t-call="purchase.document_tax_totals"/>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+    <template id="report_import">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="purchase.report_purchasequotation_document_import" t-lang="o.partner_id.lang"/>
+            </t>
+        </t>
+    </template>
+</odoo>
