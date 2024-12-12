@@ -1,59 +1,51 @@
 <odoo>
-    <record id="view_field_visit_form_with_qr_scan" model="ir.ui.view">
-        <field name="name">view.field.visit.form.qr.scan</field>
-        <field name="model">field.visit</field>
-        <field name="inherit_id" ref="edilac.field_visit_form_view" /> <!-- Assurez-vous que l'ID "edilac.field_visit_form_view" existe -->
+    <record id="view_field_visit_wizard_form" model="ir.ui.view">
+        <field name="name">field.visit.wizard.form</field>
+        <field name="model">field.visit.wizard</field>
         <field name="arch" type="xml">
-            <!-- Ajouter la section pour les éléments de scannage -->
-            <xpath expr="//sheet/group" position="inside">
+            <form string="Créer une Visite Terrain">
                 <group>
-                    <field name="scanned_qr_code" placeholder="Scan QR Code" />
-                    <button name="open_field_visit_form" string="Start Scanning" type="object" class="btn-primary" />
+                    <group string="INFORMATION CLIENT">
+                        <field name="customer_id" domain="[('customer_profil', '=', 'on')]"
+                               force_save="1"/>
+                        <field name="customer_number"/>
+                        <field name="customer_email"/>
+                        <field name="geolocation_position" widget="map"/>
+                    </group>
+                    <group string="DETAIL CONGÉLATEUR">
+                        <field name="lot_id"/>
+                        <field name="product_id" domain="[('freezer','=', True)]"/>
+                        <field name="freezer_capacity"/>
+                    </group>
+                    <group string="ETAT CONGÉLATEUR">
+                        <field name="date_visit"/>
+                        <field name="freezer_condition" widget="radio" options="{'horizontal': True}"
+                        />
+                        <field name="order" widget="radio" options="{'horizontal': True}"/>
+                        <field name="dlv" widget="radio" options="{'horizontal': True}"/>
+                        <field name="products_present" widget="radio" options="{'horizontal': True}"
+                        />
+                        <field name="storage"/>
+                        <field name="observation"/>
+                        <separator string="Plus d'informations"/>
+                        <field name="note"/>
+                    </group>
                 </group>
-            </xpath>
-
-            <!-- Ajout avant la section principale -->
-            <xpath expr="//sheet" position="before">
-                <div class="oe_edit_only">
-                    <!-- Boutons de démarrage et d'arrêt -->
-                    <div>
-                        <a role="button"
-                           class="btn btn-primary"
-                           id="js_id_field_visit_start_btn"
-                           style="color: #fff; border-radius: 0px; margin-bottom: 5px; margin-right: 5px;">
-                            <i class="fa fa-barcode"></i> Start Scanning
-                        </a>
-                        <a role="button"
-                           class="btn btn-danger"
-                           id="js_id_field_visit_stop_btn"
-                           style="display: none; color: #fff; border-radius: 0px; margin-bottom: 5px; margin-right: 5px;">
-                            <i class="fa fa-barcode"></i> Stop
-                        </a>
-                    </div>
-
-                    <!-- Sélection de la caméra et flux vidéo -->
-                    <div id="js_id_field_visit_video_div" style="display: none; margin-top: 1rem;">
-                        <div class="row align-items-center mb-3">
-                            <div class="col-2">
-                                <label><strong>Camera</strong></label>
-                            </div>
-                            <div class="col-10">
-                                <select id="js_id_field_visit_camera_select" class="form-control"/>
-                            </div>
-                        </div>
-
-                        <!-- Vidéo pour le flux de la caméra -->
-                        <video id="field_visit_video" class="cls_video_tag"
-                               width="600" height="400" style="border: 1px solid gray;">
-                        </video>
-
-                        <div style="margin-top: 10px;">
-                            <span>Result:</span>
-                            <code id="js_id_field_visit_result"></code>
-                        </div>
-                    </div>
-                </div>
-            </xpath>
+                <footer>
+                    <button string="Créer Visite" type="object" name="action_create_field_visit" class="btn-primary"/>
+                    <button string="Annuler" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
         </field>
     </record>
+
+    <record id="action_field_visit_wizard" model="ir.actions.act_window">
+        <field name="name">Créer Visite Terrain</field>
+        <field name="res_model">field.visit.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+<!--    <menuitem name="Fiche de Visite" id="menu_field_visit2" action="action_field_visit_wizard"/>-->
+
 </odoo>

@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record model="ir.ui.view" id="assignment_assignment_vieww">
+            <field name="name">assignment.assignment.form</field>
+            <field name="model">assignment.assignment</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form>
+                    <p class="oe_grey">
+                        Les livraisons peuvent être reparties selon 2 critères.
+                        - Par Clients
+                        - Par Zones
+                        - Par Communes
+                        - Par Quartier
+                        Veuillez choisir vos critères!
+                    </p>
+                    <group>
+                        <field name="criteria" widget="radio" options="{'horizontal': True}"/>
+                    </group>
+                    
+                    <group>
+                        <group>
+                            
+                            <field name="contacts_ids"  context="{'default_id': related_delivery_ids.partner_id}" invisible="criteria != 'customer'" domain="[('customer_rank', '&gt;', 0),('delivery_person', '=', False),('contact_select', '=', True)]" options="{'no_create':True}" edit="1" widget="many2many_tags"/>
+                            <field name="area_ids" invisible="criteria != 'area'" domain="[('contact_select', '=', True)]" options="{'no_create':True}" edit="1" widget="many2many_tags"/>
+                            <field name="common_ids" invisible="criteria != 'common'" domain="[('contact_select', '=', True)]" options="{'no_create':True}" edit="1" widget="many2many_tags"/>
+                            <field name="neighborhood_ids" invisible="criteria != 'neighborhood'" domain="[('contact_select', '=', True)]" options="{'no_create':True}" edit="1" widget="many2many_tags"/>
+                            <field name="related_delivery_ids" invisible="1"/>
+                            <field name="related_area_ids" invisible="1"/>
+                            <field name="related_common_ids" invisible="1"/>
+                            <field name="related_neigh_ids" invisible="1"/>
+                            
+                        </group>
+                        
+                        <group>
+                            <field name="delivery_agent_id" force_save="1" required="1" options="{'no_create':True}" invisible="0"/>
+                            <field name="fleet_vehicle_id" required="1"/>
+                            <field name="company_id" invisible="0" required="1"/>
+
+                        </group>
+                    </group>       
+                    <notebook>
+                        <page string="Clients" invisible="1">
+                            <field name="order_selected_ids" nolabel="1">
+                                <tree create="0" editable="bottom">
+                                    <field name="delivery_id" column_invisible="1"/>
+                                    <field name="contact_select_wz" column_invisible="1"/>
+                                    <field name="date"/>    
+                                    <field name="ref"/>    
+                                    <field name="contact_id"/>    
+                                    <field name="area_id"/>    
+                                    <field name="common_id"/>    
+                                    <field name="neighborhood_id"/>    
+                                    <field name="source"/>    
+                                    <field name="person_id"/>    
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Zones" invisible="1">
+                            <field name="area_select_ids" nolabel="1">
+                                <tree create="0" editable="bottom">
+                                    <field name="delivery_id" column_invisible="1"/>
+                                    <field name="contact_select_wz" column_invisible="1"/>
+                                    <field name="date" column_invisible="1"/>    
+                                    <field name="ref" column_invisible="1"/>
+                                    <field name="source" column_invisible="1"/>
+                                        
+                                    <field name="area_id"/>    
+                                      
+                                    <field name="person_id" column_invisible="1"/>    
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Communes" invisible="1">
+                            <field name="common_selected_ids" nolabel="1">
+                                <tree create="0" editable="bottom">
+                                    <field name="delivery_id" column_invisible="1"/>
+                                    <field name="contact_select_wz" column_invisible="1"/>
+                                    <field name="date" column_invisible="1"/>    
+                                    <field name="ref" column_invisible="1"/>   
+                                    <field name="common_id"/>    
+                                    <field name="source" column_invisible="1"/>
+                                    <field name="person_id" column_invisible="1"/>    
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Quartier" invisible="1">
+                            <field name="neighborhood_selected_ids" nolabel="1">
+                                <tree create="0"  editable="bottom">
+                                    <field name="delivery_id" column_invisible="1"/>
+                                    <field name="contact_select_wz" column_invisible="1"/>
+                                    <field name="date" column_invisible="1"/>    
+                                    <field name="ref" column_invisible="1"/>
+                                    <field name="source" column_invisible="1"/>
+                                    <field name="neighborhood_id"/>  
+                                    <field name="person_id"  column_invisible="1"/>    
+                                </tree>
+                            </field>
+                        </page>
+                        
+                    </notebook>
+
+                    <footer>
+                        <button name="action_assignments" class="btn-primary" type="object" string="Affecter"/>
+                        <button special="cancel" string="Annuler"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_assignments">
+            <field name="name">Affectation</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">assignment.assignment</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="view_id" ref="assignment_assignment_vieww"/>
+        </record>
+
+    </data>
+</odoo>

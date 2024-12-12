@@ -9,17 +9,22 @@
                 <!-- Remplacement du bouton de confirmation -->
                 <xpath expr="//header/button[@name='button_confirm']" position="replace">
                     <button name="button_action_submit" string="Soumettre" type="object" invisible="state not in ('draft')"/>
-                    <button name="button_action_validate" invisible="state not in ('submit','sent')" string="Confirmer la commande"
+                    <button name="button_action_validate" groups="edilac.group_edilac_respo" invisible="state not in ('submit','sent')" string="Confirmer la commande"
                             type="object" class="oe_highlight" context="{'validate_analytic': True}" id="bid_confirm" data-hotkey="q"/>
-                     <button name="button_cancel" invisible="state not in ('submit')" string="Annuler" type="object" data-hotkey="x"/>
+                     <button name="button_cancel" groups="edilac.group_edilac_respo,edilac.group_edilac_manager" invisible="state not in ('submit')" string="Annuler" type="object" data-hotkey="x"/>
                 </xpath>
                 <!-- Modification de l'attribut invisible -->
                 <xpath expr="//header/button[@name='button_confirm']" position="attributes">
                     <attribute name="invisible">True</attribute>
                 </xpath>
+
                 <xpath expr="//header/button[@name='action_rfq_send']" position="replace">
                     <button name="action_rfq_send" string="Envoyer un mail" type="object" class="btn-primary"
                             invisible="state not in ('sent','submit','approved')"/>
+                </xpath>
+
+                 <xpath expr="//header/button[@name='button_approve']" position="replace">
+                    <button name="button_approve" type="object" invisible="state != 'to approve'" string="Approuver la commande" class="oe_highlight" groups="edilac.group_edilac_manager" data-hotkey="z"/>
                 </xpath>
 
                 <!-- Remplacement du champ state avec widget statusbar -->
@@ -35,9 +40,9 @@
                     <field name="type" invisible="1"/>
                 </xpath>
 
-                <!-- <xpath expr="//field[@name='requisition_id']" position="attributes">
-                    <attribute name="string">Demande d'Achat</attribute>
-                </xpath> -->
+                <xpath expr="//field[@name='partner_ref']" position="attributes">
+                    <attribute name="required">True</attribute>
+                </xpath>
                 <!-- Modification du champ order_line pour le rendre readonly sous certaines conditions -->
                 <xpath expr="//field[@name='order_line']" position="attributes">
                     <field name="order_line" readonly="state in ['submit']"/>
@@ -60,12 +65,13 @@
 
                 <xpath expr="//field[@name='product_qty']" position="replace">
                     <!-- <field name="product_qty" string="Cartons Commandés" sum="Total Cartons Commandés"/> -->
-                    <field name="product_qty" string="Commandés" sum="Total Cartons Commandés"/>
+                    <field name="product_qty" string="Commandés" sum="Total Commandés"/>
                 </xpath>
 
                 <xpath expr="//field[@name='product_qty']" position="after">
                     <field name="type" optional="hide" invisible="1"/>
-                    <field name="qte_palet" required="type =='import'"  invisible="type =='local'" sum="Total des Palet/Qte" optional="show" string="Palet/Qte"/>
+                    <field name="product_id" optional="hide" invisible="1"/>
+                    <field name="qte_palet" required="type =='import'" readonly="type =='import' and product_id.freezer" invisible="type =='local'" sum="Total des Palet/Qte" optional="show" string="Palet/Qte"/>
 
                 </xpath>
 
@@ -118,7 +124,7 @@
                     <field name="activity_ids" widget="list_activity" optional="hide"/>
                     <field name="origin" optional="hide"/>
                     <field name="qte_palet" string="Total Palet" sum="Total Palet" optional="show"/>
-                    <field name="product_qty" string="Total Carton" sum="Total Carton" optional="show"/>
+                    <field name="product_qty" string="Total Commande" sum="Total Carton" optional="show"/>
                      <field name="company_currency_id" column_invisible="True"/>
                     <field name="total_amount_devise" widget="monetary"/>
                     <field name="amount_untaxed" sum="Total Untaxed amount" string="Untaxed" widget="monetary" optional="hide"/>
@@ -145,13 +151,52 @@
                 <xpath expr="//group/field[@name='palet']" position="after">
                     <field name="freezer" invisible="1"/>
                 </xpath>
-                <xpath expr="//group/field[@name='freezer']" position="after">
+                <!-- <xpath expr="//group/field[@name='freezer']" position="after">
+                    <field name="capacity" invisible="(freezer == False)"/>
+                </xpath> -->
+            </field>
+        </record>
+
+        <record id="product_product_only_form" model="ir.ui.view">
+            <field name="name">product.product.capacity.form</field>
+            <field name="model">product.product</field>
+            <field name="priority" eval="8"/>
+            <field name="inherit_id" ref="product.product_normal_form_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//group/field[@name='default_code']" position="after">
+                    <field name="freezer" invisible="1"/>
                     <field name="capacity" invisible="(freezer == False)"/>
                 </xpath>
             </field>
         </record>
 
+        <record id="product_product_easy_form" model="ir.ui.view">
+            <field name="name">product.easy.capacity.form</field>
+            <field name="model">product.product</field>
+            <field name="priority" eval="8"/>
+            <field name="inherit_id" ref="product.product_variant_easy_edit_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//group/field[@name='default_code']" position="after">
+                    <field name="freezer" invisible="1"/>
+                    <field name="capacity" invisible="(freezer == False)"/>
+                </xpath>
+            </field>
+        </record>
 
+         <record id="product_product_purchase_order_tree_local_form" model="ir.ui.view">
+            <field name="name">purchase_order_tree.local</field>
+            <field name="model">purchase.order</field>
+            <field name="priority" eval="8"/>
+            <field name="inherit_id" ref="purchase.purchase_order_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='state']" position="replace">
+                    <field name="state" optional="show" widget="badge" decoration-success="state == 'purchase' or state == 'done'" decoration-warning="state == 'to approve' or state == 'submit'" decoration-info="state == 'draft' or state == 'sent'"/>
+                </xpath>
+                <xpath expr="//field[@name='date_order']" position="replace">
+                    <field name="date_planned" optional="show"/>
+                </xpath>
+            </field>
+        </record>
 
 
         <record id="purchase_rfq_local" model="ir.actions.act_window">
@@ -285,14 +330,7 @@
         </record>
 
 
-        <!-- Action pour afficher les produits marqués comme congélateurs -->
-        <record id="action_product_freezer" model="ir.actions.act_window">
-            <field name="name">Congélateurs</field>
-            <field name="res_model">product.template</field>
-            <field name="view_mode">kanban,tree,form</field>
-            <field name="domain">[('freezer', '=', True)]</field>
-            <field name="context">{'default_freezer' : True}</field>
-        </record>
+       
 
         <!-- This Menu Item Must have a parent -->
 
@@ -315,11 +353,7 @@
                   action="account.action_move_out_invoice_type" sequence="6"/>
         <menuitem id="menu_Relance" name="Rélances Clients" parent="crm.crm_menu_sales"
                   action="account_followup.action_view_list_customer_statements" sequence="7"/>
-        <!-- This Menu Item Must have a parent -->
-        <menuitem id="menu_product_parent_freezer" name="Gestion des congélateurs" parent="sale.sale_menu_root" sequence="10"/>
-        <!-- Menu pour accéder à la vue des congélateurs -->
-        <menuitem id="menu_product_freezer" name="Congélateurs" parent="menu_product_parent_freezer"
-                  action="action_product_freezer" sequence="1"/>
+
 
     </data>
 </odoo>

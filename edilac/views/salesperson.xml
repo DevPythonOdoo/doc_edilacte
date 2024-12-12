@@ -1,21 +1,68 @@
 <odoo>
     <data>
 
-       <record id="sale_order_zone_inherit_view" model="ir.ui.view">
-           <field name="name">delivery.edilac.sale.order</field>
-           <field name="model">sale.order</field>
-           <field name="inherit_id" ref="sale.view_order_form"/>
-           <field name="arch" type="xml">
-               <field name="partner_shipping_id" position="after">
-                   <field name="region_id"/>
-                   <field name="city_id"/>
-                   <field name="area_id"/>
-                   <field name="common_id"/>
-                   <field name="neighborhood_id"/>
-                   <field name="family_cust"/>
-               </field>
-           </field>
-       </record>
+        <!--===============================
+            SALE ORDER LINE VIEW (EDILAC)
+        =============================-->
+
+        <record id="crm_lead_edilac" model="ir.ui.view">
+            <field name="name">cr.lead.edilac</field>
+            <field name="model">crm.lead</field>
+            <field name="priority">18</field>
+            <field name="inherit_id" ref="crm.crm_lead_view_form"/>
+            <field name="arch" type="xml">
+
+                <xpath expr="//header/button[@name='action_set_won_rainbowman']" position="replace">
+                    <button name="action_set_won_rainbowman" string="Convertir en client" type="object"
+                            class="oe_highlight" data-hotkey="w" title="Convertir le prospect en client"
+                            groups="sales_team.group_sale_salesman"
+                            invisible="not active or probability == 100 or type == 'lead'"/>
+                    <button name="capture_position" string="Se localiser" type="object"
+                            class="oe_highlight capture_position_btn"
+                            data-hotkey="w" title="Générer les coordonnées GPS du PDV"
+                            invisible="not active or probability == 100 or type == 'lead'"/>
+                </xpath>
+
+                <xpath expr="//header/button[@name='%(crm.action_crm_lead2opportunity_partner)d']"
+                       position="attributes">
+                    <attribute name="invisible">True</attribute>
+                </xpath>
+                <xpath expr="//group[@name='opportunity_partner']/field[@name='partner_id']" position="replace">
+                    <field name="is_won" invisible="1"/>
+                    <field name="partner_id" readonly="1" invisible="is_won == False" force_save="1"
+                           widget="res_partner_many2one" string="Client"
+                           context="{'res_partner_search_mode': type == 'opportunity' and 'customer' or False,                                         'default_name': contact_name or partner_name,                                         'default_street': street,                                         'default_is_company': type == 'opportunity' and contact_name == False,                                         'default_company_name': type == 'opportunity' and partner_name,                                         'default_street2': street2,                                         'default_city': city,                                         'default_title': title,                                         'default_state_id': state_id,                                         'default_zip': zip,                                         'default_country_id': country_id,                                         'default_function': function,                                         'default_phone': phone,                                         'default_mobile': mobile,                                         'default_email': email_from,                                         'default_user_id': user_id,                                         'default_team_id': team_id,                                         'default_website': website,                                         'default_lang': lang_code,'show_vat': True,   }"/>
+
+                    <field name="contact_name" string="Nom du PDV" invisible="is_won == True" required="1"/>
+                </xpath>
+                <xpath expr="//group" position="after">
+                    <group>
+                        <group string="Information Générale de Vente">
+                            <field name="neighborhood_id" string="Quartier"/>
+                            <field name="common_id" string="Commune"/>
+                            <field name="area_id" string="Zone de livraison"/>
+                            <field name="city_id" string="Ville"/>
+                            <field name="region_id" string="Région"/>
+                        </group>
+
+                        <group string="Autres informations">
+                            <field name="customer_type_id" required="0"/>
+                            <field name="customer_profil" required="0"/>
+                            <field name="pricelist_id" domain="[('state' ,'=', 'done')]"/>
+                            <field name="industry_id" required="0"/>
+                            <field name="company_type" required="1"/>
+                            <field name="longitude" readonly="1"/>
+                            <field name="latitude" readonly="1"/>
+                        </group>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+
+        <!--===============================
+            SALE ORDER LINE VIEW (EDILAC)
+        =============================-->
+
 
         <record id="view_sale_order_line_edilac_tree" model="ir.ui.view">
             <field name="name">view.sale_order_line.edilac.tree</field>
@@ -37,14 +84,17 @@
                     <field name="qty_invoiced" sum="Total"/>
                     <field name="qty_to_invoice" sum="Total" optional="hide"/>
                     <field name="tax_id" optional="hide"/>
-                    <field name="state" decoration-success="state == 'sale'" decoration-info="state == 'draft'" decoration-primary="state == 'sent'" widget="badge" optional="hide"/>
-                    <field name="invoice_status" decoration-success="invoice_status == 'invoiced'" decoration-info="invoice_status == 'to invoice'" decoration-warning="invoice_status == 'upselling'" widget="badge" optional="show"/>
-              
+                    <field name="state" decoration-success="state == 'sale'" decoration-info="state == 'draft'"
+                           decoration-primary="state == 'sent'" widget="badge" optional="hide"/>
+                    <field name="invoice_status" decoration-success="invoice_status == 'invoiced'"
+                           decoration-info="invoice_status == 'to invoice'"
+                           decoration-warning="invoice_status == 'upselling'" widget="badge" optional="show"/>
+
                 </tree>
             </field>
         </record>
-        
-        
+
+
         <record id="view_sale_order_line_edilac_search" model="ir.ui.view">
             <field name="name">view.sale_order_line.search</field>
             <field name="model">sale.order.line</field>
@@ -53,32 +103,239 @@
                     <field name="order_id"/>
                     <field name="product_id"/>
                     <field name="order_partner_id"/>
-                    
-                    <filter string="Clients TVA" name="tva_partner_type" domain="[('partner_type','=','tva')]"/>
-                    <filter string="Clients Normal" name="normal_partner_type" domain="[('partner_type','=','normal')]"/>
+
+                    <filter string="Clients TVA" name="tva_partner_type" domain="[('partner_type_id','=','tva')]"/>
+                    <filter string="Clients Normal" name="normal_partner_type"
+                            domain="[('partner_type_id','=','normal')]"/>
                     <separator/>
                     <filter string="Date Commande" name="filter_date_order" date="date_order"/>
                     <group expand="1" string="Group By">
                         <filter string="Clients" name="partners" domain="[]" context="{'group_by':'order_partner_id'}"/>
                         <filter string="Produits" name="products" domain="[]" context="{'group_by':'product_id'}"/>
                         <filter string="Date Commande" name="dates" domain="[]" context="{'group_by':'date_order'}"/>
-                        <filter string="Type de Clients" name="field_name" domain="[]" context="{'group_by':'partner_type'}"/>
+                        <filter string="Type de Clients" name="field_name" domain="[]"
+                                context="{'group_by':'partner_type_id'}"/>
                         <filter string="Commande" name="sale_order_line" domain="[]" context="{'group_by':'order_id'}"/>
                     </group>
                 </search>
             </field>
         </record>
-        
+
         <record id="view_sale_order_line_graph_edilac" model="ir.ui.view">
             <field name="name">view.sale_order_line_graph_edilac</field>
             <field name="model">sale.order.line</field>
             <field name="arch" type="xml">
                 <graph string="CA" type="bar">
                     <field name="date_order" type="row"/>
-                    <field name="price_total" type="measure"/>                    
+                    <field name="price_total" type="measure"/>
                 </graph>
             </field>
         </record>
+
+        <record id="view_order_search_inherit_partner_fields" model="ir.ui.view">
+            <field name="name">sale.order.search.inherit.partner.fields</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_sales_order_filter"/>
+            <field name="arch" type="xml">
+                <xpath expr="//filter[@name='my_sale_orders_filter']" position="after">
+                    <separator string="Grouper Par"/>
+                    <filter name="filter_by_commune" string="Commune" context="{'group_by': 'common_id'}"/>
+                    <filter name="filter_by_quartier" string="Quartier" context="{'group_by': 'neighborhood_id'}"/>
+                    <filter name="filter_by_zone" string="Zone" context="{'group_by': 'area_id'}"/>
+                </xpath>
+
+                <xpath expr="//filter[@name='my_sale_orders_filter']" position="after">
+                    <separator string="Filtrer Par"/>
+                    <filter name="common_id" string="Commune" domain="[('common_id', '=', 'id')]"/>
+                    <filter name="neighborhood_id" string="Quartier" domain="[('neighborhood_id', '=', 'id')]"/>
+                    <filter name="area_id" string="Zone" domain="[('area_id', '=', 'id')]"/>
+                </xpath>
+
+                <xpath expr="//field[@name='partner_id']" position="after">
+                    <field name="common_id" string="Commune"/>
+                    <field name="neighborhood_id" string="Quartier"/>
+                    <field name="area_id" string="Zone"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_order_tree_inherit_payment_fields" model="ir.ui.view">
+            <field name="name">sale.order.tree.inherit.payment.fields</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='amount_total']" position="after">
+                    <field name="amount_paid" string="Montant Payé" sum="Total" widget="monetary"/>
+                    <field name="amount_delivery" sum="Total" widget="monetary"/>
+                    <field name="amount_due" sum="Total" widget="monetary"/>
+                </xpath>
+                <xpath expr="//field[@name='amount_total']" position="before">
+                    <field name="qty_return" sum="Total" optional="show"/>
+                </xpath>
+                <xpath expr="//field[@name='qty_return']" position="before">
+                    <field name="qty_delivered" sum="Total" optional="show"/>
+                </xpath>
+                <xpath expr="//field[@name='qty_delivered']" position="before">
+                    <field name="product_uom_qty" sum="Total" optional="show"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_view_order_form_inherit_payment_fields" model="ir.ui.view">
+            <field name="name">sale.view.order_form.inherit.payment.fields</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//button[@name='action_view_invoice']" position="after">
+                    <button name="button_open_customer_invoice_count" type="object" class="oe_stat_button"
+                            icon="fa-file-o" invisible="state != 'sale'">
+                        <div class="o_field_widget o_stat_info">
+                            <span class="o_stat_value">
+                                <field name="customer_invoice_count"/>
+                            </span>
+                            <span>
+                                Facture Client
+                            </span>
+                        </div>
+                    </button>
+                </xpath>
+            </field>
+        </record>
+
+
+        <!-- <record id="view_order_tree_inherit" model="ir.ui.view">
+            <field name="name">CRM</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_quotation_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='amount_total']" position="after">
+                    <field name="amount_paid" string="Montant Payé" sum="Total" widget="monetary"/>
+                    <field name="amount_due" sum="Total" widget="monetary"/>
+                </xpath>
+                <xpath expr="//field[@name='amount_total']" position="before">
+                    <field name="qty_return" sum="Total" optional="show"/>
+                </xpath>
+                <xpath expr="//field[@name='qty_return']" position="before">
+                    <field name="qty_delivered" sum="Total" optional="show"/>
+                </xpath>
+                <xpath expr="//field[@name='qty_delivered']" position="before">
+                    <field name="product_uom_qty" sum="Total" optional="show"/>
+                </xpath>
+            </field>
+        </record> -->
+        <record id="ediac_sale_order_tree" model="ir.ui.view">
+            <field name="name">sale.order.tree.sale_order_tree</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.sale_order_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='amount_total']" position="attributes">
+                    <attribute name="string">Total Commandée</attribute>
+                   
+                </xpath>
+                
+            </field>
+        </record>
+        <record id="view_quotation_tree_with_onboarding_inherit" model="ir.ui.view">
+            <field name="name">sale.order.tree.inherit</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_quotation_tree_with_onboarding"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='amount_total']" position="after">
+                    <field name="amount_paid" string="Montant Payé" sum="Total" widget="monetary"/>
+                    <field name="amount_delivery" sum="Total" widget="monetary"/>
+                    <field name="amount_due" sum="Total" widget="monetary"/>
+                </xpath>
+                <xpath expr="//field[@name='amount_total']" position="before">
+                    <field name="qty_return" sum="Total" optional="show"/>
+                </xpath>
+                <xpath expr="//field[@name='qty_return']" position="before">
+                    <field name="qty_delivered" sum="Total" optional="show"/>
+                </xpath>
+                <xpath expr="//field[@name='qty_delivered']" position="before">
+                    <field name="product_uom_qty" sum="Total" optional="show"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_order_form_inherit_qty_return" model="ir.ui.view">
+            <field name="name">view.order.form.qty_return</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='order_line']/tree[1]/field[@name='qty_delivered']" position="after">
+                    <field optional="show" name="qty_return" sum="total"/>
+                </xpath>
+                <xpath expr="//field[@name='order_line']/tree[1]/field[@name='product_uom_qty']" position="after">
+                    <field  name="nbr_pc_crt" optional="hide" sum="total"/>
+                </xpath>
+                <!-- <xpath expr="//button[@id='create_invoice']" position="after">
+                    <button name="action_create_draft_invoice"
+                            type="object"
+                            string="Créer une Facture Brouillon"
+                            class="oe_highlight"
+                            invisible="(state not in ('sale', 'done'))"/>
+                </xpath> -->
+            </field>
+        </record>
+
+
+        <template id="report_saleorder_inherit" inherit_id="sale.report_saleorder_document">
+            <xpath expr="//th[@name='th_quantity']" position="after">
+                <!-- Ajout du champ personnalisé dans le rapport -->
+                <th name="th_nbm_pc_crty" class="text-end">Nbre de Pc/Crt</th>
+            </xpath>
+            <xpath expr="//td[@name='td_quantity']" position="after">
+                <!-- Ajout du champ personnalisé dans le rapport -->
+                <td name="td_nbm_pc_crty" class="text-end">
+                    <span t-field="line.nbr_pc_crt"></span>
+                </td>
+            </xpath>
+            <xpath expr="//th[@name='th_taxes']" position="replace">
+                <!-- Ajout du champ personnalisé dans le rapport -->
+            </xpath>
+            <xpath expr="//td[@name='td_taxes']" position="replace">
+                <!-- Ajout du champ personnalisé dans le rapport -->
+            </xpath>
+            <xpath expr="//div[@class='clearfix']/div" position="after">
+                <br/><br/>
+                <br/><br/>
+                <br/><br/>
+                <div class="row">
+                    <div class="text-right col-6">
+                        <span class="bold-text">Signature du client</span>
+                    </div>
+                    <div class="text-left col-6">
+                        <span class="bold-text">Signature du livreur</span>
+                    </div>
+                </div>
+            </xpath>
+        </template>
+
+        <record id="view_out_invoice_tree_inherit" model="ir.ui.view">
+            <field name="name">account.view</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_out_invoice_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='amount_residual_signed']" position="before">
+                    <field name="amount_paid" string="Montant Payé" sum="Total" widget="monetary"/>
+                </xpath>
+                <xpath expr="//field[@name='amount_residual_signed']" position="replace">
+                    <field name="amount_residual_signed" string="Créance" sum="Total" widget="monetary"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_product_product_tree_inherit" model="ir.ui.view">
+            <field name="name">product.product.view</field>
+            <field name="model">product.product</field>
+            <field name="inherit_id" ref="product.product_normal_form_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='product_tooltip']" position="before">
+                    <field name="nbm_pc_crt"/>
+                </xpath>
+            </field>
+        </record>
+
 
         <record id="view_sale_order_line_pivot_edilac" model="ir.ui.view">
             <field name="name">view.sale_order_line_pivot_edilac</field>
@@ -86,7 +343,7 @@
             <field name="arch" type="xml">
                 <pivot string="CA">
                     <field name="date_order" type="row"/>
-                    <field name="partner_type" type="row"/>
+                    <field name="partner_type_id" type="row"/>
                     <field name="product_id" type="row"/>
                     <field name="order_partner_id" type="row"/>
                     <field name="price_subtotal" type="measure"/>
@@ -98,7 +355,7 @@
                 </pivot>
             </field>
         </record>
-        
+
         <record id="sale_order_line_action" model="ir.actions.act_window">
             <field name="name">Ligne de commande</field>
             <field name="res_model">sale.order.line</field>
@@ -114,7 +371,8 @@
         </record>
 
 
-        <menuitem id="sale_order_line_edilac" action="sale_order_line_action" parent="sale.sale_order_menu" groups="sales_team.group_sale_salesman" sequence="30"/>
+        <menuitem id="sale_order_line_edilac" action="sale_order_line_action" parent="sale.sale_order_menu"
+                  groups="sales_team.group_sale_salesman" sequence="30"/>
 
         <record id="res_users_form_inherit" model="ir.ui.view">
             <field name="name">res.users.form.inherit</field>
@@ -143,20 +401,18 @@
                         </div>
                         <group>
                             <group string="Information personnel">
-                                <field name="login" string="Email"/>    
+                                <field name="login" string="Email"/>
                                 <field name="partner_id"/>
                                 <!-- <field name="company_id"/> -->
                                 <field name="phone"/>
                                 <field name="mobile"/>
-                                <field name="invoiced_target"/>
                             </group>
                             <group string="Suivi des Objectifs">
-                                <field name="date_start" />
-                                <field name="date_end" />
+
                                 <field name="target_amount"/>
                                 <field name="currency_id" invisible="1"/>
                                 <field name="real_amount"/>
-                                <!-- <field name="percentage" widget="progressbar"/> -->
+                                <field name="percentage" widget="progressbar"/>
                             </group>
                         </group>
                         <notebook>
@@ -168,9 +424,13 @@
                                         <field name="currency_id" invisible="1"/>
                                         <field name="target_amount" widget="monetary" sum="Total"/>
                                         <field name="real_amount" widget="monetary" sum="Total"/>
-                                        <field name="percentage" widget="progressbar"/>
+                                        <field name="percentage" widget="progressbar" sum="Total"/>
                                     </tree>
                                     <form string="target">
+                                        <header>
+                                            <button name="forecast_confirm" class="oe_highlight"
+                                                    string="Générer l'objectif" type="object"/>
+                                        </header>
                                         <sheet>
                                             <div class="oe_title">
                                                 <label for="user_id"/>
@@ -180,10 +440,12 @@
                                             </div>
                                             <group>
                                                 <group string="Periode ">
-                                                    <field name="date_start" />
-                                                    <field name="date_end" />
+                                                    <field name="start_period"/>
+                                                    <field name="end_period"/>
                                                 </group>
                                                 <group string="Objectif">
+                                                    <field name="date_start"/>
+                                                    <field name="date_end"/>
                                                     <field name="target_amount"/>
                                                     <field name="real_amount"/>
                                                     <field name="percentage" widget="progressbar"/>
@@ -191,24 +453,34 @@
                                             </group>
                                             <notebook>
                                                 <page name="sale_order" string="Devis/commande">
-                                                    <field name="line_ids" readonly='1'/>
+                                                    <field name="lines_ids" readonly='1'>
+                                                        <tree string="commercial_tree">
+                                                            <field name="partner_id"/>
+                                                            <field name="ca" sum="Total"/>
+                                                            <field name="forecast_amount" sum="Total"/>
+                                                            <field name="currency_id" optional="hide" invisible="1"/>
+                                                            <field name="target_amount" widget="monetary" sum="Total"/>
+                                                            <field name="amount" widget="monetary" sum="Total"/>
+                                                            <field name="percentage" widget="progressbar" sum="Total"/>
+                                                        </tree>
+                                                    </field>
                                                 </page>
                                             </notebook>
                                         </sheet>
                                     </form>
-                                    
+
                                 </field>
                             </page>
                             <page name="customers" string="Clients">
                                 <field name="customers_ids">
                                     <tree string="commercial_tree" create="0" edit="0">
                                         <field name="display_name" string="Nom"/>
-                                        <field name="family_cust"/>
-                                        <field name="area_id" string="Zone" />
+                                        <field name="industry_id"/>
+                                        <field name="area_id" string="Zone"/>
                                         <field name="city_id" string="Ville"/>
-                                        <field name="customer_type" />
+                                        <field name="customer_type_id"/>
                                         <field name="phone" class="o_force_ltr" optional="show"/>
-                                        <field name="customer_profil" />
+                                        <field name="customer_profil"/>
                                         <field name="mobile" optional="hide"/>
                                         <field name="email" optional="hide"/>
                                         <field name="vat" optional="hide" readonly="1"/>
@@ -228,11 +500,13 @@
                 <tree string="commercial_tree" create="false" duplicate="0">
                     <field name="name"/>
                     <field name="login" string="Email"/>
-                    <field name="partner_id"/>
-                    <field name="company_id"/>
+                    <field name="company_id" optional="hide"/>
                     <field name="phone"/>
                     <field name="mobile"/>
-                    <field name="invoiced_target"/>
+                    <field name="target_amount"/>
+                    <field name="currency_id" invisible="1"/>
+                    <field name="real_amount"/>
+                    <field name="percentage" widget="progressbar"/>
                 </tree>
             </field>
         </record>
@@ -267,8 +541,16 @@
             <field name="act_window_id" ref="action_commercial"/>
         </record>
 
-        <menuitem id="menu_commercial" name="Commercial" parent="crm.crm_menu_sales" action="action_commercial" sequence="8"/>
-        <menuitem id="menu_sale_commercial" name="Commercial" parent="sale.sale_order_menu" action="action_commercial" sequence="25"/>
+        <menuitem id="menu_commercial" name="Commercial" parent="crm.crm_menu_sales" action="action_commercial"
+                  sequence="8"/>
+        <menuitem id="menu_sale_commercial" name="Commercial" parent="sale.sale_order_menu" action="action_commercial"
+                  sequence="25"/>
+
+         <!-- This Menu Item must have a parent and an action -->
+        <menuitem id="menu_Creance_sale" name="Suivi des Créances" parent="sale.sale_order_menu"
+                  action="account.action_move_out_invoice_type" sequence="106"/>
+        <menuitem id="menu_Relance_sale" name="Rélances Clients" parent="sale.sale_order_menu"
+                  action="account_followup.action_view_list_customer_statements" sequence="107"/>
 
     </data>
 </odoo>

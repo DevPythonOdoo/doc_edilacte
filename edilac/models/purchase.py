@@ -30,9 +30,9 @@ class Purchase(models.Model):
 
     # vat = fields.Html(string='Vat', required=False)
 
-    number_palet = fields.Integer(string='Nombre Totale de Palet',compute='_compute_total_palet',required=False, store= True)
-    qte_palet = fields.Integer(string='Total Palet',required=False,  compute='_compute_total', store=True)
-    product_qty = fields.Float(string='Total Carton',required=False,  compute='_compute_total', store=True)
+    number_palet = fields.Float(string='Nombre Totale de Palet',compute='_compute_total_palet',required=False, store= True)
+    qte_palet = fields.Float(string='Total Palet',required=False,  compute='_compute_total', store=True)
+    product_qty = fields.Float(string='Total',required=False,  compute='_compute_total', store=True)
     company_currency_id = fields.Many2one('res.currency', string='Devise societé', required=True, default=lambda self: self.env.company.currency_id)
     total_amount_devise = fields.Monetary(string='Total FCFA', required=False, currency_field="company_currency_id", compute='_compute_total_amount_devise', store=True)
     
@@ -122,48 +122,65 @@ class Purchase(models.Model):
             # Initialiser le compteur pour chaque commande
             lot_counter = 1
             
+            # Récupérer la référence fournisseur
+            supplier_ref = order.partner_ref or 'REF'
+            po_ref = order.name or 'BCI'
+            
+            # Chercher les réceptions liées à cette ligne de commande 
+            stock_pickings = self.env['stock.picking'].search([
+                ('origin', '=', order.name),
+                ('state', 'not in', ('done', 'cancel'))  # Filtrer les réceptions en attente ou confirmées
+            ])
+
+            # Mettre à jour le champ `origin` des réceptions avec la concaténation de la référence PO  =et la référence fournisseur
+            origin = None
+            for picking in stock_pickings:
+                picking.origin = f"{po_ref} - {supplier_ref}" if po_ref and supplier_ref else po_ref
+                origin = picking.origin
+                    
             for line in order.order_line:
-                # Récupérer la référence fournisseur
-                supplier_ref = order.partner_ref or 'REF'
-                
+               
                 # Chercher les réceptions liées à cette ligne de commande
                 stock_moves = self.env['stock.move'].search([
                     ('purchase_line_id', '=', line.id),
                     ('state', 'not in', ('done', 'cancel'))  # Uniquement les mouvements en attente
                 ])
-
+                # Vérifier si le produit n'est pas un congélilateur
+                if not line.product_id.freezer and order.type =="import" :
                 # Générer les numéros de lot pour chaque mouvement de stock
-                for move in stock_moves:
-                    # Créer un numéro de lot incrémenté
-                    lot_name = f"{supplier_ref}-{str(lot_counter).zfill(3)}"
-                    
-                    # Créer le lot
-                    lot = self.env['stock.lot'].create({
-                        'name': lot_name,
-                        'product_qty': line.product_qty,
-                        'product_id': line.product_id.id,
-                        'location_id': move.location_id.id,
-                        #'location_dest_id': move.location_dest_id.id,
-                        'company_id': order.company_id.id,
-                    })
-                    
-                    # Associer le lot au niveau des lignes de mouvement de stock (stock.move.line)
-                    move_line = self.env['stock.move.line'].search([('move_id', '=', move.id)], limit=1)
-                    if move_line:
-                        move_line.write({
-                            'lot_id': lot.id,
-                            'lot_name': lot.name,
+                    for move in stock_moves:
+                        # Créer un numéro de lot incrémenté
+                        lot_name = f"{supplier_ref}-{str(lot_counter).zfill(3)}"
+                        
+                        # Créer le lot
+                        lot = self.env['stock.lot'].create({
+                            'name': lot_name,
+                            'product_qty': line.product_qty,
+                            'ref': origin,
+                            'product_id': line.product_id.id,
                             'location_id': move.location_id.id,
-                            'location_dest_id': move.location_dest_id.id,
+                            #'location_dest_id': move.location_dest_id.id,
+                            'company_id': order.company_id.id,
                         })
-                    move.write({'lot_ids': [(4, lot.id)]})
-                    # Incrémenter le compteur pour le prochain lot
-                    lot_counter += 1    
-
+                        
+                        # Associer le lot au niveau des lignes de mouvement de stock (stock.move.line)
+                        move_line = self.env['stock.move.line'].search([('move_id', '=', move.id)], limit=1)
+                        if move_line:
+                            move_line.write({
+                                'lot_id': lot.id,
+                                'lot_name': lot.name,
+                                'location_id': move.location_id.id,
+                                'location_dest_id': move.location_dest_id.id,
+                            })
+                        move.write({'lot_ids': [(4, lot.id)]})
+                        # Incrémenter le compteur pour le prochain lot
+                        lot_counter += 1
+    
+    
 class PurchaseOrderLine(models.Model):
     _inherit = 'purchase.order.line'
 
-    qte_palet = fields.Integer(string='Palet/Qte', required=False)
+    qte_palet = fields.Float(string='Palet/Qte', required=False)
     type = fields.Selection(
         string=_('type'),
         selection=[
@@ -173,18 +190,18 @@ class PurchaseOrderLine(models.Model):
     )
 
     @api.onchange('qte_palet', 'product_qty')
-    def _onchange_product_qty(self):
+    def _onchange_product_qte(self):
         for line in self:
             product = line.product_id.product_tmpl_id
             # line.qte_palet = 0
             if line.qte_palet:  
-                line.product_qty = line.qte_palet * product.palet
+                line.product_qty = line.qte_palet * product.palet * product.uom_id.ratio
             
-
-
 
 class ProductTemplate(models.Model):
     _inherit = 'product.template'
 
     palet = fields.Integer('Nbre de carton en palette', default=1,  help="Cette valeur sera utilisé pour obtenir le nombre de carton pour une commande fournisseur de ce produit")
-    # uom_conteneur_id = fields.Integer('Mesure en Conteneur', required=False, help="Default unit of measure used for purchase orders.",store=True)
+    freezer = fields.Boolean(string='Marqué Comme un Congélateur', required=False, help="Une fois coché le produit sera marqué comme un congélateur")
+
+

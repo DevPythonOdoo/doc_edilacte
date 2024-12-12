@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="stock_views_form_inherit" model="ir.ui.view">
+            <field name="name">stock.picking.form</field>
+            <field name="model">stock.picking</field>
+            <field name="inherit_id" ref="stock.view_picking_form"/>
+            <field name="priority" eval="1"/>
+            <field name="arch" type="xml">
+                <xpath expr="//page//tree//field[@name='product_uom_qty']" position="replace">
+                    <field name="product_uom_qty" string="Quantités commandées"
+                           readonly="not is_initial_demand_editable"/>
+                </xpath>
+                <xpath expr="//page//tree//field[@name='quantity']" position="replace">
+                    <field name="quantity" string="Quantités reçues/livrées" readonly="not is_quantity_done_editable"/>
+                </xpath>
+                <xpath expr="//page//tree//field[@name='date_deadline']" position="replace">
+                    <field name="date_deadline" readonly="0" string="Date limite de vente"/>
+                </xpath>
+                <xpath expr="//page//tree//field[@name='quantity']" position="after">
+                    <field name="gaps" string="Ecart" readonly="not is_quantity_done_editable"/>
+                    <field name="quality_id" string="Qualité" readonly="not is_quantity_done_editable"
+                           options="{'no_create': True, 'no_edit': True}"/>
+                </xpath>
+                <xpath expr="//field[@name='origin']" position="after">
+                    <field name="total_ordered" string="Total commandés" readonly="state in ['cancel', 'done']"/>
+                    <field name="total_received" string="Total reçus/livrés" readonly="state in ['cancel', 'done']"/>
+                    <field name="total_ecart" string="Total ecart" readonly="state in ['cancel', 'done']"/>
+                </xpath>
+            </field>
+        </record>
+        <record id="stocks_move_view_form_inherit" model="ir.ui.view">
+            <field name="name">stock.move.form.inherit</field>
+            <field name="model">stock.move</field>
+            <field name="inherit_id" ref="stock.view_move_form"/>
+            <field name="arch" type="xml">
+                <!-- Insérer le champ "gap" après le champ "product_uom_qty" par exemple -->
+                <xpath expr="//field[@name='company_id']" position="after">
+                    <field name="gaps" string="Ecart" invisible="1"/>
+                    <field name="quality_id" string="Qualité" invisible="1"/>
+                </xpath>
+            </field>
+        </record>
+
+
+        <record id="Livreur_view_action" model="ir.actions.act_window">
+            <field name="name">Livreurs</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">res.partner</field>
+            <field name="domain">[('delivery_person', '!=', False)]</field>
+            <field name="context">{'default_delivery_person':True,'search_default_customer':
+                1,'res_partner_search_mode': 'customer', 'default_is_company': True, 'default_customer_rank': 1}
+            </field>
+            <field name="view_mode">kanban,tree,form</field>
+        </record>
+
+        <record id="quality_view_tree" model="ir.ui.view">
+            <field name="name">quality.quality.tree</field>
+            <field name="model">quality.quality</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom">
+                    <field name="name" required="1"/>
+                </tree>
+            </field>
+        </record>
+        <record id="quality_view_action" model="ir.actions.act_window">
+            <field name="name">Qualités Produits</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">quality.quality</field>
+            <field name="view_mode">tree</field>
+        </record>
+
+        <record id="rc_product_view_tree" model="ir.ui.view">
+            <field name="name">received.product.tree</field>
+            <field name="model">stock.move</field>
+            <field name="arch" type="xml">
+                <tree decoration-muted="scrapped == True or state == 'cancel' or (state == 'done' and is_locked == True)"
+                      string="Stock Moves" editable="bottom">
+                    <field name="company_id" column_invisible="True"/>
+                    <field name="name" column_invisible="True"/>
+                    <field name="state" readonly="0" column_invisible="True"/>
+                    <field name="picking_type_id" column_invisible="True"/>
+                    <field name="move_line_ids" column_invisible="True"/>
+                    <field name="location_id" column_invisible="True"/>
+                    <field name="location_dest_id" column_invisible="True"/>
+                    <field name="partner_id" column_invisible="True" readonly="state == 'done'"/>
+                    <field name="scrapped" column_invisible="True"/>
+                    <field name="picking_code" column_invisible="True"/>
+                    <field name="product_type" column_invisible="True"/>
+                    <field name="show_details_visible" column_invisible="True"/>
+                    <field name="show_operations" readonly="1" column_invisible="True"/>
+                    <field name="show_reserved" column_invisible="True"/>
+                    <field name="additional" column_invisible="True"/>
+                    <field name="move_lines_count" column_invisible="True"/>
+                    <field name="is_locked" column_invisible="True"/>
+                    <field name="product_uom_category_id" column_invisible="True"/>
+                    <field name="has_tracking" column_invisible="True"/>
+                    <field name="display_assign_serial" column_invisible="True"/>
+                    <field name="product_id" context="{'default_detailed_type': 'product'}" required="1"
+                           readonly="(state != 'draft' and not additional) or move_lines_count &gt; 0" force_save="1"/>
+                    <field name="description_picking" string="Description" optional="hide"/>
+                    <field name="date" optional="hide"/>
+                    <field name="date_deadline" readonly="0" string="Date limite de vente"/>
+                    <field name="is_quantity_done_editable" column_invisible="True"/>
+                    <field name="show_quant" column_invisible="True"/>
+                    <field name="show_lots_text" column_invisible="True"/>
+                    <field name="show_lots_m2o" column_invisible="True"/>
+                    <field name="display_assign_serial" column_invisible="True"/>
+                    <field name="is_initial_demand_editable" column_invisible="True"/>
+                    <field name="display_import_lot" column_invisible="True"/>
+                    <field name="picking_type_entire_packs" column_invisible="True"/>
+                    <field name="product_packaging_id" groups="product.group_stock_packaging"
+                           context="{'default_product_id': product_id}" readonly="not product_id"/>
+                    <field name="product_uom_qty" string="Quantités commandées"
+                           readonly="not is_initial_demand_editable"/>
+                    <field name="forecast_expected_date" column_invisible="True"/>
+                    <field name="product_qty" readonly="1" column_invisible="True"/>
+                    <field name="quantity" string="Quantités reçues" readonly="not is_quantity_done_editable"/>
+                    <field name="gaps" string="Ecart" readonly="not is_quantity_done_editable"/>
+                    <field name="quality_id" string="Qualité" readonly="not is_quantity_done_editable"
+                           options="{'no_create': True, 'no_edit': True}"/>
+                    <field name="product_uom" readonly="state != 'draft' and not additional"
+                           options="{'no_open': True, 'no_create': True}" string="Unit" groups="uom.group_uom"/>
+                    <field name="product_uom" groups="!uom.group_uom" column_invisible="True"/>
+
+                </tree>
+            </field>
+        </record>
+
+        <record id="product_received_view_action" model="ir.actions.act_window">
+            <field name="name">Produits reçus</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">stock.move</field>
+            <field name="domain">[('picking_type_id.code', '=', 'incoming')]</field>
+            <field name="view_id" ref="rc_product_view_tree"/>
+            <field name="context">{'search_default_picking_type_id': 1}</field>
+            <field name="view_mode">tree</field>
+        </record>
+
+
+        <record id="lv_product_view_tree" model="ir.ui.view">
+            <field name="name">delivered.product.tree</field>
+            <field name="model">stock.move</field>
+            <field name="arch" type="xml">
+                <tree decoration-muted="scrapped == True or state == 'cancel' or (state == 'done' and is_locked == True)"
+                      string="Stock Moves" editable="bottom">
+                    <field name="company_id" column_invisible="True"/>
+                    <field name="name" column_invisible="True"/>
+                    <field name="state" readonly="0" column_invisible="True"/>
+                    <field name="picking_type_id" column_invisible="True"/>
+                    <field name="move_line_ids" column_invisible="True"/>
+                    <field name="location_id" column_invisible="True"/>
+                    <field name="location_dest_id" column_invisible="True"/>
+                    <field name="partner_id" column_invisible="True" readonly="state == 'done'"/>
+                    <field name="scrapped" column_invisible="True"/>
+                    <field name="picking_code" column_invisible="True"/>
+                    <field name="product_type" column_invisible="True"/>
+                    <field name="show_details_visible" column_invisible="True"/>
+                    <field name="show_operations" readonly="1" column_invisible="True"/>
+                    <field name="show_reserved" column_invisible="True"/>
+                    <field name="additional" column_invisible="True"/>
+                    <field name="move_lines_count" column_invisible="True"/>
+                    <field name="is_locked" column_invisible="True"/>
+                    <field name="product_uom_category_id" column_invisible="True"/>
+                    <field name="has_tracking" column_invisible="True"/>
+                    <field name="display_assign_serial" column_invisible="True"/>
+                    <field name="product_id" context="{'default_detailed_type': 'product'}" required="1"
+                           readonly="(state != 'draft' and not additional) or move_lines_count &gt; 0" force_save="1"/>
+                    <field name="description_picking" string="Description" optional="hide"/>
+                    <field name="date" optional="hide"/>
+                    <field name="date_deadline" readonly="0" string="Date limite de vente"/>
+                    <field name="is_quantity_done_editable" column_invisible="True"/>
+                    <field name="show_quant" column_invisible="True"/>
+                    <field name="show_lots_text" column_invisible="True"/>
+                    <field name="show_lots_m2o" column_invisible="True"/>
+                    <field name="display_assign_serial" column_invisible="True"/>
+                    <field name="is_initial_demand_editable" column_invisible="True"/>
+                    <field name="display_import_lot" column_invisible="True"/>
+                    <field name="picking_type_entire_packs" column_invisible="True"/>
+                    <field name="product_packaging_id" groups="product.group_stock_packaging"
+                           context="{'default_product_id': product_id}" readonly="not product_id"/>
+                    <field name="product_uom_qty" string="Quantités commandées"
+                           readonly="not is_initial_demand_editable"/>
+                    <field name="forecast_expected_date" column_invisible="True"/>
+                    <field name="product_qty" readonly="1" column_invisible="True"/>
+                    <field name="quantity" string="Quantités livrées" readonly="not is_quantity_done_editable"/>
+                    <field name="gaps" string="Ecart" readonly="not is_quantity_done_editable"/>
+                    <!--field name="quality_id" string="Qualité" readonly="not is_quantity_done_editable" options="{'no_create': True, 'no_edit': True}"/-->
+                    <field name="product_uom" readonly="state != 'draft' and not additional"
+                           options="{'no_open': True, 'no_create': True}" string="Unit" groups="uom.group_uom"/>
+                    <field name="product_uom" groups="!uom.group_uom" column_invisible="True"/>
+
+                </tree>
+            </field>
+        </record>
+
+        <record id="product_delivered_view_action" model="ir.actions.act_window">
+            <field name="name">Bon de Préparation</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">stock.move</field>
+            <field name="domain">[('picking_type_id.code', '=', 'outgoing')]</field>
+            <field name="view_id" ref="lv_product_view_tree"/>
+            <field name="view_mode">tree</field>
+        </record>
+
+        <record id="action_stock_management_assignments" model="ir.actions.act_window">
+            <field name="name">Affectations à Approuver</field>
+            <field name="res_model">freezer.assignment</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('state', '=', ('stock_management', 'done'))]</field>
+        </record>
+
+
+        <menuitem name="Livreur" id="delivery_person_menu" parent="stock.menu_delivery" action="Livreur_view_action"
+                  sequence="11"/>
+        <menuitem name="Qualité" id="quality_menu" parent="stock.menu_product_in_config_stock"
+                  action="quality_view_action" sequence="1" groups="edilac.group_edilac_manager"/>
+        <menuitem name="Produits reçus" id="product_received_menu" parent="stock.menu_warehouse_report"
+                  action="product_received_view_action" sequence="1"/>
+        <menuitem name="Bon de Préparation" id="product_delivered_menu" parent="stock.menu_warehouse_report"
+                  action="product_delivered_view_action" sequence="2"/>
+
+        <menuitem id="menu_stock_management_assignments"
+                  name="Affectations à approuver"
+                  parent="stock.menu_stock_root"
+                  action="action_stock_management_assignments" sequence="7"/>
+
+    </data>
+</odoo>

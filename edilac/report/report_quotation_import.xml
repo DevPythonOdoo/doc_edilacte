@@ -1,7 +1,7 @@
 <odoo>
     <!-- Action de rapport pour le document de commande -->
     <record id="action_report_purchase_order_import" model="ir.actions.report">
-        <field name="name">Demande de prix Inter.</field>
+        <field name="name">Demande de prix inter.</field>
         <field name="model">purchase.order</field>
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">edilac.report_purchase_order_document_import</field>
@@ -20,30 +20,41 @@
             <t t-foreach="docs" t-as="o">
                 <t t-call="web.external_layout">
                     <t t-set="o" t-value="o.with_context(lang=o.partner_id.lang)"/>
-                    <t t-set="forced_vat" t-value="o.fiscal_position_id.foreign_vat"/>
-                    <t t-set="address">
-                        <div t-if="o and o.partner_id" t-field="o.partner_id"
-                             t-options='{"widget": "contact", "fields": ["address", "name", "phone", "vat"], "no_marker": True, "phone_icons": True}'/>
-                    </t>
-                    <!-- Adresse de destination -->
-                    <t t-if="o.dest_address_id">
-                        <t t-set="information_block">
-                            <strong>Shipping address:</strong>
-                            <div t-field="o.dest_address_id"
-                                 t-options='{"widget": "contact", "fields": ["address", "name", "phone"], "no_marker": True, "phone_icons": True}'
-                                 name="purchase_shipping_address"/>
-                        </t>
-                    </t>
+                    <t t-set="forced_vat" t-value="o.fiscal_position_id.foreign_vat"/> <!-- So that it appears in the footer of the report instead of the company VAT if it's set -->
+                    <div class="row">
+                        <div class="col-6">
+                            <strong>Adresse d'expedition:</strong>
+                            <div t-field="o.company_id.partner_id" t-options='{"widget": "contact", "fields": ["address", "name", "phone"]}' name="purchase_shipping_address"/>
+                           
+                        </div>
+                        <div class="col-6">
+                            <div t-field="o.partner_id"
+                                    t-options='{"widget": "contact", "fields": ["address", "name", "phone", "vat"], "no_marker": True, "phone_icons": True}'/>
+                        </div>                            
+                    </div>
+                   
 
                     <div class="page">
                         <div class="oe_structure"/>
+                        <div class="mt-4">
+                            <h2 t-if="o.state in ['draft', 'sent', 'submit', 'to approve']">Demande de prix. #
+                                <span t-field="o.name"/>
+                            </h2>
+                            <h2 t-if="o.state in ['purchase', 'done']">Bon de commande. #
+                                <span t-field="o.name"/>
+                            </h2>
+                            <h2 t-if="o.state == 'cancel'">Commande annulée #
+                                <span t-field="o.name"/>
+                            </h2>
+                        </div>
+                     
                         <div id="informations" class="row mt-4 mb32">
                             <div t-if="o.user_id" class="col-3 bm-2">
                                 <strong>Responsable Achat:</strong>
                                 <p t-field="o.user_id" class="m-0"/>
                             </div>
                             <div t-if="o.partner_ref" class="col-3 bm-2">
-                                <strong>Your Order Reference:</strong>
+                                <strong>Reference Fournisseur:</strong>
                                 <p t-field="o.partner_ref" class="m-0"/>
                             </div>
                             <div t-if="o.date_planned" class="col-3 bm-2">
@@ -59,10 +70,10 @@
                                         <strong>Description</strong>
                                     </th>
                                     <th name="th_qte_palet" class="text-end">
-                                        <strong>Nombre de Palet</strong>
+                                        <strong>Palette/ Capacité</strong>
                                     </th>
                                     <th name="th_quantity" class="text-end">
-                                        <strong>Cartons commandes</strong>
+                                        <strong>commandes</strong>
                                     </th>
                                 </tr>
                             </thead>
@@ -73,8 +84,9 @@
                                             <td id="product">
                                                 <span t-field="order_line.name"/>
                                             </td>
-                                            <td class="text-end">
-                                                <span t-field="order_line.qte_palet"/>
+                                            <td name="td_qte_palet" class="text-end">
+                                                <span t-if="not order_line.product_id.freezer" t-field="order_line.qte_palet"/>
+                                                <span t-if="order_line.product_id.freezer" t-field="order_line.product_id.capacity"/>
                                             </td>
                                             <td class="text-end">
                                                 <span t-field="order_line.product_qty"/>

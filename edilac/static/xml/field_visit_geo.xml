@@ -1,10 +1,15 @@
-<?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <data>
-        <template id="assets_backend" name="Field Visit Geo JS" inherit_id="web.assets_backend">
-            <xpath expr="." position="inside">
-                <script type="module" src="/edilac/static/js/field_visit_geo.js"/>
-            </xpath>
-        </template>
-    </data>
+    <template id="field_visit_controller_template" name="Field Visit Controller">
+        <div class="o_field_visit">
+            <h3>Capture de Position Géographique</h3>
+            <button type="button"
+                    t-on-click="capturePositionForRecord(recordId)"
+                    class="btn btn-primary">
+                Capturer la position
+            </button>
+            <div t-if="loading" class="o_loading">
+                <i class="fa fa-spinner fa-spin"></i> Chargement...
+            </div>
+        </div>
+    </template>
 </odoo>

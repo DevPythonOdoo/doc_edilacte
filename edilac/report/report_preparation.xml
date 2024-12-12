@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="report_preparation" model="ir.actions.report">
+        <field name="name">Préparation</field>
+        <field name="model">stock.picking.batch</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">edilac.report_preparation_document</field>
+        <field name="report_file">edilac.report_preparation_document</field>
+        <field name="print_report_name">'Préparation. - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="model_stock_picking_batch"/>
+        <field name="binding_type">report</field>
+    </record>
+    <template id="report_preparation_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.internal_layout">
+                    <div class="page" style="font:13px">
+                        <h5 class="text-center">
+                            <strong>
+                                <span>BON DE PREPARATION :</span>
+                                <span t-field="o.name"/>
+                            </strong>
+                        </h5>
+                        <div class="row mt-3">
+                            <div class="col-6 text-left">
+                                <strong><span>Livreur: </span></strong>
+                                <span t-field="o.deliv_person_id"/>
+                            </div>
+                            <div class="col-6 text-right">
+                                <strong><span>Camion: </span></strong>
+                                <span t-field="o.fleet_vehicle_id"/>
+                            </div>
+                            <br/><br/>
+                        </div>
+                        <br/><br/>
+                        
+                        <table class="table table-sm o_main_table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th name="th_sm_product">
+                                        <strong>Produits</strong>
+                                    </th>
+                                    <th name="th_sm_product">
+                                        <strong>N° Lot</strong>
+                                    </th>
+                                
+                                    <th name="th_sm_ordered" class="text-center">
+                                        <strong>Quantités</strong>
+                                    </th>
+                                </tr>
+                            </thead>
+                           
+                            <tbody>
+                                <t t-set="total" t-value="0"/>
+                                <t t-foreach="o.group_products_and_quantities()" t-as="product_data">
+                                    <t t-set="total" t-value="total + product_data['total_quantity']"/>
+                                    <tr>
+                                        <td>
+                                            <span t-esc="product_data['product_name']"/>
+                                        </td>
+                                        <td>
+                                            <span t-esc="product_data['lot_name']"/>
+                                        </td>
+                                        <td class="text-center">
+                                            <span t-esc="product_data['total_quantity']" t-options="{'widget': 'float', 'precision': 2}"/>
+                                        </td>
+                                    </tr>
+                                    
+                                </t>
+                                <tr>
+                                    <td class="text-center" colspan="2"><strong>TOTAL</strong></td>
+                                    <td class="text-center"><span t-esc="total" t-options="{&quot;widget&quot;: &quot;float&quot;, &quot;precision&quot;: 0}"/></td>
+                                </tr>
+
+                            </tbody>
+                            
+                        </table>
+                        
+                        
+                        <!-- <p style="page-break-after: always;"/>
+
+                        <h5 class="text-center">
+                            <strong>
+                                <span>AFFECTION DES LIVREURS :</span>
+                                <span t-field="o.name"/>
+                            </strong>
+                        </h5>
+                        <div class="row mt-3">
+                            <div class="col-6 text-left">
+                                <strong><span>Livreur: </span></strong>
+                                <span t-field="o.deliv_personn"/>
+                            </div>
+                            <div class="col-6 text-right">
+                                <strong><span>Camion: </span></strong>
+                                <span t-field="o.fleet_vehicle_id"/>
+                            </div>
+                            <br/><br/>
+                        </div>    
+                        <div class="oe_structure"/> 
+                        <t t-foreach="o.picking_ids" t-as="pickings">  
+                            <div class="row mt-3">
+                                <div class="col-4 text-left">
+                                    <strong><span>BC: </span></strong>
+                                    <span t-field="pickings.origin"/>
+                                </div>
+                                <div class="col-4 text-left">
+                                   
+                                    <span t-field="pickings.scheduled_date"/>
+                                </div>
+                                <div class="col-4 text-left">
+                                    <span t-field="pickings.partner_id"/>
+                                </div>
+                                <br/><br/>
+                            </div> 
+                            <br/><br/>
+                            <table class="table table-sm o_main_table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th name="th_sm_product">
+                                            <strong>Produits</strong>
+                                        </th>
+                                        <th name="th_sm_product">
+                                            <strong>N° Lot</strong>
+                                        </th>
+                                        <th name="th_sm_product">
+                                            <strong>Unité</strong>
+                                        </th>
+                                        <th name="th_sm_ordered" class="text-center">
+                                            <strong>Quantités</strong>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                   
+                                    <t t-set="total" t-value="0"/>
+                                    <t t-foreach="pickings.move_line_ids" t-as="lines">
+                                        <t t-set="total_qty" t-value="0"/>
+                                        <t t-set="qty_done" t-value="0"/>
+                                        <t t-set="total_qty" t-value="total_qty + lines.quantity"/>
+                                        <t t-set="total" t-value="total + total_qty"/>
+                                        <tr>
+                                            <td class="text-left"><span t-field="lines.product_id.display_name"/></td>
+                                            <td class="text-left"><span t-field="lines.lot_id.name"/></td>
+                                            <td class="text-left"><span t-field="lines.product_uom_id"/></td>
+                                            <td class="text-center"><span t-esc="total_qty" t-options="{&quot;widget&quot;: &quot;float&quot;, &quot;precision&quot;: 0}"/></td>
+                                       
+                                        </tr>
+                                    </t>
+                                    <tr>
+                                        <td class="text-center" colspan="3"><strong>NOMBRE TOTAL DE CARTONS</strong></td>
+                                        <td class="text-center"><span t-esc="total" t-options="{&quot;widget&quot;: &quot;float&quot;, &quot;precision&quot;: 0}"/></td>
+                                    </tr>
+                            
+                                </tbody>
+                            </table>
+                            <br/>
+                            
+                            <br/><br/>
+                        </t> -->
+                        <br/><br/>
+                        <div class="row">
+                            <div class="text-left col-4">
+                                <strong>Le gestionnaire de stock</strong>
+                            </div>
+                            <div class="text-right col-4">
+                                <strong>Le livreur</strong>
+                            </div>
+                            <div class="text-right col-4">
+                                <strong>Le Contrôleur</strong>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+
+        
+        
+
+    </template>
+</odoo>

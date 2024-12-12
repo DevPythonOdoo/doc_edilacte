@@ -1,6 +1,238 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
+        <record id="stock_lot_statut_edilac" model="ir.ui.view">
+            <field name="name">stock_lot.statut.edilac</field>
+            <field name="model">stock.lot</field>
+            <field name="priority">30</field>
+            <field name="inherit_id" ref="stock.view_production_lot_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='ref']" position="after">
+                    <field name="statut" widget="badge"
+                           decoration-danger="statut == 'delivery'"
+                           decoration-success="statut == 'avalaible'"/>
+                </xpath>
+                <notebook position="inside">
+                    <page string="Historique Congélateur" name="history_freezer">
+                        <field name="contract_ids"/>
+                    </page>
+                </notebook>
+            </field>
+        </record>
+
+        <record id="stock_lot_statut_tree_edilac" model="ir.ui.view">
+            <field name="name">stock_lot.statut.edilac.tree</field>
+            <field name="model">stock.lot</field>
+            <field name="priority">30</field>
+            <field name="inherit_id" ref="stock.view_production_lot_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='product_qty']" position="after">
+                    <field name="statut" widget="badge"
+                           decoration-danger="statut == 'delivery'"
+                           decoration-success="statut == 'avalaible'"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="account_payment_edilac" model="ir.ui.view">
+            <field name="name">account.payment.edilac</field>
+            <field name="model">account.payment</field>
+            <field name="priority">30</field>
+            <field name="inherit_id" ref="account.view_account_payment_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='journal_id']" position="before">
+                    <field name="paiement_id"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_customer_contract_form" model="ir.ui.view">
+            <field name="name">customer.contract.form</field>
+            <field name="model">customer.contract</field>
+            <field name="arch" type="xml">
+                <form string="_form">
+                    <header>
+                        <button name="action_validate" type="object" class="oe_highlight" string="Validé"
+                                invisible="state != 'approval'"/>
+                        <button name="action_approval" type="object" class="oe_highlight" string="Envoyé"
+                                invisible="state != 'new'"/>
+                        <button name="action_expired" type="object" string="Expiré le Contrat" state="cancel"
+                                class="oe_highlight" invisible="(state  == 'done')"
+                                confirm="Êtes-vous sûre de vouloir mettre ce contrat à expiré?"/>
+                        <button name="%(edilac.action_freezer_paiement_wz)d" type="action" string="Créer Paiement"
+                                class="btn-primary" invisible="state != 'in_progress'"/>
+                        <button name="%(edilac.action_freezer_paiement_wz)d" type="action" context="{'is_refund':True}" string="Rembourser la caution"
+                                class="btn-primary" invisible="state != 'expired'"/>
+                        <button name="action_cancel" type="object"  string="Annulé"
+                                invisible="state in ('new','in_progress')"
+                                confirm="Êtes-vous sûre de vouloir annuler ce contrat à expiré?"/>
+                      
+                        <button name="action_new" type="object" class="oe_highlight" string="Rembourser la caution"
+                                invisible="state != 'cancel'"/>
+                        <field name="state" widget="statusbar" statusbar_visible="new,approval,in_progress,expired"/>
+                    </header>
+                    <sheet>
+                        <div class="row">
+                            <div class="oe_title">
+                                <label for="name"/>
+                                <h1>
+                                    <field name="name" readonly="1"/>
+                                </h1>
+                            </div>
+                             <div class="col-3">
+                                <label for="payment_state" style="font-size:50px"/>
+                                <h1>
+                                    <field name="payment_state" readonly="1" widget="badge" decoration-warning="payment_state == 'partial'" decoration-danger="payment_state == 'unpaid'" decoration-success="payment_state == 'paid'"/>
+                                </h1>
+                            </div>
+                        </div>
+                        
+
+                       
+
+                        <div class="oe_button_box" name="button_box">
+                            <button name="button_open_customer_delivery" type="object" class="oe_stat_button"
+                                    icon="fa-money">
+                                <div class="o_field_widget o_stat_info">
+                                    <span class="o_stat_value">
+                                        <field name="customer_paiement_count"/>
+                                    </span>
+                                    <span>
+                                        Paiements Cautions
+                                    </span>
+                                </div>
+                            </button>
+                            <button name="button_open_freezer_return" type="object" class="oe_stat_button"
+                                    icon="fa-exchange">
+                                <div class="o_field_widget o_stat_info">
+                                    <span class="o_stat_value">
+                                        <field name="freezer_return_count"/>
+                                    </span>
+                                    <span>
+                                        Retour de Congélateur
+                                    </span>
+                                </div>
+                            </button>
+                        </div>
+
+                        <group>
+                            <group string="Information Générale">
+                                <field name="freezer_id" readonly="state == 'in_progress'"/>
+                                <field name="customer_id" domain="[('customer_profil', '=', 'on')]"/>
+                                <field name="lot_id" readonly="1"/>
+                                 <field name="freezer_capacity"/>
+                                <field name="customer_number" invisible="1"/>
+                                <field name="customer_email" invisible="1"/>
+                                <field name="area_id" invisible="1"/>
+                                <field name="common_id" invisible="1"/>
+                                <field name="neighborhood_id" invisible="1"/>
+                                <field name="num_registre" invisible="0"/>
+                                
+                            </group>
+                            <group string="Suivi du paiement">
+                                <field name="date" readonly="state not in ('new','approval')"/>
+                                <field name="date_end"/>
+                                <!-- <field name="journal_payment_id"/> -->
+                               
+                                <field name="deposit_amount" widget="monetary"/>
+                                <field name="deposit_amount_payment" widget="monetary"/>
+                                <field name="deposit_amount_of" widget="monetary" style="color:#ce1131"/>
+                                <field name="transport_amount" widget="monetary"/>
+                            </group>
+                        </group>
+                    </sheet>
+                    <!-- Chatter -->
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" groups="base.group_user"/>
+                        <field name="activity_ids"/>
+                        <field name="message_ids"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <record id="customer_contract_view_tree" model="ir.ui.view">
+            <field name="name">customer.contract.tree</field>
+            <field name="model">customer.contract</field>
+            <field name="arch" type="xml">
+                <tree string="_tree">
+                    <field name="name" optional="show"/>
+                    <field name="customer_id" optional="show"/>
+                    <field name="customer_number" optional="hide"/>
+                    <field name="customer_email" optional="hide"/>
+                    <field name="area_id" optional="show"/>
+                    <field name="common_id" optional="hide"/>
+                    <field name="neighborhood_id" optional="show"/>
+                    <field name="num_registre" optional="hide"/>
+                    <field name="date" optional="show"/>
+                    <field name="date_end" optional="show"/>
+                    <field name="lot_id" optional="show"/>
+                    <field name="freezer_capacity" optional="show" sum="Total"/>
+                    <field name="deposit_amount" optional="show" sum="Total"/>
+                    <field name="deposit_amount_payment" sum="Total"/>
+                    <field name="deposit_amount_of" sum="Total"/>
+                    <field name="transport_amount" optional="show" sum="Total"/>
+                    <field name="payment_state" widget="badge"
+                           decoration-warning="payment_state == 'partial'"
+                           decoration-danger="payment_state == 'unpaid'"
+                           decoration-success="payment_state == 'paid'"/>
+                    <field name="state" widget="badge"
+                           decoration-primary="state == 'new'"
+                           decoration-warning="state == 'approval'"
+                           decoration-danger="state == 'expired'"
+                           decoration-success="state == 'in_progress'"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="customer_contract_vue_search" model="ir.ui.view">
+            <field name="name">Contrat Client vue search</field>
+            <field name="model">customer.contract</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="customer_id"/>
+                    <field name="lot_id"/>
+                    <field name="area_id"/>
+                    <field name="common_id"/>
+                    <field name="neighborhood_id"/>
+                    <field name="state"/>
+
+                    <separator string="Statut"/>
+                    <filter string="Nouveau" name="filter_state" domain="[('state', '=', 'new')]"/>
+                    <filter string="Expirer" name="filter_state" domain="[('state', '=', 'expired')]"/>
+                    <filter string="En Cours" name="filter_state" domain="[('state', '=', 'in_progress')]"/>
+                    <separator/>
+                    <group expand="1" string="Group By">
+                        <filter string="Client" name="customer_id" context="{'group_by':'customer_id'}"/>
+                        <filter string="Référence" name="group_by_reference" context="{'group_by':'name'}"/>
+                        <separator/>
+                        <filter string="Statut" name="group_by_state" context="{'group_by':'state'}"/>
+                        <filter string="N° de Série" name="group_by_lot" context="{'group_by':'lot_id'}"/>
+                        <separator/>
+                        <filter string="Date Contrat" name="group_by_lot" context="{'group_by':'date'}"/>
+                        <separator/>
+                        <filter string="Quartier" name="group_by_neighborhood" context="{'group_by':'neighborhood_id'}"/>
+                        <filter string="Commune" name="group_by_common" context="{'group_by':'common_id'}"/>
+                        <filter string="Zone" name="group_by_area" context="{'group_by':'area_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+        <!-- Action pour l'affichage des contrats de clients -->
+        <record id="action_customer_contract" model="ir.actions.act_window">
+            <field name="name">Contrats clients</field>
+            <field name="res_model">customer.contract</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">Créer votre premier contrat</p>
+                <p>
+                    Utilisez cette vue pour créer et gérer les contrats clients. Des notifications seront envoyées pour
+                    les contrats proches de l'expiration.
+                </p>
+            </field>
+        </record>
+
 
         <record id="view_freezer_assignment_form" model="ir.ui.view">
             <field name="name">freezer.assignment.form</field>
@@ -8,20 +240,100 @@
             <field name="arch" type="xml">
                 <form string="Freezer Assignment">
                     <header>
-                        <button name="action_submit" type="object" string="Submit" states="new" class="oe_highlight"/>
-                        <button name="action_validate" type="object" string="Validate" states="adv"/>
-                        <button name="action_approve" type="object" string="Approve" states="stock_management"/>
-                        <field name="state" widget="statusbar" statusbar_visible="new,adv,stock_management"/>
+                        <button name="action_submit" type="object" string="Soumettre" state="new" class="oe_highlight"
+                                invisible="(state  != 'new')"/>
+                        <button name="action_validate" type="object" string="Valider" state="adv" class="oe_highlight"
+                                invisible="(state  != 'adv')"/>
+                        <!-- <button name="action_approve" type="object" string="Confirmer" state="stock_management"
+                                class="oe_highlight" invisible="(state  != 'stock_management')" confirm="Cette action créa un bon de livraison pour ce client!"/> -->
+                        <button name="action_done" type="object" class="oe_highlight" string="Générer le contrat"
+                                invisible="state != 'stock_management'"/>
+                        <button name="action_cancel" type="object" string="Annuler" state="cancel"
+                                invisible="(state  == 'cancel')"
+                                confirm="Êtes-vous sûre de vouloir annuler cette affectation ?"/>
+                        <button name="action_new" type="object" class="oe_highlight" string="Remettre en brouillon"
+                                invisible="state != 'cancel'"/>
+
+                        <field name="state" widget="statusbar" statusbar_visible="new,adv,stock_management,done"/>
                     </header>
                     <sheet>
+                        <div class="oe_button_box" name="button_box">
+
+                            <button name="button_open_customer_contract" type="object" class="oe_stat_button"
+                                    icon="fa-file-text-o">
+                                <div class="o_field_widget o_stat_info">
+                                    <span class="o_stat_value">
+                                        <field name="customer_contract_count"/>
+                                    </span>
+                                    <span>
+                                        Contrats clients
+                                    </span>
+                                </div>
+                            </button>
+
+                            <button name="button_open_customer_delivery" type="object" class="oe_stat_button"
+                                    icon="fa-truck">
+                                <div class="o_field_widget o_stat_info">
+                                    <span class="o_stat_value">
+                                        <field name="customer_delivery_count"/>
+                                    </span>
+                                    <span>
+                                        Livraisons clients
+                                    </span>
+                                </div>
+                            </button>
+
+                        </div>
+
+                        <widget name="web_ribbon" title="Affection Validée" bg_color="bg-success"
+                                invisible="(state  != 'done')"/>
+                        <widget name="web_ribbon" title="Affectation Refusée" bg_color="text-bg-danger"
+                                invisible="(state  != 'cancel')"/>
+                        <div class="oe_title">
+                            <label for="name"/>
+                            <h1>
+                                <field name="name" readonly="1"/>
+                            </h1>
+                        </div>
                         <group>
-                            <field name="customer_id"/>
-                            <field name="customer_number"/>
-                            <field name="customer_email"/>
-                            <field name="product_serial_number"/>
-                            <field name="product_id"/>
+                            <group string="Information générale">
+                                <field name="customer_id" readonly="state != 'new'"
+                                       domain="[('customer_profil','=', 'on')]"/>
+                                <field name="company_id" invisible="1"/>
+                                <field name="sequence" invisible="1"/>
+                                <field name="contract_state" widget="badge"
+                                    decoration-primary="contract_state == 'new'"
+                                    decoration-danger="contract_state == 'expired'"
+                                    decoration-success="contract_state == 'in_progress'" invisible="customer_contract_count == 0"/>
+
+                                <div invisible="state in('new','adv')">
+                                     <field name="qr" widget="image" invisible="0"/>
+                                     <div name="geo_localize_button" style="float:left">
+                                        <button name="qr_print" type="object"  icon="fa-qrcode" class="btn btn-link p-0">
+                                            Imprimer QR
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <field name="customer_number" invisible="1"/>
+                                <field name="customer_email" invisible="1"/>
+                                <field name="company_id" invisible="1"/>
+                            </group>
+                            <group string="information Produit">
+                                <!-- <field name="product_serial_number" readonly="state == 'done'" force_save="1"/> -->
+                                <field name="date" readonly="1" force_save="1"/>
+                                <field name="product_id" readonly="state != 'new'" domain="[('freezer','=', True)]"/>
+                                <field name="lot_id" readonly="state not in ('new','adv')" required="state == 'adv'"
+                                       domain="[('product_id','=', product_id),('statut', '=', 'avalaible')]" force_save="1"/>
+
+                            </group>
                         </group>
                     </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" groups="base.group_user"/>
+                        <field name="activity_ids"/>
+                        <field name="message_ids"/>
+                    </div>
                 </form>
             </field>
         </record>
@@ -31,16 +343,115 @@
             <field name="model">freezer.assignment</field>
             <field name="arch" type="xml">
                 <tree string="Freezer Assignments">
-                    <field name="name"/>
-                    <field name="customer_id"/>
-                    <field name="customer_number"/>
-                    <field name="customer_email"/>
-                    <field name="product_serial_number"/>
-                    <field name="product_id"/>
-                    <field name="state"/>
+                    <field name="name" optional="show"/>
+                    <field name="customer_id" optional="show"/>
+                    <field name="customer_number" optional="show"/>
+                    <field name="customer_email" optional="show"/>
+                    <field name="lot_id" force_save="1" optional="show"/>
+                    <field name="product_id" optional="show"/>
+                    <field name="date" optional="show"/>
+                    <field name="contract_state" widget="badge"
+                                    decoration-primary="contract_state == 'new'"
+                                    decoration-danger="contract_state == 'expired'"
+                                    decoration-success="contract_state == 'in_progress'"/>
+                    <field name="state" widget="badge" decoration-primary="state == 'new'"
+                           decoration-warning="state == 'adv'" decoration-danger="state == 'cancel'"
+                           decoration-success="state == 'stock_management'"
+                           decoration-info="state == 'done'"/>
+
                 </tree>
             </field>
         </record>
+
+        <record id="freezer_assignment_vue_search" model="ir.ui.view">
+            <field name="name">Affectations au congélateur vue search</field>
+            <field name="model">freezer.assignment</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="customer_id"/>
+                    <field name="product_id"/>
+                    <field name="lot_id"/>
+
+                    <separator string="Statut"/>
+                    <filter string="Nouveau" name="filter_state" domain="[('state', '=', 'new')]"/>
+                    <filter string="En attente" name="filter_state" domain="[('state', '=', 'adv')]"/>
+                    <filter string="Déploiement" name="filter_state" domain="[('state', '=', 'stock_management')]"/>
+                    <filter string="Fait" name="filter_state" domain="[('state', '=', 'done')]"/>
+                    <filter string="Annuler" name="filter_state" domain="[('state', '=', 'cancel')]"/>
+                    <separator/>
+                    <group expand="1" string="Group By">
+                        <filter string="Client" name="group_by_customer" context="{'group_by':'customer_id'}"/>
+                        <filter string="Référence" name="group_by_reference" context="{'group_by':'name'}"/>
+                        <separator/>
+                        <filter string="Statut" name="group_by_state" context="{'group_by':'state'}"/>
+                        <filter string="Congélateur" name="group_by_product" context="{'group_by':'product_id'}"/>
+                        <filter string="N° de Série" name="group_by_lot" context="{'group_by':'lot_id'}"/>
+                        <separator/>
+                        <filter string="Date Déploiement" name="group_by_lot" context="{'group_by':'date'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+
+        <!-- Action pour l'affichage des affectations de congélateurs -->
+        <record id="action_freezer_assignment" model="ir.actions.act_window">
+            <field name="name">Affectations au congélateur</field>
+            <field name="res_model">freezer.assignment</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+                <p>
+                    Utilisez cette vue pour gérer les affectations de congélateurs aux clients.
+                </p>
+            </field>
+        </record>
+
+        <!-- Action pour afficher les produits marqués comme congélateurs -->
+        <record id="action_template_freezer" model="ir.actions.act_window">
+            <field name="name">Modèle de Congélateurs</field>
+            <field name="res_model">product.template</field>
+            <field name="view_mode">kanban,tree,form</field>
+            <field name="domain">[('freezer', '=', True)]</field>
+            <field name="context">{'default_freezer' : True}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">Ajouter un modèle de congélateur</p>
+                <p>Créer votre premier modèle de congélateur</p>
+            </field>
+        </record>
+
+
+        <record id="menu_product_serie_freezer" model="ir.actions.act_window">
+            <field name="name">Congélateurs</field>
+            <field name="res_model">stock.lot</field>
+            <field name="view_mode">tree,kanban,form</field>
+            <field name="domain">[('product_id.freezer', '=', True)]</field>
+
+        </record>
+
+        <record id="delivery_freezer_action" model="ir.actions.act_window">
+            <field name="name">Opérations de stock</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">stock.picking.type</field>
+            <field name="domain">[('is_free_transfer', '=', True)]</field>
+            <!-- <field name="view_id" ref="order_view_trees"/> -->
+            <field name="view_mode">kanban</field>
+        </record>
+
+        <menuitem id="menu_freezer_root" name="Congelateur" web_icon="edilac,static/description/icon_freezer.png"/>
+        <menuitem id="menu_customer_contract" name="Contrats clients" parent="menu_freezer_root"
+                  action="action_customer_contract" sequence="2"/>
+        <menuitem id="menu_delivery_contract" name="Opérations de stock" parent="menu_freezer_root"
+                  action="delivery_freezer_action" sequence="2"/>
+
+        <menuitem id="menu_freezer_assignment" name="Affectations" parent="menu_freezer_root"
+                  action="action_freezer_assignment" sequence="1"/>
+        <menuitem id="menu_product_parent_freezer" name="Configuration" parent="menu_freezer_root" sequence="10"/>
+        <menuitem id="menu_template_freezer" name="Modèles Congélateurs" parent="menu_product_parent_freezer"
+                  action="action_template_freezer" sequence="1"/>
+        <menuitem id="menu_product_series_freezer" parent="menu_product_parent_freezer"
+                  action="menu_product_serie_freezer" sequence="3"/>
+
 
     </data>
 </odoo>

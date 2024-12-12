@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_delivery_person_form" model="ir.ui.view">
+        <field name="name">delivery.person.form</field>
+        <field name="model">delivery.person</field>
+        <field name="arch" type="xml">
+            <form>
+                
+                <sheet>
+                    <!-- <div class="oe_button_box" name="button_box">
+
+                        <button name="button_open_customer_contract" type="object" class="oe_stat_button"
+                                icon="fa-file-text-o">
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_value">
+                                    <field name="customer_contract_count"/>
+                                </span>
+                                <span>
+                                    Contrats clients
+                                </span>
+                            </div>
+                        </button>
+
+                        <button name="button_open_customer_delivery" type="object" class="oe_stat_button"
+                                icon="fa-truck">
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_value">
+                                    <field name="customer_delivery_count"/>
+                                </span>
+                                <span>
+                                    Livraisons clients
+                                </span>
+                            </div>
+                        </button>
+
+                    </div> -->
+                    <!-- <widget name="web_ribbon" title="Affection Validée" bg_color="bg-success"
+                            invisible="(state  != 'done')"/>
+                    <widget name="web_ribbon" title="Affectation Refusée" bg_color="text-bg-danger"
+                            invisible="(state  != 'cancel')"/> -->
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" required="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Information générale">
+                            <field name="mail"/>
+                            <field name="phone"/>
+                            <field name="adress"/>
+                        </group>
+                        <group string="Information utilisateur">
+                            <field name="user_id" required="1" options="{'no_create': True, 'no_edit': True}"/>
+                            <field name="company_id" required="1" options="{'no_create': True, 'no_edit': True}"/>
+                        </group>
+                        
+                        
+                    </group>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" groups="base.group_user"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_delivery_person_tree" model="ir.ui.view">
+        <field name="name">delivery.person.tree</field>
+        <field name="model">delivery.person</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name" optional="show"/>
+                <field name="mail" optional="show"/>
+                <field name="phone" optional="show"/>
+                <field name="adress" optional="show"/>
+                <field name="company_id" optional="show"/>
+
+            </tree>
+        </field>
+    </record>
+
+    <record id="order_view_trees" model="ir.ui.view">
+        <field name="name">order.tree</field>
+        <field name="model">stock.picking</field>
+        <field name="arch" type="xml">
+            <tree string="Picking list" multi_edit="1" sample="1">
+                <header>
+                    <button name="do_validate_order" type="object" string="Validation commande" class="btn-primary"/>
+                    <button name="%(edilac.action_assignments)d" type="action" string="Affecter"/>
+                    <button name="do_unreserve" type="object" string="Annuler la réservation"/>
+                    <button name="action_assign" type="object" string="Vérifier la disponibilité"/>
+                </header>
+                <field name="company_id" column_invisible="True"/>
+                <field name="type_code" column_invisible="True"/>
+                <field name="priority" optional="show" widget="priority" nolabel="1"/>
+                <field name="origin" optional="show" readonly="state in ['cancel', 'done']"/>
+                <field name="name" decoration-bf="1"/>
+                <field name="location_id" options="{'no_create': True}" string="From" groups="stock.group_stock_multi_locations" optional="hide" readonly="state == 'done'"/>
+                <field name="location_dest_id" options="{'no_create': True}" string="To" groups="stock.group_stock_multi_locations" optional="hide" readonly="state == 'done'"/>
+                <field name="partner_id" optional="show" readonly="state in ['cancel', 'done']"/>
+                
+                <field name="is_signed" string="Signed" optional="hide" groups="stock.group_stock_sign_delivery"/>
+                <field name="user_id" optional="hide" widget="many2one_avatar_user" readonly="state in ['cancel', 'done']"/>
+                <field name="scheduled_date" optional="show" widget="remaining_days" invisible="state in ('done', 'cancel')" readonly="state in ['cancel', 'done']"/>
+                <field name="picking_type_code" column_invisible="True"/>
+                <field name="products_availability_state" column_invisible="True" options="{&quot;lazy&quot;: true}"/>
+                <field name="products_availability" options="{&quot;lazy&quot;: true}" optional="hide" invisible="picking_type_code != 'outgoing' or state not in ['confirmed', 'waiting', 'assigned']" decoration-success="state == 'assigned' or products_availability_state == 'available'" decoration-warning="state != 'assigned' and products_availability_state in ('expected', 'available')" decoration-danger="state != 'assigned' and products_availability_state == 'late'"/>
+                <field name="date_deadline" optional="hide" widget="remaining_days" invisible="state in ('done', 'cancel')"/>
+                <field name="date_done" string="Effective Date" optional="hide"/>
+               
+                <field name="backorder_id" optional="hide"/>
+                <field name="picking_type_id" optional="hide"/>
+                <field name="company_id" groups="base.group_multi_company" optional="show"/>
+                <field name="total_ordered" string="Total commandés" readonly="state in ['cancel', 'done']"/>
+                <field name="total_received" string="Total reçus/livrés" readonly="state in ['cancel', 'done']"/>
+                <field name="total_ecart" string="Total ecart" readonly="state in ['cancel', 'done']"/>
+                <field name="state" optional="show" widget="badge" decoration-danger="state=='cancel'" decoration-info="state== 'assigned'" decoration-muted="state == 'draft'" decoration-success="state == 'done'" decoration-warning="state not in ('draft','cancel','done','assigned')"/>
+                <!-- <field name="state_assignement" optional="show" widget="badge" decoration-muted="state_assignement == 'draft'" decoration-success="state_assignement == 'assigned'"/> -->
+                <field name="activity_exception_decoration" widget="activity_exception"/>
+                <field name="json_popover" widget="stock_rescheduling_popover" nolabel="1" invisible="not json_popover"/>
+            </tree>
+            
+        </field>
+    </record>
+
+    <record id="delivery_person_view_actions" model="ir.actions.act_window">
+        <field name="name">Livreur</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">delivery.person</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p>
+                Utilisez cette vue pour gérer les affectations de congélateurs aux clients.
+            </p>
+        </field>
+    </record>
+    
+    <record id="order_actions" model="ir.actions.act_window">
+        <field name="name">Commandes</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">stock.picking</field>
+        <!-- <field name="domain">[('location_id.name', '=', 'Zone de colisage')]</field> -->
+        <field name="domain">[('location_id.name', '=', 'Zone de colisage')]</field>
+        <field name="view_id" ref="order_view_trees"/>
+        <field name="context">{'contact_display': 'partner_address', 'default_company_id': allowed_company_ids[0], 'restricted_picking_type_code': 'outgoing'}</field>
+        <!-- <field name="context">{'search_default_my_transfers':'1','contact_display': 'partner_address', 'default_company_id': allowed_company_ids[0], 'restricted_picking_type_code': 'outgoing'}</field> -->
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="assign_order_view_actions" model="ir.actions.act_window">
+        <field name="name">Livraison</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">stock.picking</field>
+        <!-- <field name="domain">[('location_id.name', '=', 'Zone de colisage')]</field> -->
+        <field name="domain">[('location_id.name', '=', 'Zone de colisage'),('state', '=', 'assigned')]</field>
+        <field name="view_id" ref="order_view_trees"/>
+        <field name="context">{'search_scheduled_date': context_today(),'contact_display': 'partner_address', 'default_company_id': allowed_company_ids[0], 'restricted_picking_type_code': 'outgoing'}</field>
+        <!-- <field name="context">{'search_default_my_transfers':'1','contact_display': 'partner_address', 'default_company_id': allowed_company_ids[0], 'restricted_picking_type_code': 'outgoing'}</field> -->
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="menu_delivery_person_root" name="Livreur" web_icon="edilac,static/description/icon_delivery.png"/>
+    <menuitem id="menu_delivery" name="Livraison" parent="menu_delivery_person_root" action="assign_order_view_actions" sequence="1"/>
+    <menuitem id="menu_orders" name="Commandes" parent="menu_delivery_person_root" action="order_actions" sequence="2"/>
+    <menuitem id="menu_config" name="Configuration" parent="menu_delivery_person_root"/>
+    <menuitem id="menu_livreur" name="Livreur" parent="menu_config"
+                action="delivery_person_view_actions"/>
+           
+
+
+</odoo>

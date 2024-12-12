@@ -1,69 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        
-       <record id="$ModelName$_form_view" model="ir.ui.view">
-            <field name="name">$ProjectName$.$ModelName$.form</field>
-            <field name="model">$ProjectName$.$ModelName$</field>
-            <field name="arch" type="xml">
-                <form string="$ModelTitle$">
-                <sheet>
-                    <div class="oe_title">
-                        <label for="$END$example_title"/>
-                        <h1>
-                            <field name="example_title" placeholder="Title"/>
-                        </h1>
-                    </div>
-                    <group>
-                        <group>
-                            <field name="create_date" />
-                        </group>
-                        <group>
-                            <field name="example_field"/>
-                        </group>
-                    </group>
-                </sheet>
-                </form>
+        <!--=======STATE DEPLOIEMENT SEND EMAIL=========-->
+        <record id="email_template_deploiement" model="mail.template">
+            <field name="name">Courrier: de sortir de congélateur</field>
+            <field name="model_id" ref="edilac.model_freezer_assignment"/>
+            <field name="subject">Affectation de Congélateur {{object.name}} en attente de déploiement</field>
+            <field name="email_from">{{(object.company_id.email_formatted or user.email_formatted)}}</field>
+            <field name="email_to">{{user.email_formatted}}</field>
+            <field name="email_cc">{{""}}</field>
+            <field name="auto_delete" eval="True"/>
+
+            <field name="body_html" type="xml">
+                <div style="background:#F0F0F0;color:#515166;padding:10px 0px;font-family:Arial,Helvetica,sans-serif;font-size:14px;">
+                    <table style="width:1000px;margin:5px auto;">
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <a href="/">
+                                        <img src="/web/binary/company_logo"
+                                             style="vertical-align:baseline;max-width:100px;"
+                                             class="d-block mx-auto o_we_selected_image"
+                                             data-original-title="${object.company_id.name}"
+                                             title="${object.company_id.name}" aria-describedby="PIGELEC"/>
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table style="width:600px;margin:0px auto;background:white;border:1px solid #e1e1e1;">
+                        <tbody>
+                            <tr>
+                                <td style="padding:15px 20px 10px 20px;">
+                                    <div>
+                                        <h2>Bonjour Monsieur/Madame</h2>
+                                        <br/>
+                                        <p style="color:#9E588B;">Vous avez reçu un courrier électronique important nécessitant votre attention sur une nouvelle sortie de congélateur en stock.
+                                            <ul>
+                                                <li>Référence de l'affectation' : <t t-out="object.name"/></li>
+                                                <li>Client : <t t-out="object.customer_id.name"/></li>
+                                                <li>Congélateur : <t t-out="object.product_id.name"/></li>
+                                                <li>Série : <t t-out="object.lot_id.name"/></li>
+                                                <li>Date : <t t-out="object.date"/></li>
+                                            </ul>
+                                        </p>
+                                    </div>
+                                    <h3 style="color:#9E588B;">Cordialement.</h3>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </field>
         </record>
-
-        <record id="$ModelName$_tree_view" model="ir.ui.view">
-            <field name="name">$ProjectName$.$ModelName$.tree</field>
-            <field name="model">$ProjectName$.$ModelName$</field>
-            <field name="arch" type="xml">
-                <tree string="$ModelTitle$">
-                    <field name="create_date"/>
-                    <field name="example_field"/>
-                </tree>
-            </field>
-        </record>
-
-        <record id="$ModelName$_search_view" model="ir.ui.view">
-            <field name="name">$ProjectName$.$ModelName$.search</field>
-            <field name="model">$ProjectName$.$ModelName$</field>
-            <field name="arch" type="xml">
-                <search string="$ModelTitle$">
-                    <group expand="1" string="Group By">
-                        <filter string="Example Field" name="example_field" domain="[]" context="{'group_by':'example_field'}"/>
-                    </group>
-               </search>
-            </field>
-        </record>
-
-        <record id="$ModelName$_act_window" model="ir.actions.act_window">
-            <field name="name">$ModelTitle$</field>
-            <field name="type">ir.actions.act_window</field>
-            <field name="res_model">$ProjectName$.$ModelName$</field>
-            <field name="view_type">form</field>
-            <field name="view_mode">tree,form</field>
-            <field name="help" type="html">
-                <p class="oe_view_nocontent_create">
-                    There is no examples click here to add new $ModelTitle$.
-                </p>
-            </field>
-        </record>
-
-        <menuitem name="$ModelTitle$" id="$ModelName$_menu" parent="your_root_menu" action="$ModelName$_act_window"/>
-
     </data>
 </odoo>

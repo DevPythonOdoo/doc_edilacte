@@ -8,4 +8,63 @@
         <field name="company_id" eval="False"/>
     </record>
 
+    <record id="sale_order_normal_seq" model="ir.sequence">
+        <field name="name">Sale Normal Sequence</field>
+        <field name="code">sale.order.normal</field>
+        <field name="padding">5</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <!-- Séquence pour la référence de mission -->
+    <record id="seq_freezer_assignment" model="ir.sequence">
+        <field name="name">Référence Congélateur</field>
+        <field name="code">freezer.assignment</field>
+        <field name="prefix">RC</field> <!-- Le préfixe de la référence -->
+        <field name="padding">4</field> <!-- Nombre de chiffres pour le numéro -->
+        <field name="number_increment">1</field> <!-- Incrémentation du numéro -->
+    </record>
+
+
+    <!-- Séquence pour la référence de mission -->
+    <record id="seq_contrat_customer" model="ir.sequence">
+        <field name="name">Référence Contract</field>
+        <field name="code">customer.contract</field>
+        <field name="prefix">CONT/</field> <!-- Le préfixe de la référence -->
+        <field name="padding">4</field> <!-- Nombre de chiffres pour le numéro -->
+        <field name="number_increment">1</field> <!-- Incrémentation du numéro -->
+    </record>
+
+
+    <record id="seq_field_visit" model="ir.sequence">
+        <field name="name">Référence Visite</field>
+        <field name="code">field.visit</field>
+        <field name="prefix">RV/</field> <!-- Le préfixe de la référence -->
+        <field name="padding">4</field> <!-- Nombre de chiffres pour le numéro -->
+        <field name="number_increment">1</field> <!-- Incrémentation du numéro -->
+    </record>
+
+    <record id="seq_payment_caution" model="ir.sequence">
+        <field name="name">Paiement Caution</field>
+        <field name="code">caution</field>
+        <field name="prefix">PC</field>
+        <field name="padding">5</field>
+        <field name="company_id" eval="False"/>
+    </record>
+    <record id="stock_picking_type_freezer_return" model="stock.picking.type">
+        <field name="name">Retour Congélateur</field>
+        <field name="code">incoming</field>
+        <field name="is_free_transfer">True</field>
+        <field name="sequence_code">RETC</field>
+    </record>
+
+    <record id="stock_picking_type_freezer" model="stock.picking.type">
+        <field name="name">Livraison Congélateur</field>
+        <field name="code">outgoing</field>
+        <field name="is_free_transfer">True</field>
+        <field name="sequence_code">DEPL</field>
+        <field name="return_picking_type_id" ref="edilac.stock_picking_type_freezer_return"/>
+    </record>
+
+
+
 </odoo>

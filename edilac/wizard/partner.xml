@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- View partner form -->
+    <record id="view_partner_wizard_form" model="ir.ui.view">
+        <field name="name">view.partner.form</field>
+        <field name="model">customers.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Partner">
+                <group>
+                    <group>
+                        <field name="start_date"/>
+                        <field name="end_date"/>
+                    </group>
+                    <group>
+                        <field name="area_id"/>
+                        <field name="common_id"  domain="[('area_id' ,'=',area_id)]"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="generate_report" type="object" icon="fa-print" string="Imprimer" class="oe_highlight"/>
+                    <button special="cancel" string="Annuler"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action partner -->
+    <record id="action_partner_wizard" model="ir.actions.act_window">
+        <field name="name">Clients Inactifs</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">customers.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem id="menu_inactive_customers"
+              name="Etat Clients inactifs"
+              parent="sale.menu_sale_report" 
+              action="action_partner_wizard"/>
+
+</odoo>

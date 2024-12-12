@@ -1,6 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
+
+        <record id="view_production_lot_form_inherit" model="ir.ui.view">
+            <field name="name">view_production_lot_form.inherit</field>
+            <field name="model">stock.lot</field>
+            <field name="priority" eval="1"/>
+            <field name="inherit_id" ref="stock.view_production_lot_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//button[@name='action_lot_open_quants']" position="after">
+                    <button name="button_open_customer_affection_count" type="object" class="oe_stat_button"
+                            icon="fa-truck">
+                        <div class="o_field_widget o_stat_info">
+                            <span class="o_stat_value">
+                                <field name="customer_affection_count"/>
+                            </span>
+                            <span>
+                                Détail affectation
+                            </span>
+                        </div>
+                    </button>
+                </xpath>
+                <xpath expr="//field[@name='location_id']" position="after">
+                     <field name="last_assignment"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="stock_lot_search_views_inherit" model="ir.ui.view">
+            <field name="name">stock.lot.search.inherit</field>
+            <field name="model">stock.lot</field>
+            <field name="priority">20</field>
+            <field name="inherit_id" ref="stock.search_product_lot_filter"/>
+            <field name="arch" type="xml">
+                <xpath expr="//filter[@name='group_by_product']" position="after">
+                    <filter name="group_by_ref" string="Reference" domain="[]" context="{'group_by': 'ref'}"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="stock_picking_type_views" model="ir.ui.view">
+            <field name="name">stock.picking.type.inherit</field>
+            <field name="model">stock.picking.type</field>
+            <field name="priority">20</field>
+            <field name="inherit_id" ref="stock.view_picking_type_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='sequence_id']" position="after">
+                    <field name="is_free_transfer" widget="boolean_toggle"/>
+                    <field name="is_picking" widget="boolean_toggle"/>
+                    <field name="step"/>
+                    <field name="is_delivery" widget="boolean_toggle"/>
+                </xpath>
+            </field>
+        </record>
+
+
         <record id="stock_views_form_inherit" model="ir.ui.view">
             <field name="name">stock.picking.form</field>
             <field name="model">stock.picking</field>
@@ -17,16 +71,137 @@
                     <field name="date_deadline" readonly="0" string="Date limite de vente"/>
                 </xpath>
                 <xpath expr="//page//tree//field[@name='quantity']" position="after">
+                    <field name="picking_step" column_invisible="1"/>
                     <field name="gaps" string="Ecart" readonly="not is_quantity_done_editable"/>
                     <field name="quality_id" string="Qualité" readonly="not is_quantity_done_editable" options="{'no_create': True, 'no_edit': True}"/>
+                    <field name="price_total" sum="total" readonly="not is_quantity_done_editable" options="{'no_create': True, 'no_edit': True}"/>
+                    <field name="amount_collected" sum="total" readonly="not is_quantity_done_editable" options="{'no_create': True, 'no_edit': True}"/>
+
+                    <field name="currency_id" column_invisible="1"/>
+                    <field name="manual_tranfert_move" string="TRANSFERT MANUEL" column_invisible="1"/>
                 </xpath>
+
                 <xpath expr="//field[@name='origin']" position="after">
                     <field name="total_ordered" string="Total commandés" readonly="state in ['cancel', 'done']"/>
                     <field name="total_received" string="Total reçus/livrés" readonly="state in ['cancel', 'done']"/>
                     <field name="total_ecart" string="Total ecart" readonly="state in ['cancel', 'done']"/>
+                    <field name="manual_tranfert" widget="boolean_toggle" string="est manuel" invisible="1" />
+                    <field name="type_code" invisible="1"/>
+                    <field name="status" invisible="1" widget="badge" decoration-primary="status == 'draft'" decoration-success="status == 'done'"/>
                 </xpath>
+
+                <xpath expr="//field[@name='location_dest_id']" position="after">
+                    <field name="picking_step_stk" invisible="1"/>
+                    <field name="state_deliv" widget="radio" invisible="picking_step_stk not in ('step3', 'step4')"/>
+                    <!-- <field name="state_deliv" widget="radio" invisible="picking_step_stk != 'step3'"/> -->
+                    <field name="comment" widget="html" invisible="state_deliv not in ('cancel')"/>
+                    
+                </xpath>
+                    
+                <xpath expr="//field[@name='user_id']" position="after">
+                    <!-- <field name="user_id" readonly="state in ['cancel', 'done']"/> -->
+                    <field name="region_id" readonly="state in ['cancel', 'done']" invisible="1"/>
+                    <field name="city_id" readonly="state in ['cancel', 'done']" invisible="1"/>
+                    <field name="area_id" readonly="state in ['cancel', 'done']"/>
+                    <field name="common_id" readonly="state in ['cancel', 'done']" invisible="1"/>
+                    <field name="neighborhood_id" readonly="state in ['cancel', 'done']" invisible="1"/>
+                    <field name="agent_id" invisible="1"/>
+                    <field name="assignment_id" invisible="1"/> 
+                    <field name="fleet_vehicle_id" invisible="0"/>
+                </xpath>
+                
             </field>
         </record>
+
+        <record id="stock_batch_view_form_inherit" model="ir.ui.view">
+            <field name="name">stock.picking.batch.form</field>
+            <field name="model">stock.picking.batch</field>
+            <field name="inherit_id" ref="stock_picking_batch.stock_picking_batch_form"/>
+            <field name="priority" eval="1"/>
+            <field name="arch" type="xml">
+                
+                <xpath expr="//button[@name='action_print']" position="replace">
+                     <button name="action_print" invisible="1" string="Imprimer BP" type="object"/>
+                  
+                </xpath>
+                <xpath expr="//button[@name='action_print']" position="after">
+                    <button name="action_print_bon_preparation" invisible="state not in ('in_progress','delivered', 'done')" string="Imprimer BP" type="object"/>
+                    <button name="action_print_bc" invisible="state not in ('in_progress','delivered', 'done')" string="Imprimer BC" type="object"/>
+                    <button name="action_print_bl" invisible="state not in ('in_progress','delivered', 'done')" string="Imprimer BL" type="object"/>
+                    <button name="action_print_preparation" invisible="state not in ('in_progress','delivered', 'done')" string="Préparation" type="object"/>
+                  
+                </xpath>
+                
+                <xpath expr="//field[@name='user_id']" position="after">
+                    <field name="deliv_person_id" readonly="state in ['cancel', 'done']"/>    
+                </xpath>
+                <xpath expr="//field[@name='scheduled_date']" position="after">
+                    <field name="fleet_vehicle_id" readonly="state in ['cancel', 'done']"/>    
+                </xpath>
+
+                <xpath expr="//page[@name='page_detailed_operations']" position="before">
+                    <page string="Commandes">
+                        <field name="picking_ids" widget="many2many" mode="tree,kanban" context="{'form_view_ref': 'stock_picking_batch.view_picking_form_inherited'}" readonly="state not in ['draft', 'in_progress']">
+                            <tree>
+                                <field name="company_id" column_invisible="True"/>
+                                <field name="priority" optional="show" widget="priority" nolabel="1"/>
+                                <field name="name" decoration-bf="1"/>
+                                <field name="location_id" options="{'no_create': True}" string="From" groups="stock.group_stock_multi_locations" optional="hide" readonly="state == 'done'"/>
+                                <field name="location_dest_id" options="{'no_create': True}" string="To" groups="stock.group_stock_multi_locations" optional="hide" readonly="state == 'done'"/>
+                                <field name="partner_id" optional="show" readonly="state in ['cancel', 'done']"/>
+                                <field name="area_id" optional="show" string="Zone de livraison" readonly="state in ['cancel', 'done']"/>
+                                
+                                <field name="is_signed" string="Signed" optional="hide" groups="stock.group_stock_sign_delivery"/>
+                                <field name="user_id" optional="hide" widget="many2one_avatar_user" readonly="state in ['cancel', 'done']"/>
+                                <field name="scheduled_date" optional="show" widget="remaining_days" invisible="state in ('done', 'cancel')" readonly="state in ['cancel', 'done']"/>
+                                <field name="picking_type_code" column_invisible="True"/>
+                                <field name="products_availability_state" column_invisible="True" options="{&quot;lazy&quot;: true}"/>
+                                <field name="products_availability" options="{&quot;lazy&quot;: true}" optional="hide" invisible="picking_type_code != 'outgoing' or state not in ['confirmed', 'waiting', 'assigned']" decoration-success="state == 'assigned' or products_availability_state == 'available'" decoration-warning="state != 'assigned' and products_availability_state in ('expected', 'available')" decoration-danger="state != 'assigned' and products_availability_state == 'late'"/>
+                                <field name="date_deadline" optional="hide" widget="remaining_days" invisible="state in ('done', 'cancel')"/>
+                                <field name="date_done" string="Effective Date" optional="hide"/>
+                                <field name="origin" optional="show" readonly="state in ['cancel', 'done']"/>
+                                <field name="backorder_id" optional="hide"/>
+                                <field name="picking_type_id" optional="hide"/>
+                                <field name="company_id" groups="base.group_multi_company" optional="show"/>
+                                <field name="state" optional="show" widget="badge" decoration-danger="state=='cancel'" decoration-info="state== 'assigned'" decoration-muted="state == 'draft'" decoration-success="state == 'done'" decoration-warning="state not in ('draft','cancel','done','assigned')"/>
+                                <field name="activity_exception_decoration" widget="activity_exception"/>
+                                <field name="json_popover" widget="stock_rescheduling_popover" nolabel="1" invisible="not json_popover"/> 
+                                
+                            </tree>
+                        </field> 
+                    </page>
+                </xpath>
+                
+                <xpath expr="//page[@name='page_detailed_operations']" position="replace">
+                    <page string="Produits" name="page_detailed_operations" invisible="state == 'draft'">
+                        <field name="move_line_ids" context="{'tree_view_ref': 'stock_picking_batch.view_move_line_tree'}" readonly="state not in ['draft', 'in_progress']"/>
+                        <button class="oe_highlight" name="action_put_in_pack" type="object" string="Put in Pack" invisible="state in ('draft', 'done', 'cancel')" groups="stock.group_tracking_lot"/>
+                    </page>
+                    <page string="Preparation">
+                        <field name="product_quantity_ids" widget="one2many_list">
+                            <tree>
+                                <field name="product_name" string="Produit"/>
+                                <field name="lot_name" string="Lot"/>
+                                <field name="total_quantity" string="Quantité Totale"/>
+                            </tree>
+                        </field>
+                    </page>
+                </xpath>
+                <xpath expr="//page[@name='page_operations']" position="replace">
+                    <page string="Operations" name="page_operations" invisible="1">
+                        <field name="move_ids" context="{'tree_view_ref': 'stock_picking_batch.view_picking_move_tree_inherited'}"/>
+                    </page>
+                </xpath>
+                <xpath expr="//page[@name='page_transfers']" position="replace">
+                    <page string="Transfers" name="page_transfers" invisible="1">
+                        <field name="allowed_picking_ids" invisible="1"/>
+                        <field name="picking_ids" widget="many2many" mode="tree,kanban" context="{'form_view_ref': 'stock_picking_batch.view_picking_form_inherited'}" readonly="state not in ['draft', 'in_progress']"/>
+                    </page>
+                </xpath>
+                
+            </field>
+        </record>
+
         <record id="stocks_move_view_form_inherit" model="ir.ui.view">
             <field name="name">stock.move.form.inherit</field>
             <field name="model">stock.move</field>
@@ -36,17 +211,56 @@
                 <xpath expr="//field[@name='company_id']" position="after">
                     <field name="gaps" string="Ecart" invisible="1"/>
                     <field name="quality_id" string="Qualité" invisible="1"/>
+                    <field name="false_product_uom_qty" string="Quantités commandées" invisible="1"/>
+                    <field name="manual_tranfert_move" string="TRANSFERT MANUEL" invisible="1"/>
+                    <field name="amount_collected" invisible="1"/>
+                    <!-- <field name="product_lot_id" invisible="1"/> -->
+                    <field name="moveline_id" invisible="1"/>
+                    <field name="price_total" invisible="1"/>
+                    <field name="picking_step" invisible="1"/>
+                    <field name="currency_id" invisible="1"/>
+                </xpath>
+            </field>
+        </record>
+        <record id="stocks_move_line_view_form_inherit" model="ir.ui.view">
+            <field name="name">stock.move.line.form.inherit</field>
+            <field name="model">stock.move.line</field>
+            <field name="inherit_id" ref="stock.view_move_line_form"/>
+            <field name="arch" type="xml">
+               
+                <xpath expr="//field[@name='company_id']" position="after">
+                    <field name="product_packaging_id" invisible="1"/>
+                    <field name="price_unit" invisible="1"/>
+
+                </xpath>
+            </field>
+        </record>
+        <record id="stocks_move_line_view_tree_inherit" model="ir.ui.view">
+            <field name="name">stock.move.line.tree.inherit</field>
+            <field name="model">stock.move.line</field>
+            <field name="inherit_id" ref="stock.view_move_line_tree"/>
+            <field name="arch" type="xml">
+               
+                <xpath expr="//field[@name='lot_id']" position="after">
+                    <field name="product_packaging_id"/>
+                    <field name="price_unit" column_invisible="1"/>
+                    <field name="price_subtotal" column_invisible="1"/>
+                    <field name="price_total" column_invisible="1"/>
+                    <field name="currency_id" column_invisible="1"/>
+                    <field name="taxes" column_invisible="1"/>
+                    <field name="tax_percent" column_invisible="1"/>
+
                 </xpath>
             </field>
         </record>
 
 
-        <record id="Livreur_view_action" model="ir.actions.act_window">
+        <record id="Livreurs_view_action" model="ir.actions.act_window">
             <field name="name">Livreurs</field>
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">res.partner</field>
             <field name="domain">[('delivery_person', '!=', False)]</field>
-            <field name="context">{'default_delivery_person':True,'search_default_customer': 1,'res_partner_search_mode': 'customer', 'default_is_company': True, 'default_customer_rank': 1}</field>
+            <field name="context">{'default_delivery_person': True,'search_default_supplier': 1,'res_partner_search_mode': 'supplier','default_is_company': True, 'default_supplier_rank': 1}</field>
             <field name="view_mode">kanban,tree,form</field>
         </record>
 
@@ -59,7 +273,7 @@
                 </tree>
             </field>
         </record>
-        <record id="quality_view_action" model="ir.actions.act_window">
+        <record id="quality_view_actions" model="ir.actions.act_window">
             <field name="name">Qualités Produits</field>
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">quality.quality</field>
@@ -83,7 +297,7 @@
                     <field name="picking_code" column_invisible="True"/>
                     <field name="product_type" column_invisible="True"/>
                     <field name="show_details_visible" column_invisible="True"/>
-                    <field name="show_operations" readonly="1" column_invisible="True"/>
+<!--                    <field name="show_operations" readonly="1" column_invisible="True"/>-->
                     <field name="show_reserved" column_invisible="True"/>
                     <field name="additional" column_invisible="True"/>
                     <field name="move_lines_count" column_invisible="True"/>
@@ -112,6 +326,8 @@
                     <field name="quality_id" string="Qualité" readonly="not is_quantity_done_editable" options="{'no_create': True, 'no_edit': True}"/>
                     <field name="product_uom" readonly="state != 'draft' and not additional" options="{'no_open': True, 'no_create': True}" string="Unit" groups="uom.group_uom"/>
                     <field name="product_uom" groups="!uom.group_uom" column_invisible="True"/>
+                    <field name="manual_tranfert_move" string="TRANSFERT MANUEL" column_invisible="1"/>
+                    <field name="picking_step" column_invisible="1"/>
                     
                 </tree>
             </field>
@@ -145,7 +361,7 @@
                     <field name="picking_code" column_invisible="True"/>
                     <field name="product_type" column_invisible="True"/>
                     <field name="show_details_visible" column_invisible="True"/>
-                    <field name="show_operations" readonly="1" column_invisible="True"/>
+<!--                    <field name="show_operations" readonly="1" column_invisible="True"/>-->
                     <field name="show_reserved" column_invisible="True"/>
                     <field name="additional" column_invisible="True"/>
                     <field name="move_lines_count" column_invisible="True"/>
@@ -174,6 +390,8 @@
                     <!--field name="quality_id" string="Qualité" readonly="not is_quantity_done_editable" options="{'no_create': True, 'no_edit': True}"/-->
                     <field name="product_uom" readonly="state != 'draft' and not additional" options="{'no_open': True, 'no_create': True}" string="Unit" groups="uom.group_uom"/>
                     <field name="product_uom" groups="!uom.group_uom" column_invisible="True"/>
+                    <field name="picking_step" column_invisible="1"/>
+                    
                     
                 </tree>
             </field>
@@ -188,10 +406,278 @@
             <field name="view_mode">tree</field>
         </record>
 
-        <menuitem name="Livreur" id="delivery_person_menu" parent="stock.menu_delivery" action="Livreur_view_action" sequence="11"/>
-        <menuitem name="Qualité" id="quality_menu" parent="stock.menu_product_in_config_stock" action="quality_view_action" sequence="1"  groups="edilac.group_edilac_manager"/>
-        <menuitem name="Produits reçus" id="product_received_menu" parent="stock.menu_warehouse_report" action="product_received_view_action" sequence="1"/>
-        <menuitem name="Bon de Préparation" id="product_delivered_menu" parent="stock.menu_warehouse_report" action="product_delivered_view_action" sequence="2"/>
+        <!-- <record id="order_view_trees" model="ir.ui.view">
+            <field name="name">order.tree</field>
+            <field name="model">stock.picking</field>
+            <field name="arch" type="xml">
+                <tree string="Picking list" multi_edit="1" sample="1">
+                    <header>
+                        <button name="do_validate_order" type="object" string="Validation commande" class="btn-primary"/>
+                        <button name="%(edilac.action_assignments)d" type="action" string="Affecter"/>
+                        <button name="do_unreserve" type="object" string="Annuler la réservation"/>
+                        <button name="action_assign" type="object" string="Vérifier la disponibilité"/>
+                    </header>
+                    <field name="company_id" column_invisible="True"/>
+                    <field name="type_code" column_invisible="True"/>
+                    <field name="priority" optional="show" widget="priority" nolabel="1"/>
+                    <field name="name" decoration-bf="1"/>
+                    <field name="location_id" options="{'no_create': True}" string="From" groups="stock.group_stock_multi_locations" optional="show" readonly="state == 'done'"/>
+                    <field name="location_dest_id" options="{'no_create': True}" string="To" groups="stock.group_stock_multi_locations" optional="show" readonly="state == 'done'"/>
+                    <field name="partner_id" optional="show" readonly="state in ['cancel', 'done']"/>
+                    
+                    <field name="is_signed" string="Signed" optional="hide" groups="stock.group_stock_sign_delivery"/>
+                    <field name="user_id" optional="hide" widget="many2one_avatar_user" readonly="state in ['cancel', 'done']"/>
+                    <field name="scheduled_date" optional="show" widget="remaining_days" invisible="state in ('done', 'cancel')" readonly="state in ['cancel', 'done']"/>
+                    <field name="picking_type_code" column_invisible="True"/>
+                    <field name="products_availability_state" column_invisible="True" options="{&quot;lazy&quot;: true}"/>
+                    <field name="products_availability" options="{&quot;lazy&quot;: true}" optional="hide" invisible="picking_type_code != 'outgoing' or state not in ['confirmed', 'waiting', 'assigned']" decoration-success="state == 'assigned' or products_availability_state == 'available'" decoration-warning="state != 'assigned' and products_availability_state in ('expected', 'available')" decoration-danger="state != 'assigned' and products_availability_state == 'late'"/>
+                    <field name="date_deadline" optional="hide" widget="remaining_days" invisible="state in ('done', 'cancel')"/>
+                    <field name="date_done" string="Effective Date" optional="hide"/>
+                    <field name="origin" optional="show" readonly="state in ['cancel', 'done']"/>
+                    <field name="backorder_id" optional="hide"/>
+                    <field name="picking_type_id" optional="hide"/>
+                    <field name="company_id" groups="base.group_multi_company" optional="show"/>
+                    <field name="state" optional="show" widget="badge" decoration-danger="state=='cancel'" decoration-info="state== 'assigned'" decoration-muted="state == 'draft'" decoration-success="state == 'done'" decoration-warning="state not in ('draft','cancel','done','assigned')"/>
+                    
+                    <field name="json_popover" widget="stock_rescheduling_popover" nolabel="1" invisible="not json_popover"/>
+                </tree>
+                
+            </field>
+        </record> -->
 
+        <record id="batch_view_tree" model="ir.ui.view">
+            <field name="name">stock.picking.batch.tree</field>
+            <field name="model">stock.picking.batch</field>
+            <field name="arch" type="xml">
+                <tree string="Stock Batch Transfer" multi_edit="1" sample="1">
+                    <field name="company_id" column_invisible="True"/>
+                    <field name="name" decoration-bf="1" string="Référence"/>
+                    <field name="deliv_person_id" readonly="state in ['cancel', 'done']"/> 
+                    <field name="fleet_vehicle_id" readonly="state in ['cancel', 'done']"/>
+                    <field name="scheduled_date" readonly="state in ['cancel', 'done']"/>
+                    <field name="user_id" optional="hide" widget="many2one_avatar_user" readonly="state not in ['draft', 'in_progress']"/>
+                    <field name="picking_type_id" optional="hide" readonly="state != 'draft'"/>
+                    <field name="company_id" groups="base.group_multi_company"/>
+                    <field name="state" string="Statut" widget="badge" decoration-success="state == 'done'" decoration-info="state in ('draft', 'in_progress')" decoration-danger="state == 'cancel'"/>
+                    <field name="activity_exception_decoration" widget="activity_exception"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="delivered_view_tree" model="ir.ui.view">
+            <field name="name">delivered.tree</field>
+            <field name="model">stock.picking</field>
+            <field name="priority">10</field>
+            <field name="arch" type="xml">
+                <tree string="Picking list" multi_edit="1" sample="1">
+                    <header>
+                        <!-- <button name="do_validate_order" type="object" string="Validation commande" class="btn-primary"/> -->
+                        <!-- <button name="%(edilac.action_assignments)d" type="action" string="Affecter" invisible="picking_step_stk != 'step2'"/> -->
+                        <button name="%(edilac.action_assignments)d" type="action" string="Affecter"/>
+                        <button name="do_unreserve" type="object" string="Annuler la réservation"/>
+                        <button name="action_assign" type="object" string="Vérifier la disponibilité"/>
+                    </header>
+                    <field name="company_id" column_invisible="True"/>
+                    <field name="type_code" column_invisible="True"/>
+                    <field name="priority" optional="show" widget="priority" nolabel="1"/>
+                    <field name="origin" optional="show" readonly="state in ['cancel', 'done']"/>
+                    <field name="name" decoration-bf="1"/>
+                    <field name="location_id" options="{'no_create': True}" string="From" groups="stock.group_stock_multi_locations" optional="hide" readonly="state == 'done'"/>
+                    <field name="location_dest_id" options="{'no_create': True}" string="To" groups="stock.group_stock_multi_locations" optional="hide" readonly="state == 'done'"/>
+                    <field name="partner_id" optional="show" readonly="state in ['cancel', 'done']"/> 
+                    <field name="is_signed" string="Signed" optional="hide" groups="stock.group_stock_sign_delivery"/>
+                    <field name="user_id" optional="hide" widget="many2one_avatar_user" readonly="state in ['cancel', 'done']"/>
+                    <field name="scheduled_date" optional="show" widget="remaining_days" invisible="state in ('done', 'cancel')" readonly="state in ['cancel', 'done']"/>
+                    <field name="picking_type_code" column_invisible="True"/>
+                    <field name="products_availability_state" column_invisible="True" options="{&quot;lazy&quot;: true}"/>
+                    <field name="products_availability" options="{&quot;lazy&quot;: true}" optional="hide" invisible="picking_type_code != 'outgoing' or state not in ['confirmed', 'waiting', 'assigned']" decoration-success="state == 'assigned' or products_availability_state == 'available'" decoration-warning="state != 'assigned' and products_availability_state in ('expected', 'available')" decoration-danger="state != 'assigned' and products_availability_state == 'late'"/>
+                    <field name="date_deadline" optional="hide" widget="remaining_days" invisible="state in ('done', 'cancel')"/>
+                    <field name="date_done" string="Effective Date" optional="hide"/>
+                    <field name="backorder_id" optional="hide"/>
+                    <field name="picking_type_id" optional="hide"/>
+                    <field name="company_id" groups="base.group_multi_company" optional="show"/>
+                    <field name="total_ordered" string="Total commandés" sum="Total" readonly="state in ['cancel', 'done']"/>
+                    <field name="total_received" string="Total reçus/livrés" sum="Total" readonly="state in ['cancel', 'done']"/>
+                    <field name="total_ecart" string="Total ecart" sum="Total" readonly="state in ['cancel', 'done']"/>
+                    <field name="state" optional="show" widget="badge" decoration-danger="state=='cancel'" decoration-info="state== 'assigned'" decoration-muted="state == 'draft'" decoration-success="state == 'done'" decoration-warning="state not in ('draft','cancel','done','assigned')"/>
+                    <field name="state_assignement" optional="show" widget="badge" decoration-muted="state_assignement == 'draft'" decoration-success="state_assignement == 'assigned'"/>
+                    <field name="picking_step_stk" column_invisible="1"/>
+                    <field name="activity_exception_decoration" widget="activity_exception"/>
+                    <field name="json_popover" widget="stock_rescheduling_popover" nolabel="1" invisible="not json_popover"/>
+                </tree>    
+            </field>
+        </record>
+
+        <record id="action_picking_batchh" model="ir.actions.act_window">
+            <field name="name">Livraison</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">stock.picking.batch</field>
+            <field name="view_mode">tree,kanban,form</field>
+            <!-- <field name="search_view_id" ref="vendor_view_search"/> -->
+            <field name="view_id" ref="batch_view_tree"/>
+            <field name="domain">[('is_wave', '=', False)]</field>
+            <field name="context">{'search_default_draft': True, 'search_default_in_progress': True}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Pas d'enregistrements
+                </p>
+            </field>
+        </record>
+
+
+
+        <record id="action_stock_management_assignments" model="ir.actions.act_window">
+            <field name="name">Affectations à Approuver</field>
+            <field name="res_model">freezer.assignment</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('state', '=', ('stock_management', 'done'))]</field>
+        </record>
+        <record id="assign_view_action" model="ir.actions.act_window">
+            <field name="name">Affectation</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">stock.picking</field>   
+            <field name="domain">[('state_assignement', '=', 'assigned')]</field>
+            <field name="view_id" ref="delivered_view_tree"/>
+            <field name="context">{'contact_display': 'partner_address', 'default_company_id': allowed_company_ids[0], 'restricted_picking_type_code': 'outgoing'}</field>
+            <!-- <field name="context">{'search_default_my_transfers':'1','contact_display': 'partner_address', 'default_company_id': allowed_company_ids[0], 'restricted_picking_type_code': 'outgoing'}</field> -->
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <template id="report_delivery_inherit" inherit_id="stock.report_delivery_document">
+            <xpath expr="//t[@t-name='stock.report_delivery_document']" position="replace">
+                
+                <t t-call="web.html_container">
+                    <t t-foreach="docs" t-as="o">
+                        <t t-call="web.external_layout">
+                            <div class="page" style="font:13px">
+                                <div class="text-center">
+                                    <h4>
+                                        <span>BORDEREAU DE LIVRAISON N° :</span>
+                                        <span t-field="o.name"/>
+                                    </h4>
+                                </div>
+                                <br/>
+                                <div class="row">
+                                    <div class="col-4 text-left">
+                                        <span>N° DE COMMANDE :</span>
+                                        <t t-if="o.origin">
+                                            <span t-field="o.origin"/>
+                                        </t>
+                                        <p>
+                                            <span>DATE DE COMMANDE : </span>
+                                            <span t-esc="o.date.date()"/>
+                                        </p>
+                                        <p>
+                                            <span>N° LIVRAISON : </span>
+                                            <t t-if="o.batch_id">
+                                                <span t-field="o.batch_id"/>
+                                            </t>
+                                        </p>
+                                    </div>
+                                    <div class="col-2 text-right">
+                                        <span style="text-decoration: underline;">CLIENT : </span>
+                                        <span t-field="o.partner_id" t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, &quot;name&quot;,&quot;phone&quot;], &quot;no_marker&quot;: True}"/>
+                                        <span t-field="o.partner_id.phone"/>
+                                    </div>
+                                    
+                                </div>
+                                <br/>
+                                <table class="table table-sm o_main_table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th name="th_sm_product">
+                                                <strong>Produits</strong>
+                                            </th>
+                                            <th name="th_sm_product" class="text-left">
+                                                <strong>Pcs/Carton</strong>
+                                            </th>
+                                            <th name="th_sm_ordered" class="text-center">
+                                                <strong>Quantités</strong>
+                                            </th>
+                                            
+                                            <th name="th_sm_pcs" class="text-center">
+                                                <strong>Pièces</strong>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-set="lines" t-value="o.move_ids.filtered(lambda x: x.product_uom_qty)"/>
+                                        <t t-set="TOTAL_PIECE" t-value="0"/>
+                                        <t t-set="TOTAL_QTY" t-value="0"/>
+                                        <t t-set="DONE" t-value="0"/>
+                                        <t t-set="PIECE" t-value="0"/>
+                                        <t t-set="piece" t-value="0"/>
+                                        <tr t-foreach="lines" t-as="move">
+                                            
+                                            <t t-set="piece" t-value="piece + move.product_id.nbm_pc_crt"/>
+                                            <t t-set="PIECE" t-value="piece * move.product_uom_qty"/>
+                                            <t t-set="TOTAL_QTY" t-value="TOTAL_QTY + move.product_uom_qty"/>
+                                            <t t-set="TOTAL_PIECE" t-value="TOTAL_PIECE + PIECE"/>
+                                            <td>
+                                                <span t-field="move.product_id.display_name"/>
+                                                
+                                            </td>
+                                            <td>
+                                                <span t-field="move.product_id.nbm_pc_crt"/>
+                                            </td>
+                                            <td class="text-center">
+                                                <span t-field="move.product_uom_qty" t-options="{&quot;widget&quot;: &quot;float&quot;, &quot;precision&quot;: 0}"/>
+                                            </td>
+                                            
+                                            <td class="text-center">
+                                                <span t-esc="PIECE" t-options="{&quot;widget&quot;: &quot;float&quot;, &quot;precision&quot;: 0}"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-center" colspan="2"><strong>TOTAL</strong></td>
+                                            <td class="text-center"><strong><span t-esc="TOTAL_QTY" t-options="{&quot;widget&quot;: &quot;float&quot;, &quot;precision&quot;: 0}"/></strong></td>
+                                            <td class="text-center"><strong><span t-esc="TOTAL_PIECE" t-options="{&quot;widget&quot;: &quot;float&quot;, &quot;precision&quot;: 0}"/></strong></td>
+                                        </tr>
+                                    </tbody>
+                                </table>            
+                                <div class="row mt-5">
+                                    <div class="col-6">
+                                        <p style="font-weight : bold; font-size:1.2em">Signature du client</p>
+                                        <p class="mt-3">Reçu le : </p>
+                                        <p class="mt-3">Signature : </p>
+                                    </div>
+                                    <div class="col-6 ml-5">
+                                        <p style="font-weight : bold; font-size:1.2em">Signature du livreur</p>
+                                        <p class="mt-3">Livré le : </p>
+                                        <p class="mt-3">Signature : </p>
+                                    </div>
+                                </div>
+
+                                <div t-if="o.signature" class="mt32 ml64 mr4" name="signature">
+                                    <div class="offset-8">
+                                        <strong>Signature</strong>
+                                    </div>
+                                    <div class="offset-8">
+                                        <img t-att-src="image_data_uri(o.signature)" style="max-height: 4cm; max-width: 8cm;"/>
+                                    </div>
+                                    <div class="offset-8 text-center">
+                                        <p t-field="o.partner_id.name"/>
+                                    </div>
+                                </div>
+                            </div>        
+                        </t>
+                    </t> 
+                </t>
+            </xpath>
+            
+        </template>
+
+
+        <!-- <menuitem name="Livreur" id="delivery_person_menu" parent="stock.menu_delivery" action="Livreurs_view_action" sequence="11"/> -->
+        <menuitem name="Qualité" id="quality_menu" parent="stock.menu_product_in_config_stock" action="quality_view_actions" sequence="1"  groups="edilac.group_edilac_manager"/>
+        <menuitem name="Produits reçus" id="product_received_menu" parent="stock.menu_warehouse_report" action="product_received_view_action" sequence="1"/>
+        <!-- <menuitem name="Bon de Préparation" id="product_delivered_menu" parent="stock.menu_warehouse_report" action="product_delivered_view_action" sequence="2"/> -->
+        <!-- <menuitem name="Affectation/Réaffectation" id="assigned_order_menu" parent="stock.menu_stock_transfers" action="assigned_order_view_actions" sequence="23"/> -->
+        <menuitem name="Bon de Préparation" id="picking_batch_menu" parent="stock.menu_stock_transfers" action="action_picking_batchh" sequence="30"/>
+        <menuitem name="Transfert par lot" id="stock_picking_batch.stock_picking_batch_menu" parent="stock.menu_stock_transfers" active="False"/>
+        <menuitem name="Livraisons" id="stock.out_picking" parent="stock.menu_stock_transfers" active="False"/> 
+        <menuitem id="menu_deliveryy" name="Livraisons" parent="stock.menu_stock_root" sequence="7"/>
+        <menuitem id="menu_delivery_assignments" name="Commandes affectées" parent="menu_deliveryy" action="assign_view_action"/>
     </data>
+   
 </odoo>

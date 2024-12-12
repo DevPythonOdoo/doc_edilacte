@@ -10,26 +10,26 @@
                     <strong>Produit</strong>
                 </th>
                 <th name="th_product_uom_qty">
-                    <strong>Cartons Commandés</strong>
+                    <strong>Quantités Commandées</strong>
                 </th>
                 <th name="th_quantity">
-                    <strong>Cartons reçus</strong>
+                    <strong>Quantités reçues</strong>
                 </th>
                 <th name="th_ecart">
                     <strong>Ecart</strong>
                 </th>
-                <th name="th_from" t-if="o.picking_type_id.code != 'incoming'" align="left" groups="stock.group_stock_multi_locations">
+                <!-- <th name="th_from" t-if="o.picking_type_id.code != 'incoming'" align="left" groups="stock.group_stock_multi_locations">
                     <strong>From</strong>
                 </th>
                 <th name="th_to" t-elif="o.picking_type_id.code != 'outgoing'" groups="stock.group_stock_multi_locations">
                     <strong>To</strong>
-                </th>
+                </th> -->
                 <th name="th_serial_number" class="text-center" t-if="has_serial_number">
                     <strong>Numéro de lot/série</strong>
                 </th>
-                <th name="th_barcode" class="text-center" t-if="has_barcode">
+                <!-- <th name="th_barcode" class="text-center" t-if="has_barcode">
                     <strong>Product Barcode</strong>
-                </th>
+                </th> -->
             </tr>
             
         </xpath>
@@ -37,26 +37,51 @@
 
             <tbody>
                 <!-- In case you come across duplicated lines, ask NIM or LAP -->
+                <t t-set="total_ordered" t-value="0.0"/>
+                <t t-set="total_received" t-value="0.0"/>
+                <t t-set="total_qty" t-value="0"/>
                 <tr t-foreach="o.move_line_ids_without_package" t-as="ml">
+                    <t t-set="total_qty" t-value="total_qty + ml.product_packaging_qty"/>
+                    <t t-set="total_ordered" t-value="total_ordered + ml.product_packaging_qty"/>
+                    <t t-set="total_received" t-value="total_received + ml.quantity"/>
+
                     <td>
                         <span t-field="ml.product_id.display_name">Customizable Desk</span><br/>
                         <span t-field="ml.product_id.description_picking">Description on transfer</span>
                     </td>
+                    <!-- <td>
+                        <span t-esc="total_qty" t-options="{'widget': 'float', 'precision': 2}"/> 
+                    </td> -->
                     <td>
-                        <t t-if="ml.move_id.product_uom_qty">
-                            <span t-field="ml.move_id.product_uom_qty"/>
+                        <t t-if="ml.product_id.tracking == 'serial'">
+                            <span t-esc="1.00" t-options="{'widget': 'float', 'precision': 2}"/> <!-- Quantité pour suivi par numéro de série -->
+                        </t>
+                        <t t-if="ml.product_id.tracking != 'serial'">
+                            
+                            <t t-if="ml.move_id.product_uom_qty">
+                                <span t-field="ml.move_id.product_uom_qty" t-options="{&quot;widget&quot;: &quot;integer&quot;}"/>
+                                
+                            </t>
                             <span t-field="ml.product_uom_id" groups="uom.group_uom">units</span>
-                        </t>  
+                        </t>
                     </td>
+                    <!-- <td>
+                        <span t-field="ml.product_uom_id" groups="uom.group_uom">units</span>
+                        <t t-if="ml.move_id.product_uom_qty">
+                            <span t-field="ml.move_id.product_uom_qty" t-options="{&quot;widget&quot;: &quot;integer&quot;}"/>
+                            
+                        </t>  
+                    </td> -->
                     <td>
                         <span t-field="ml.quantity">3.00</span>
                         <span t-field="ml.product_uom_id" groups="uom.group_uom">units</span>
                         <span t-if="ml.move_id.product_packaging_id">
                             <span t-if="o.state != 'done'">
-                                (<span t-field="ml.product_packaging_qty" t-options="{&quot;widget&quot;: &quot;integer&quot;}"/> <span t-field="ml.move_id.product_packaging_id.name"/>)
+                                (<span t-field="ml.product_packaging_qty" t-options="{&quot;widget&quot;: &quot;integer&quot;}"/> 
+                                <span t-field="ml.move_id.product_packaging_id.name"/>)
                             </span>
                             <span t-if="o.state == 'done'">
-                                (<span t-field="ml.product_packaging_quantity" t-options="{&quot;widget&quot;: &quot;integer&quot;}"/> <span t-field="ml.move_id.product_packaging_id.name"/>)
+                                (<span t-field="ml.product_packaging_qty" t-options="{&quot;widget&quot;: &quot;integer&quot;}"/> <span t-field="ml.move_id.product_packaging_id.name"/>)
                             </span>
                         </span>
                     </td>
@@ -68,7 +93,7 @@
                         
                         
                     </td>
-                    <td t-if="o.picking_type_id.code != 'incoming'" groups="stock.group_stock_multi_locations">
+                    <!-- <td t-if="o.picking_type_id.code != 'incoming'" groups="stock.group_stock_multi_locations">
                         <span t-esc="ml.location_id.display_name">WH/Stock</span>
                             <t t-if="ml.package_id">
                                 <span t-field="ml.package_id">Package A</span>
@@ -81,15 +106,18 @@
                                 <span t-field="ml.result_package_id">Shelf 1</span>
                             </t>
                         </div>
-                    </td>
+                    </td> -->
                     <td class=" text-center h6" t-if="has_serial_number">
-                        <span t-if="has_serial_number and (ml.lot_id or ml.lot_name)" t-esc="ml.lot_id.name or ml.lot_name" t-options="{'widget': 'barcode', 'humanreadable': 1, 'width': 400, 'height': 100, 'img_style': 'width:100%;height:35px;'}">
+                        <span t-if="has_serial_number and (ml.lot_id or ml.lot_name)" t-esc="ml.lot_id.name or ml.lot_name">
+                            
+                        </span>
+                        <!-- <span t-if="has_serial_number and (ml.lot_id or ml.lot_name)" t-esc="ml.lot_id.name or ml.lot_name" t-options="{'widget': 'barcode', 'humanreadable': 1, 'width': 400, 'height': 100, 'img_style': 'width:100%;height:35px;'}">
                             <div class="bg-light border-1 rounded d-flex flex-column align-items-center justify-content-center px-1 py-2 opacity-75 text-muted text-center">
                                 (serial barcode)
                             </div>
-                        </span>
+                        </span> -->
                     </td>
-                    <td class="text-center" t-if="has_barcode">
+                    <!-- <td class="text-center" t-if="has_barcode">
                         <t t-if="product_barcode != ml.product_id.barcode">
                             <span t-if="ml.product_id and ml.product_id.barcode">
                                 <div t-field="ml.product_id.barcode" t-options="{'widget': 'barcode', 'symbology': 'auto', 'width': 400, 'height': 100, 'quiet': 0, 'img_style': 'height:35px;'}">
@@ -100,7 +128,7 @@
                             </span>
                             <t t-set="product_barcode" t-value="ml.product_id.barcode"/>
                         </t>
-                    </td>
+                    </td> -->
                 </tr>
             </tbody>
             
@@ -123,12 +151,6 @@
                 </tr>
             </tfoot>
 
-            <!--p><strong>Total commandés:</strong> <strong style="font-size:20px" t-esc="o.total_ordered"/></p>
-            <br/>
-            <p><strong>Total reçus:</strong> <strong style="font-size:20px" t-esc="o.total_received"/></p>
-            <br/>
-            <p><strong>Total écart:</strong> <strong style="font-size:20px" t-esc="o.total_ecart"/></p>
-            <br/-->
         </xpath>
 
     </template>

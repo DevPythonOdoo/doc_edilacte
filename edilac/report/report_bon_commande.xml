@@ -11,78 +11,15 @@
         <field name="binding_type">report</field>
     </record>
     <template id="report_bon_commande_documents">
-        <t t-call="web.html_container">
+        <!-- <t t-call="web.html_container">
             <t t-foreach="docs" t-as="o">
-                <t t-call="web.internal_layout">
+                <t t-call="web.external_layout">
                     <div class="page" style="font:13px">
-                        <!-- <h5 class="text-center">
-                            <strong>
-                                <span>BON DE PREPARATION :</span>
-                                <span t-field="o.name"/>
-                            </strong>
-                        </h5>
-                        <div class="row mt-3">
-                            <div class="col-6 text-left">
-                                <strong><span>Livreur: </span></strong>
-                                <span t-field="o.deliv_personn"/>
-                            </div>
-                            <div class="col-6 text-right">
-                                <strong><span>Camion: </span></strong>
-                                <span t-field="o.fleet_vehicle_id"/>
-                            </div>
-                            <br/><br/>
-                        </div>
-                        <br/><br/>
-                        
-                        <table class="table table-sm o_main_table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th name="th_sm_product">
-                                        <strong>Produits</strong>
-                                    </th>
-                                    <th name="th_sm_product">
-                                        <strong>N° Lot</strong>
-                                    </th>
-                                
-                                    <th name="th_sm_ordered" class="text-center">
-                                        <strong>Quantités</strong>
-                                    </th>
-                                </tr>
-                            </thead>
-                           
-                            <tbody>
-                                <t t-set="total" t-value="0"/>
-                                <t t-foreach="o.group_products_and_quantities()" t-as="product_data">
-                                    <t t-set="total" t-value="total + product_data['total_quantity']"/>
-                                    <tr>
-                                        <td>
-                                            <span t-esc="product_data['product_name']"/>
-                                        </td>
-                                        <td>
-                                            <span t-esc="product_data['lot_name']"/>
-                                        </td>
-                                        <td class="text-center">
-                                            <span t-esc="product_data['total_quantity']" t-options="{'widget': 'float', 'precision': 2}"/>
-                                        </td>
-                                    </tr>
-                                    
-                                </t>
-                                <tr>
-                                    <td class="text-center" colspan="2"><strong>TOTAL</strong></td>
-                                    <td class="text-center"><span t-esc="total" t-options="{&quot;widget&quot;: &quot;float&quot;, &quot;precision&quot;: 0}"/></td>
-                                </tr>
-
-                            </tbody>
-                            
-                        </table>
-                        
-                        
-                        <p style="page-break-after: always;"/> -->
-
+   
                         <h5 class="text-center">
                             <strong>
                                 <span>Bon de Commande </span>
-                                <!-- <span t-field="o.name"/> -->
+                               
                             </strong>
                         </h5>
                         <div class="row mt-3">
@@ -97,17 +34,7 @@
                             <br/><br/>
                         </div>  
                         <br/><br/>  
-                        <!-- <div class="row">
-                            <div class="col-4">
-                                <strong>Commande :</strong> <span t-field="o.name"/>
-                            </div>
-                            <div class="col-4">
-                                <strong>Date Prévue :</strong> <span t-field="o.scheduled_date"/>
-                            </div>
-                            <div class="col-4">
-                                <strong>Client :</strong> <span t-field="o.partner_id.display_name"/>
-                            </div>
-                        </div> -->
+
                         <div class="oe_structure"/> 
                         <t t-foreach="o.picking_ids" t-as="pickings">  
                             <t t-if="pickings != o.picking_ids[0]">
@@ -236,7 +163,17 @@
                     </div>
                 </t>
             </t>
-        </t>    
-
+        </t>     -->
+        
+        <t t-call="web.html_container">
+            <t t-foreach="docs.picking_ids" t-as="picking">
+                <t t-foreach="picking.sale_id" t-as="doc">
+                    <t t-call="sale.report_saleorder_document" t-lang="doc.partner_id.lang"/>
+                    
+                </t>
+            </t>
+            
+        </t>
     </template>
+    
 </odoo>

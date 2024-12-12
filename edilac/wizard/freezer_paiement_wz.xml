@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- View freezer.paiement.wz form -->
+    <record id="view_freezer_paiement_wz_form" model="ir.ui.view">
+        <field name="name">view.freezer.paiement.wz.form</field>
+        <field name="model">freezer.paiement.wz</field>
+        <field name="arch" type="xml">
+            <form string="Freezer Paiement Wz">
+                <group>
+                    <group>
+                        <field name="is_refund" invisible="1"/>
+                        <field name="journal_id"/>
+                        <field name="amount" invisible="is_refund"/>
+                        <field name="amount_refund" readonly="1" force_save="1" invisible="not is_refund"/>
+                        <field name="currency_id" invisible="1"/>
+                        <field name="contract_id" invisible="1"/>
+                        
+                    </group>
+                    <group>
+                        <field name="date_paiement"/>
+                        <field name="memo"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="confirm_payment" type="object" icon="fa-money" string="Créer paiement" class="oe_highlight"/>
+                    <button special="cancel" string="Annuler"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action freezer.paiement.wz -->
+    <record id="action_freezer_paiement_wz" model="ir.actions.act_window">
+        <field name="name">Paiement / Remboursement Caution Congélateur</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">freezer.paiement.wz</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

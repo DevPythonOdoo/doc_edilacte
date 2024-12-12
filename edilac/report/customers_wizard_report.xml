@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="report_customers_wizards" model="ir.actions.report">
+        <field name="name">Clients inactifs</field>
+        <field name="model">customers.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">edilac.report_customers_wizard_views</field>
+        <field name="report_file">edilac.report_customers_wizard_views</field>
+        <field name="binding_model_id" ref="model_customers_wizard"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_customers_wizard_views">
+        <t t-call="web.html_container">
+            <!--t t-foreach="docs" t-as="doc"-->
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h2 class="text-center">
+                            <strong>Liste des clients Inactifs</strong>
+                            Du <span t-esc="start" widget="date"/> au <span t-esc="end" widget="date"/>
+
+                        </h2>
+                        <table class="table table-condensed table-bordered table-responsive">
+                            <thead>
+                                <tr>
+                                    <th>Clients</th>
+                                    <th>Zone</th>
+                                    <th>Commune</th>
+                                    <th>Quartier</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="docs" t-as="customer">
+                                    <td>
+                                        <span t-field="customer.name"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="customer.area_id"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="customer.common_id"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="customer.neighborhood_id"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                <!-- </t> -->
+            </t>
+        </t>
+    </template>
+
+</odoo>

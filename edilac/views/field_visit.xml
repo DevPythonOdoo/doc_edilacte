@@ -1,69 +1,120 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        
-       <record id="$ModelName$_form_view" model="ir.ui.view">
-            <field name="name">$ProjectName$.$ModelName$.form</field>
-            <field name="model">$ProjectName$.$ModelName$</field>
+
+        <record id="field_visit_form_view" model="ir.ui.view">
+            <field name="name">field.visit.form</field>
+            <field name="model">field.visit</field>
             <field name="arch" type="xml">
-                <form string="$ModelTitle$">
-                <sheet>
-                    <div class="oe_title">
-                        <label for="$END$example_title"/>
-                        <h1>
-                            <field name="example_title" placeholder="Title"/>
-                        </h1>
+                <form string="ModelTitle">
+                    <header>
+                        <button name="action_send" type="object" class="oe_highlight" string="Envoyer"
+                                icon="fa-envelope"/>
+                        <button name="action_cancel" type="object" class="oe_highlight" string="Annuler"
+                                invisible="state != 'cancel'"/>
+                        <field name="state" widget="statusbar"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <label for="name"/>
+                            <h1>
+                                <field name="name" readonly="1"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group string="INFORMATION CLIENT">
+                                <field name="customer_id" readonly="state == 'send'"
+                                       domain="[('customer_profil', '=', 'on')]" force_save="1"/>
+                                <field name="customer_number"/>
+                                <field name="customer_email"/>
+                                <field name="geolocation_position" readonly="state == 'send'" widget="map"/>
+                            </group>
+                            <group string="DETAIL CONGÉLATEUR">
+                                <field name="lot_id" readonly="state == 'send'"/>
+                                <field name="product_id" readonly="state == 'send'" domain="[('freezer','=', True)]"/>
+                                <field name="freezer_capacity"/>
+                                <field name="scanned_qr_code" widget="mobile_code_scanner"
+                                       scanner_options='{"enable_sound":false, "enable_flashlight_default":true, "enable_backend_scan":true}'/>
+                            </group>
+                            <group string="ETAT CONGÉLATEUR">
+                                <field name="date_visit" readonly="state == 'send'"/>
+                                <field name="freezer_condition" widget="radio" options="{'horizontal': True}"
+                                       readonly="state == 'send'"/>
+                                <field name="order" widget="radio" options="{'horizontal': True}"
+                                       readonly="state == 'send'"/>
+                                <field name="dlv" widget="radio" options="{'horizontal': True}"
+                                       readonly="state == 'send'"/>
+                                <field name="products_present" widget="radio" options="{'horizontal': True}"
+                                       readonly="state == 'send'"/>
+                                <field name="storage" readonly="state == 'send'"/>
+                                <field name="observation" readonly="state == 'send'"/>
+                                <separator string="Plus d'informations"/>
+                                <field name="note" readonly="state == 'send'"/>
+                            </group>
+                            <!-- <group string="Géolocalisation">
+                                <field name="latitude" readonly="1"/>
+                                <field name="longitude" readonly="1"/>
+                                <button name="capture_position" type="object" string="Capture Position" class="btn-primary"/>
+                            </group> -->
+                        </group>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" groups="base.group_user"/>
+                        <field name="activity_ids"/>
+                        <field name="message_ids"/>
                     </div>
-                    <group>
-                        <group>
-                            <field name="create_date" />
-                        </group>
-                        <group>
-                            <field name="example_field"/>
-                        </group>
-                    </group>
-                </sheet>
                 </form>
             </field>
         </record>
 
-        <record id="$ModelName$_tree_view" model="ir.ui.view">
-            <field name="name">$ProjectName$.$ModelName$.tree</field>
-            <field name="model">$ProjectName$.$ModelName$</field>
+        <record id="field_visit_tree_view" model="ir.ui.view">
+            <field name="name">field.visit.tree</field>
+            <field name="model">field.visit</field>
             <field name="arch" type="xml">
-                <tree string="$ModelTitle$">
-                    <field name="create_date"/>
-                    <field name="example_field"/>
+                <tree string="ModelTitle">
+                    <field name="name" optional="show"/>
+                    <field name="customer_id" optional="show"/>
+                    <field name="customer_number" optional="show"/>
+                    <field name="customer_email" optional="show"/>
+                    <field name="geolocation_position" optional="show"/>
+                    <field name="lot_id" optional="show"/>
+                    <field name="freezer_capacity" optional="show"/>
+                    <field name="date_visit" optional="show"/>
+                    <field name="freezer_condition" optional="show"/>
+                    <field name="order" optional="show"/>
+                    <field name="dlv" optional="show"/>
+                    <field name="products_present" optional="show"/>
+                    <field name="storage" optional="show"/>
+                    <field name="observation" optional="show"/>
+                    <field name="note" optional="show"/>
+                    <field name="state"/>
                 </tree>
             </field>
         </record>
 
-        <record id="$ModelName$_search_view" model="ir.ui.view">
-            <field name="name">$ProjectName$.$ModelName$.search</field>
-            <field name="model">$ProjectName$.$ModelName$</field>
+        <record id="field_visit_search_view" model="ir.ui.view">
+            <field name="name">field.visit.search</field>
+            <field name="model">field.visit</field>
             <field name="arch" type="xml">
-                <search string="$ModelTitle$">
-                    <group expand="1" string="Group By">
-                        <filter string="Example Field" name="example_field" domain="[]" context="{'group_by':'example_field'}"/>
-                    </group>
-               </search>
+                <search string="ModelTitle">
+                </search>
             </field>
         </record>
 
-        <record id="$ModelName$_act_window" model="ir.actions.act_window">
-            <field name="name">$ModelTitle$</field>
+        <record id="field_visit_act_window" model="ir.actions.act_window">
+            <field name="name">Visite Terrain</field>
             <field name="type">ir.actions.act_window</field>
-            <field name="res_model">$ProjectName$.$ModelName$</field>
-            <field name="view_type">form</field>
+            <field name="res_model">field.visit</field>
             <field name="view_mode">tree,form</field>
             <field name="help" type="html">
                 <p class="oe_view_nocontent_create">
-                    There is no examples click here to add new $ModelTitle$.
+                    There is no examples click here to add new ModelTitle.
                 </p>
             </field>
         </record>
 
-        <menuitem name="$ModelTitle$" id="$ModelName$_menu" parent="your_root_menu" action="$ModelName$_act_window"/>
+        <menuitem name="Fiche de Visite" id="menu_field_visit" parent="sale.menu_sale_report"
+                  action="field_visit_act_window" sequence="41"/>
 
     </data>
 </odoo>

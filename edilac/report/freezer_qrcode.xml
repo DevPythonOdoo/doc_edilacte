@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+
+    <!--    Customer product qrcode paperformat-->
+    <record id="freezer_qr_paperformat" model="report.paperformat">
+        <field name="name">PDF Report</field>
+        <field name="default" eval="False"/>
+        <field name="format">custom</field>
+        <field name="page_height">100</field>
+        <field name="page_width">100</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">10</field>
+        <field name="margin_bottom">0</field>
+        <field name="margin_left">10</field>
+        <field name="margin_right">10</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">80</field>
+        <field name="dpi">90</field>
+    </record>
+
+    <!--        report action for partner-->
+        <record id="print_qr" model="ir.actions.report">
+            <field name="name"> QR code</field>
+            <field name="model">freezer.assignment</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">edilac.freezer_qr_template</field>
+            <field name="report_file">edilac.freezer_qr_template</field>
+            <field name="paperformat_id" ref="edilac.freezer_qr_paperformat"/>
+            <field name="print_report_name">'%s - QR CODE' % object.name</field>
+            <field name="binding_model_id" ref="model_freezer_assignment"/>
+            <field name="binding_type">report</field>
+        </record>
+<!--        report template-->
+        <template id="freezer_qr_template">
+            <t t-foreach="data" t-as="records">
+                <t t-foreach="records" t-as="record">
+                    <t t-call="web.html_container">
+                        <t t-call="web.internal_layout">
+                            <style>
+                                table{
+                                border:1px solid black !important;
+                                height:390px;
+                                width:390px;
+                                }
+                                tr{
+                                border:1px solid black !important;
+                                }
+                                td{
+                                border:1px solid black !important;
+                                }
+                            </style>
+                            <div class="page">
+                                <center>
+                                    <table>
+                                        <tr>
+                                            <td style="text-align:center;">
+                                                <span t-esc="record.customer_id.name" style="float:center;font-size:20px;"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <center>
+                                                    <span t-field="record.qr"
+                                                          t-options="{'widget': 'image'}"/>
+                                                    <p t-esc="record.lot_id.name" style="float:center;font-size:18px;"/>
+                                                </center>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </center>
+                            </div>
+                        </t>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

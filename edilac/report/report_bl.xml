@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="report_bl" model="ir.actions.report">
+        <field name="name">Bon de Livraison</field>
+        <field name="model">stock.picking.batch</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">edilac.report_bl_documents</field>
+        <field name="report_file">edilac.report_bl_documents</field>
+        <field name="print_report_name">'Bon de Livraison - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="model_stock_picking_batch"/>
+        <field name="binding_type">report</field>
+    </record>
+    <template id="report_bl_documents">
+        <t t-foreach="docs.picking_ids" t-as="picking">
+            <t t-foreach="picking" t-as="o">
+                <!-- <t t-call="stock.report_delivery_document" t-lang="o.partner_id.lang"/> -->
+                <t t-call="web.html_container">
+                    <t t-foreach="docs" t-as="o">
+                        <t t-call="web.external_layout">
+                            <div class="page" style="font:13px">
+                                <div class="text-center">
+                                    <h4>
+                                        <span>BORDEREAU DE LIVRAISON N° :</span>
+                                        <span t-field="picking.name"/>
+                                    </h4>
+                                </div>
+                                <br/>
+                                <div class="row">
+                                    <div class="col-4 text-left">
+                                        <span>N° DE COMMANDE :</span>
+                                        <t t-if="picking.origin">
+                                            <span t-field="picking.origin"/>
+                                        </t>
+                                        <p>
+                                            <span>DATE DE COMMANDE : </span>
+                                            <span t-esc="picking.date.date()"/>
+                                        </p>
+                                        <p>
+                                            <span>N° LIVRAISON : </span>
+                                            <t t-if="picking.batch_id">
+                                                <span t-field="picking.batch_id"/>
+                                            </t>
+                                        </p>
+                                    </div>
+                                    <div class="col-2 text-right">
+                                        <span style="text-decoration: underline;">CLIENT : </span>
+                                        <span t-field="picking.partner_id" t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, &quot;name&quot;,&quot;phone&quot;], &quot;no_marker&quot;: True}"/>
+                                        <span t-field="picking.partner_id.phone"/>
+                                    </div>
+                                    
+                                </div>
+                                <br/>
+                                <table class="table table-sm o_main_table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th name="th_sm_product">
+                                                <strong>Produits</strong>
+                                            </th>
+                                            <th name="th_sm_product" class="text-left">
+                                                <strong>Pcs/Carton</strong>
+                                            </th>
+                                            <th name="th_sm_ordered" class="text-center">
+                                                <strong>Quantités</strong>
+                                            </th>
+                                            
+                                            <th name="th_sm_pcs" class="text-center">
+                                                <strong>Pièces</strong>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-set="lines" t-value="picking.move_ids.filtered(lambda x: x.product_uom_qty)"/>
+                                        <t t-set="TOTAL_PIECE" t-value="0"/>
+                                        <t t-set="TOTAL_QTY" t-value="0"/>
+                                        <t t-set="DONE" t-value="0"/>
+                                        <t t-set="PIECE" t-value="0"/>
+                                        <t t-set="piece" t-value="0"/>
+                                        <tr t-foreach="lines" t-as="move">
+                                            
+                                            <t t-set="piece" t-value="piece + move.product_id.nbm_pc_crt"/>
+                                            <t t-set="PIECE" t-value="piece * move.product_uom_qty"/>
+                                            <t t-set="TOTAL_QTY" t-value="TOTAL_QTY + move.product_uom_qty"/>
+                                            <t t-set="TOTAL_PIECE" t-value="TOTAL_PIECE + PIECE"/>
+                                            <td>
+                                                <span t-field="move.product_id.display_name"/>
+                                                
+                                            </td>
+                                            <td>
+                                                <span t-field="move.product_id.nbm_pc_crt"/>
+                                            </td>
+                                            <td class="text-center">
+                                                <span t-field="move.product_uom_qty" t-options="{&quot;widget&quot;: &quot;float&quot;, &quot;precision&quot;: 0}"/>
+                                            </td>
+                                            
+                                            <td class="text-center">
+                                                <span t-esc="PIECE" t-options="{&quot;widget&quot;: &quot;float&quot;, &quot;precision&quot;: 0}"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-center" colspan="2"><strong>TOTAL</strong></td>
+                                            <td class="text-center"><strong><span t-esc="TOTAL_QTY" t-options="{&quot;widget&quot;: &quot;float&quot;, &quot;precision&quot;: 0}"/></strong></td>
+                                            <td class="text-center"><strong><span t-esc="TOTAL_PIECE" t-options="{&quot;widget&quot;: &quot;float&quot;, &quot;precision&quot;: 0}"/></strong></td>
+                                        </tr>
+                                    </tbody>
+                                </table>            
+                                <div class="row mt-5">
+                                    <div class="col-6">
+                                        <p style="font-weight : bold; font-size:1.2em">Signature du client</p>
+                                        <p class="mt-3">Reçu le : </p>
+                                        <p class="mt-3">Signature : </p>
+                                    </div>
+                                    <div class="col-6 ml-5">
+                                        <p style="font-weight : bold; font-size:1.2em">Signature du livreur</p>
+                                        <p class="mt-3">Livré le : </p>
+                                        <p class="mt-3">Signature : </p>
+                                    </div>
+                                </div>
+
+                                <div t-if="picking.signature" class="mt32 ml64 mr4" name="signature">
+                                    <div class="offset-8">
+                                        <strong>Signature</strong>
+                                    </div>
+                                    <div class="offset-8">
+                                        <img t-att-src="image_data_uri(o.signature)" style="max-height: 4cm; max-width: 8cm;"/>
+                                    </div>
+                                    <div class="offset-8 text-center">
+                                        <p t-field="picking.partner_id.name"/>
+                                    </div>
+                                </div>
+                            </div>        
+                        </t>
+                    </t> 
+                </t>
+            </t>
+        </t>
+       
+    </template>
+</odoo>

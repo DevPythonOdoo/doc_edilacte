@@ -1,69 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        
-       <record id="$ModelName$_form_view" model="ir.ui.view">
-            <field name="name">$ProjectName$.$ModelName$.form</field>
-            <field name="model">$ProjectName$.$ModelName$</field>
+
+        <record id="view_customer_contract_form" model="ir.ui.view">
+            <field name="name">customer.contract.form</field>
+            <field name="model">customer.contract</field>
             <field name="arch" type="xml">
-                <form string="$ModelTitle$">
-                <sheet>
-                    <div class="oe_title">
-                        <label for="$END$example_title"/>
-                        <h1>
-                            <field name="example_title" placeholder="Title"/>
-                        </h1>
-                    </div>
-                    <group>
+                <form string="_form">
+                    <header>
+                        <field name="state" widget="statusbar" statusbar_visible="new,in_progress,expired"
+                               options="{'clickable': '1', 'fold_field': 'fold'}"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <label for="name"/>
+                            <h1>
+                                <field name="name" readonly="1"/>
+                            </h1>
+                        </div>
                         <group>
-                            <field name="create_date" />
+                            <group string="Information Générale">
+                                <field name="customer_id"/>
+                                <field name="customer_number"/>
+                                <field name="customer_email"/>
+                                <field name="num_registre"/>
+                            </group>
+                            <group string="Date">
+                                <field name="expiration_date"/>
+                                <field name="num_freezer" readonly="0"/>
+                                <field name="freezer_id" domain="[('product_serial_number','=', 'num_freezer')]"/>
+                            </group>
                         </group>
-                        <group>
-                            <field name="example_field"/>
-                        </group>
-                    </group>
-                </sheet>
+                    </sheet>
                 </form>
             </field>
         </record>
-
-        <record id="$ModelName$_tree_view" model="ir.ui.view">
-            <field name="name">$ProjectName$.$ModelName$.tree</field>
-            <field name="model">$ProjectName$.$ModelName$</field>
+        <record id="customer_contract_view_tree" model="ir.ui.view">
+            <field name="name">customer.contract.tree</field>
+            <field name="model">customer.contract</field>
             <field name="arch" type="xml">
-                <tree string="$ModelTitle$">
-                    <field name="create_date"/>
-                    <field name="example_field"/>
+                <tree string="_tree">
+                    <field name="name"/>
+                    <field name="customer_id"/>
+                    <field name="customer_number"/>
+                    <field name="customer_email"/>
+                    <field name="num_registre"/>
+                    <field name="expiration_date"/>
+                    <field name="num_freezer"/>
+                    <field name="state" widget="badge"
+                           decoration-primary="state == 'new'"
+                           decoration-danger="state == 'expired'"
+                           decoration-success="state == 'in_progress'"/>
                 </tree>
             </field>
         </record>
-
-        <record id="$ModelName$_search_view" model="ir.ui.view">
-            <field name="name">$ProjectName$.$ModelName$.search</field>
-            <field name="model">$ProjectName$.$ModelName$</field>
-            <field name="arch" type="xml">
-                <search string="$ModelTitle$">
-                    <group expand="1" string="Group By">
-                        <filter string="Example Field" name="example_field" domain="[]" context="{'group_by':'example_field'}"/>
-                    </group>
-               </search>
-            </field>
-        </record>
-
-        <record id="$ModelName$_act_window" model="ir.actions.act_window">
-            <field name="name">$ModelTitle$</field>
-            <field name="type">ir.actions.act_window</field>
-            <field name="res_model">$ProjectName$.$ModelName$</field>
-            <field name="view_type">form</field>
+        <!-- Action pour l'affichage des contrats de clients -->
+        <record id="action_customer_contract" model="ir.actions.act_window">
+            <field name="name">Contrats clients</field>
+            <field name="res_model">customer.contract</field>
             <field name="view_mode">tree,form</field>
             <field name="help" type="html">
-                <p class="oe_view_nocontent_create">
-                    There is no examples click here to add new $ModelTitle$.
+                <p>
+                    Utilisez cette vue pour créer et gérer les contrats clients. Des notifications seront envoyées pour
+                    les contrats proches de l'expiration.
                 </p>
             </field>
         </record>
-
-        <menuitem name="$ModelTitle$" id="$ModelName$_menu" parent="your_root_menu" action="$ModelName$_act_window"/>
-
+        <!-- Sous-menu pour les contrats clients -->
+        <menuitem id="menu_customer_contract" name="Contrats clients" parent="menu_product_parent_freezer"
+                  action="action_customer_contract" sequence="3"/>
     </data>
 </odoo>
